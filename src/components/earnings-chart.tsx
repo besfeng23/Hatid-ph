@@ -26,7 +26,7 @@ const generateData = () => [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <Card className="p-4 bg-background/80 backdrop-blur-sm">
+      <Card className="p-4 bg-background/90 backdrop-blur-sm">
         <p className="label font-bold text-primary">{`${label}`}</p>
         <p className="intro text-foreground">{`Earnings: ₱${payload[0].value.toLocaleString()}`}</p>
       </Card>
@@ -50,7 +50,7 @@ export function EarningsChart() {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
           dataKey="name"
           stroke="hsl(var(--muted-foreground))"

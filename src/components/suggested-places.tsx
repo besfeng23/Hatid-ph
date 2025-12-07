@@ -63,7 +63,7 @@ function SuggestedPlacesClient({ suggestions }: { suggestions: SuggestedPlacesOu
             return (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-full">
                 <div className="p-1">
-                  <Card className="overflow-hidden bg-background/50">
+                  <Card className="overflow-hidden bg-secondary">
                     <CardContent className="flex aspect-[4/3] items-center justify-center p-0 relative">
                         {image && (
                             <Image src={image.imageUrl} alt={item.placeName} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint={image.imageHint}/>

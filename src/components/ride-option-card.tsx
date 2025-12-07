@@ -25,7 +25,7 @@ export function RideOptionCard({ option, isSelected, onSelect }: RideOptionCardP
     <div
       onClick={() => onSelect(option)}
       className={cn(
-        'flex items-center gap-4 rounded-lg border-2 p-4 transition-all cursor-pointer bg-background/50 hover:bg-accent/20',
+        'flex items-center gap-4 rounded-lg border-2 p-4 transition-all cursor-pointer bg-secondary/50 hover:bg-accent',
         isSelected ? 'border-primary bg-primary/10' : 'border-transparent'
       )}
     >
@@ -33,7 +33,7 @@ export function RideOptionCard({ option, isSelected, onSelect }: RideOptionCardP
       <div className="flex-1">
         <div className="flex justify-between items-baseline">
             <h4 className="font-bold">{option.name}</h4>
-            <p className="font-bold text-primary">₱{option.price.toFixed(2)}</p>
+            <p className="font-bold text-foreground">₱{option.price.toFixed(2)}</p>
         </div>
         <div className="flex justify-between items-baseline text-sm text-muted-foreground">
             <div className='flex items-center gap-2'>

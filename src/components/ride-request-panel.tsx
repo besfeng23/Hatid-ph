@@ -99,7 +99,7 @@ export function RideRequestPanel() {
         return (
           <>
             <CardHeader>
-              <CardTitle className="text-3xl font-bold text-primary">
+              <CardTitle className="text-3xl font-bold text-foreground">
                 Hello! Where to?
               </CardTitle>
               <CardDescription>
@@ -107,7 +107,7 @@ export function RideRequestPanel() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="relative">
                   <Search
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -115,7 +115,7 @@ export function RideRequestPanel() {
                   />
                   <Input
                     placeholder="Enter pickup location"
-                    className="h-14 rounded-full bg-background/50 pl-12 text-base"
+                    className="h-12 rounded-lg bg-gray-100 pl-12 text-base"
                     value={pickup}
                     onChange={e => setPickup(e.target.value)}
                   />
@@ -127,14 +127,14 @@ export function RideRequestPanel() {
                   />
                   <Input
                     placeholder="Enter your destination"
-                    className="h-14 rounded-full bg-background/50 pl-12 text-base"
+                    className="h-12 rounded-lg bg-gray-100 pl-12 text-base"
                     value={destination}
                     onChange={e => setDestination(e.target.value)}
                   />
                 </div>
               </div>
               <Button
-                className="w-full h-14 rounded-full text-lg font-bold animate-pulse disabled:animate-none"
+                className="w-full h-14 rounded-full text-lg font-bold"
                 size="lg"
                 disabled={!destination || !pickup}
                 onClick={handleFindRide}
@@ -157,14 +157,14 @@ export function RideRequestPanel() {
                     <Button variant="ghost" size="icon" onClick={handleBack} className='shrink-0'>
                         <ArrowLeft />
                     </Button>
-                    <CardTitle className="text-2xl font-bold text-primary">
+                    <CardTitle className="text-2xl font-bold text-foreground">
                         Choose Your Ride
                     </CardTitle>
                 </div>
               <CardDescription>Select a ride that suits your needs.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="p-3 rounded-lg bg-background/50 space-y-1 text-sm">
+                <div className="p-3 rounded-lg bg-secondary space-y-1 text-sm">
                     <p><span className="font-semibold text-muted-foreground">From:</span> {pickup}</p>
                     <p><span className="font-semibold text-muted-foreground">To:</span> {destination}</p>
                 </div>
@@ -198,11 +198,11 @@ export function RideRequestPanel() {
         case 'confirmed':
             return (
                  <CardContent className="flex flex-col items-center justify-center h-full gap-2 text-center">
-                    <Car className="h-16 w-16 text-green-500" />
+                    <Car className="h-16 w-16 text-primary" />
                     <h2 className="text-2xl font-bold">Driver Found!</h2>
                     <p className="text-muted-foreground max-w-xs">Your driver, John, is on his way in a Toyota Vios (ABC-1234).</p>
-                    <div className="flex items-center gap-1 text-lg font-bold text-primary">
-                        <Star className='h-5 w-5 fill-primary'/> 4.9
+                    <div className="flex items-center gap-1 text-lg font-bold text-yellow-500">
+                        <Star className='h-5 w-5 fill-current'/> 4.9
                     </div>
                     <Button onClick={reset} className="mt-4">Done</Button>
                 </CardContent>
@@ -211,7 +211,7 @@ export function RideRequestPanel() {
   };
 
   return (
-    <Card className="flex h-full max-h-[calc(100vh-12rem)] w-full flex-col rounded-2xl border-border/50 bg-card/80 shadow-2xl shadow-black/50 backdrop-blur-sm">
+    <Card className="flex h-full max-h-[calc(100vh-10rem)] w-full flex-col rounded-2xl shadow-lg">
       <ScrollArea className="flex-1">{renderContent()}</ScrollArea>
     </Card>
   );

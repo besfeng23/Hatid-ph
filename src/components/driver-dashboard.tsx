@@ -18,15 +18,15 @@ export function DriverDashboard() {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <div className="col-span-1 flex flex-col gap-8">
-        <Card className="rounded-2xl border-border/50 bg-card/80 shadow-2xl shadow-black/50 backdrop-blur-sm">
+        <Card className="rounded-2xl shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg">Your Status</CardTitle>
             <div
-              className={`h-3 w-3 rounded-full ${isOnline ? 'bg-green-400' : 'bg-red-500'}`}
+              className={`h-3 w-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}
             />
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between rounded-lg bg-background/50 p-4">
+            <div className="flex items-center justify-between rounded-lg bg-secondary p-4">
               <Label htmlFor="online-toggle" className="text-lg font-bold text-foreground">
                 {isOnline ? 'You are Online' : 'You are Offline'}
               </Label>
@@ -37,7 +37,7 @@ export function DriverDashboard() {
             </p>
           </CardContent>
         </Card>
-        <Card className="rounded-2xl border-border/50 bg-card/80 shadow-2xl shadow-black/50 backdrop-blur-sm">
+        <Card className="rounded-2xl shadow-lg">
           <CardHeader>
             <CardTitle>Safety Toolkit</CardTitle>
             <CardDescription>Quick access in case of emergency.</CardDescription>
@@ -56,7 +56,7 @@ export function DriverDashboard() {
       </div>
 
       <div className="col-span-1 lg:col-span-2">
-        <Card className="rounded-2xl border-border/50 bg-card/80 shadow-2xl shadow-black/50 backdrop-blur-sm">
+        <Card className="rounded-2xl shadow-lg">
           <CardHeader>
             <CardTitle>Weekly Earnings</CardTitle>
             <CardDescription>Your performance for the last 7 days.</CardDescription>
@@ -68,7 +68,7 @@ export function DriverDashboard() {
       </div>
 
       <div className="col-span-1 lg:col-span-3">
-        <Card className="rounded-2xl border-border/50 bg-card/80 shadow-2xl shadow-black/50 backdrop-blur-sm">
+        <Card className="rounded-2xl shadow-lg">
           <CardHeader>
             <CardTitle>Current Route</CardTitle>
             <CardDescription>Turn-by-turn navigation for your active trip.</CardDescription>
@@ -81,7 +81,7 @@ export function DriverDashboard() {
                  <div className="absolute inset-0 bg-black/40"></div>
                  <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 font-semibold">Live Navigation View</p>
             </div>
-            <div className="md:col-span-1 h-64 md:h-96 rounded-lg bg-background/50 p-4 overflow-y-auto">
+            <div className="md:col-span-1 h-64 md:h-96 rounded-lg bg-secondary p-4 overflow-y-auto">
                 <h4 className="font-bold mb-4 flex items-center gap-2"><List/> Directions</h4>
                 <div className="space-y-4 text-sm">
                     <p>1. Head north on EDSA.</p>
@@ -96,7 +96,7 @@ export function DriverDashboard() {
       </div>
       
       <div className="col-span-1 lg:col-span-3">
-        <Card className="rounded-2xl border-border/50 bg-card/80 shadow-2xl shadow-black/50 backdrop-blur-sm">
+        <Card className="rounded-2xl shadow-lg">
           <CardHeader>
             <CardTitle>Trip History</CardTitle>
             <CardDescription>A log of your completed trips.</CardDescription>
