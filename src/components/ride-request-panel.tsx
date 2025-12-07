@@ -22,6 +22,7 @@ import {
   Loader2,
   Phone,
   MessageSquare,
+  Package,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { SuggestedPlaces } from './suggested-places';
@@ -31,6 +32,7 @@ import { RideOptionCard, RideOption } from './ride-option-card';
 import { TripDetailsCard } from './trip-details-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { FoodSuggestionCard } from './food-suggestion-card';
+import { DeliveryRequestForm } from './delivery-request-form';
 
 type View = 'request' | 'options' | 'confirming' | 'confirmed';
 
@@ -51,6 +53,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   const [selectedRide, setSelectedRide] = useState<RideOption | null>(null);
   const [confirmedDriver, setConfirmedDriver] = useState<Driver | null>(null);
   const [eta, setEta] = useState(5);
+  const [currentTab, setCurrentTab] = useState('ride');
 
   const rideOptions: RideOption[] = [
     {
@@ -79,6 +82,15 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
       price: 420.75,
       eta: '8 min',
       icon: <Users className="w-8 h-8 text-primary" />,
+    },
+     {
+      id: 'padala',
+      name: 'HatidPadala',
+      description: 'On-demand delivery',
+      capacity: 0, 
+      price: 120.0,
+      eta: '4 min',
+      icon: <Package className="w-8 h-8 text-primary" />,
     },
   ];
 
@@ -143,39 +155,51 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <div className="relative">
-                  <Search
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    size={20}
-                  />
-                  <Input
-                    placeholder="Enter pickup location"
-                    className="h-12 rounded-lg bg-secondary pl-12 text-base"
-                    value={pickup}
-                    onChange={e => setPickup(e.target.value)}
-                  />
-                </div>
-                 <div className="relative">
-                  <Search
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    size={20}
-                  />
-                  <Input
-                    placeholder="Enter your destination"
-                    className="h-12 rounded-lg bg-secondary pl-12 text-base"
-                    value={destination}
-                    onChange={e => setDestination(e.target.value)}
-                  />
-                </div>
-              </div>
+                <Tabs defaultValue="ride" className="w-full" onValueChange={setCurrentTab}>
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="ride">Ride</TabsTrigger>
+                        <TabsTrigger value="padala">Padala</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="ride" className="space-y-4 pt-4">
+                         <div className="space-y-2">
+                            <div className="relative">
+                            <Search
+                                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                size={20}
+                            />
+                            <Input
+                                placeholder="Enter pickup location"
+                                className="h-12 rounded-lg bg-secondary pl-12 text-base"
+                                value={pickup}
+                                onChange={e => setPickup(e.target.value)}
+                            />
+                            </div>
+                            <div className="relative">
+                            <Search
+                                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                size={20}
+                            />
+                            <Input
+                                placeholder="Enter your destination"
+                                className="h-12 rounded-lg bg-secondary pl-12 text-base"
+                                value={destination}
+                                onChange={e => setDestination(e.target.value)}
+                            />
+                            </div>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="padala">
+                        <DeliveryRequestForm />
+                    </TabsContent>
+                </Tabs>
+
               <Button
                 className="w-full h-14 rounded-full text-lg font-bold"
                 size="lg"
                 disabled={!destination || !pickup}
                 onClick={handleFindRide}
               >
-                Find a Ride
+                {currentTab === 'ride' ? 'Find a Ride' : 'Find a Courier'}
                 <ArrowRight className="ml-2" />
               </Button>
               <Separator className="my-6" />
@@ -207,17 +231,17 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                         <ArrowLeft />
                     </Button>
                     <CardTitle className="text-2xl font-bold text-foreground">
-                        Choose Your Ride
+                        Choose Your Service
                     </CardTitle>
                 </div>
-              <CardDescription>Select a ride that suits your needs.</CardDescription>
+              <CardDescription>Select a service that suits your needs.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="p-3 rounded-lg bg-secondary space-y-1 text-sm">
                     <p><span className="font-semibold text-muted-foreground">From:</span> {pickup}</p>
                     <p><span className="font-semibold text-muted-foreground">To:</span> {destination}</p>
                 </div>
-              {rideOptions.map(option => (
+              {rideOptions.filter(o => currentTab === 'padala' ? o.id === 'padala' : o.id !== 'padala' ).map(option => (
                 <RideOptionCard
                   key={option.id}
                   option={option}
@@ -231,7 +255,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                 disabled={!selectedRide}
                 onClick={handleConfirmRide}
               >
-                Confirm {selectedRide?.name || 'Ride'}
+                Confirm {selectedRide?.name || 'Service'}
               </Button>
             </CardContent>
           </>

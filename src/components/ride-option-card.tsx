@@ -38,8 +38,8 @@ export function RideOptionCard({ option, isSelected, onSelect }: RideOptionCardP
         </div>
         <div className="flex justify-between items-baseline text-sm text-muted-foreground">
             <div className='flex items-center gap-2'>
-                <Users size={14}/>
-                <span>{option.capacity}</span>
+                {option.capacity > 0 && <Users size={14}/>}
+                {option.capacity > 0 && <span>{option.capacity}</span>}
                 <span className='ml-2'>{option.eta} away</span>
             </div>
         </div>
