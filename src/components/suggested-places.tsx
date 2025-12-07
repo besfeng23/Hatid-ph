@@ -2,12 +2,31 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getSuggestedPlaces, SuggestedPlacesOutput } from '@/ai/flows/suggested-places';
+import { SuggestedPlacesOutput } from '@/ai/flows/suggested-places';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from './ui/skeleton';
+
+const mockSuggestions: SuggestedPlacesOutput['suggestions'] = [
+  {
+    placeName: 'Intramuros',
+    description: 'The historic walled city of Manila.',
+    reason: 'A great place to explore Philippine history, based on your interest in historic sites.',
+  },
+  {
+    placeName: 'BGC Weekend Market',
+    description: 'A lively market with local food and crafts.',
+    reason: 'Matches the local events and your interest in exploring new areas.',
+  },
+  {
+    placeName: 'National Museum Complex',
+    description: 'Explore Filipino art, history, and culture.',
+    reason: 'A perfect follow-up to your searches for cultural spots.',
+  },
+];
+
 
 export function SuggestedPlaces() {
   const [suggestions, setSuggestions] = useState<SuggestedPlacesOutput['suggestions'] | null>(null);
@@ -16,12 +35,8 @@ export function SuggestedPlaces() {
   useEffect(() => {
     async function fetchSuggestions() {
       try {
-        const fakeInput = {
-          searchHistory: 'malls in BGC, historic sites, coffee shops near me',
-          localEvents: 'BGC has a weekend market, There is a concert in MOA arena, Intramuros has a new night tour',
-        };
-        const result = await getSuggestedPlaces(fakeInput);
-        setSuggestions(result.suggestions);
+        // Using mock data to avoid hitting API rate limits during development
+        setSuggestions(mockSuggestions);
       } catch (e) {
         console.error("Failed to get suggested places:", e);
         setError("Could not load suggestions.");
@@ -46,13 +61,16 @@ function SuggestedPlacesClient({ suggestions }: { suggestions: SuggestedPlacesOu
     
   const placeImages = {
       'Intramuros': PlaceHolderImages.find(p => p.id === 'place_intramuros'),
-      'Bonifacio Global City': PlaceHolderImages.find(p => p.id === 'place_bgc'),
+      'BGC': PlaceHolderImages.find(p => p.id === 'place_bgc'),
       'National Museum Complex': PlaceHolderImages.find(p => p.id === 'place_museum'),
+      'Market': PlaceHolderImages.find(p => p.id === 'place_market'),
   };
 
   const getImageUrl = (name: string) => {
-    const key = Object.keys(placeImages).find(k => name.includes(k));
-    return key ? placeImages[key as keyof typeof placeImages] : PlaceHolderImages.find(p => p.id === 'place_market');
+    if (name.includes('Intramuros')) return placeImages['Intramuros'];
+    if (name.includes('BGC')) return placeImages['BGC'];
+    if (name.includes('Museum')) return placeImages['National Museum Complex'];
+    return placeImages['Market'];
   }
 
   return (

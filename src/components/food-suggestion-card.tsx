@@ -1,9 +1,7 @@
+
 'use client';
 import { useEffect, useState } from 'react';
-import {
-  getSuggestedFoodSpots,
-  SuggestedFoodSpotsOutput,
-} from '@/ai/flows/suggested-food-spots';
+import { SuggestedFoodSpotsOutput } from '@/ai/flows/suggested-food-spots';
 import {
   Carousel,
   CarouselContent,
@@ -16,6 +14,24 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from './ui/skeleton';
 
+const mockSuggestions: SuggestedFoodSpotsOutput['suggestions'] = [
+  {
+    restaurantName: 'Manam Comfort Filipino',
+    cuisine: 'Filipino',
+    reason: 'A modern take on classic Filipino comfort food, perfect for dinner.',
+  },
+  {
+    restaurantName: 'Locavore',
+    cuisine: 'Filipino',
+    reason: 'Known for its creative and delicious Filipino dishes like Sizzling Sinigang.',
+  },
+  {
+    restaurantName: 'Sentro 1771',
+    cuisine: 'Filipino',
+    reason: 'Famous for its Corned Beef Sinigang and other innovative Filipino classics.',
+  },
+];
+
 export function FoodSuggestionCard() {
   const [suggestions, setSuggestions] =
     useState<SuggestedFoodSpotsOutput['suggestions'] | null>(null);
@@ -25,13 +41,8 @@ export function FoodSuggestionCard() {
     async function fetchSuggestions() {
       try {
         // In a real app, these inputs would be dynamic
-        const fakeInput = {
-          timeOfDay: 'dinner',
-          userPreferences: 'loves spicy food, enjoys Filipino cuisine',
-          location: 'Makati',
-        };
-        const result = await getSuggestedFoodSpots(fakeInput);
-        setSuggestions(result.suggestions);
+        // Using mock data to avoid hitting API rate limits during development
+        setSuggestions(mockSuggestions);
       } catch (e) {
         console.error('Failed to get food suggestions:', e);
         setError('Could not load dining suggestions.');

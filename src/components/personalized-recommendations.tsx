@@ -2,11 +2,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getPersonalizedRecommendations, PersonalizedRecommendationsOutput } from '@/ai/flows/personalized-recommendations';
+import { PersonalizedRecommendationsOutput } from '@/ai/flows/personalized-recommendations';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Star, User, Route } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
+
+
+const mockRecommendations: PersonalizedRecommendationsOutput = {
+  driverRecommendations: ['Juan D.', 'Maria S.'],
+  rideOptionsRecommendations: ['HatidCar for comfort', 'HatidMoto for speed'],
+  preferredRoutes: ['EDSA via Ayala Tunnel', 'C5 to Pasig'],
+};
 
 export function PersonalizedRecommendations() {
   const [recommendations, setRecommendations] = useState<PersonalizedRecommendationsOutput | null>(null);
@@ -15,13 +22,8 @@ export function PersonalizedRecommendations() {
   useEffect(() => {
     async function fetchRecommendations() {
       try {
-        const fakeInput = {
-          userId: 'user-123',
-          travelHistory: ['BGC to Makati', 'Makati to Quezon City', 'Pasay to BGC'],
-          preferences: 'prefers sedans, quiet rides, high-rated drivers',
-        };
-        const result = await getPersonalizedRecommendations(fakeInput);
-        setRecommendations(result);
+        // Using mock data to avoid hitting API rate limits during development
+        setRecommendations(mockRecommendations);
       } catch (e) {
         console.error("Failed to get personalized recommendations:", e);
         setError("Could not load recommendations.");
