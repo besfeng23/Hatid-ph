@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -51,8 +52,8 @@ export type Driver = {
 
 // Add a new prop to pass the driver to the MapView
 export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver: Driver | null) => void }) {
-  const [destination, setDestination] = useState('Market! Market!');
-  const [pickup, setPickup] = useState('Current Location');
+  const [destination, setDestination] = useState('Bonifacio High Street');
+  const [pickup, setPickup] = useState('Market! Market!');
   const [view, setView] = useState<View>('request');
   const [selectedRide, setSelectedRide] = useState<RideOption | null>(null);
   const [confirmedDriver, setConfirmedDriver] = useState<Driver | null>(null);
@@ -68,7 +69,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
       capacity: 4,
       price: 280.5,
       eta: '5 min',
-      icon: <Car className="w-8 h-8 text-primary" />,
+      icon: <Car className="w-10 h-10 text-primary" />,
     },
     {
       id: 'motorcycle',
@@ -77,7 +78,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
       capacity: 1,
       price: 150.0,
       eta: '3 min',
-      icon: <Bike className="w-8 h-8 text-primary" />,
+      icon: <Bike className="w-10 h-10 text-primary" />,
     },
     {
       id: 'van',
@@ -86,7 +87,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
       capacity: 6,
       price: 420.75,
       eta: '8 min',
-      icon: <Users className="w-8 h-8 text-primary" />,
+      icon: <Users className="w-10 h-10 text-primary" />,
     },
      {
       id: 'padala',
@@ -95,7 +96,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
       capacity: 0, 
       price: 120.0,
       eta: '4 min',
-      icon: <Package className="w-8 h-8 text-primary" />,
+      icon: <Package className="w-10 h-10 text-primary" />,
     },
   ];
 
@@ -136,7 +137,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
     setSelectedRide(null);
     setConfirmedDriver(null);
     onRideConfirmed(null); // Clear driver data
-    setDestination('Market! Market!');
+    setDestination('Bonifacio High Street');
   }
 
   useEffect(() => {
@@ -151,27 +152,27 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
       case 'request':
         return (
           <>
-            <CardHeader>
+            <CardHeader className='pb-4'>
               <CardTitle className="text-3xl font-bold text-foreground">
                 Hello! Where to?
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
                 <Tabs defaultValue="ride" className="w-full" onValueChange={setCurrentTab}>
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="ride">Ride</TabsTrigger>
-                        <TabsTrigger value="padala">Padala</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 h-12">
+                        <TabsTrigger value="ride" className="text-base">Ride</TabsTrigger>
+                        <TabsTrigger value="padala" className="text-base">Padala</TabsTrigger>
                     </TabsList>
                     <TabsContent value="ride" className="space-y-4 pt-4">
                          <div className="space-y-2">
                             <div className="relative">
-                            <Search
+                            <MapPin
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
                                 size={20}
                             />
                             <Input
                                 placeholder="Enter your destination"
-                                className="h-12 rounded-lg bg-secondary pl-12 text-base"
+                                className="h-14 rounded-2xl bg-secondary pl-12 text-base"
                                 value={destination}
                                 onChange={e => setDestination(e.target.value)}
                             />
@@ -204,16 +205,16 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                         <ArrowLeft />
                     </Button>
                     <CardTitle className="text-2xl font-bold text-foreground">
-                        Choose Your Service
+                        Choose Your Ride
                     </CardTitle>
                 </div>
-              <CardDescription>Select a service that suits your needs.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="p-3 rounded-lg bg-secondary space-y-1 text-sm">
+                 <div className="p-4 rounded-2xl bg-secondary space-y-2 text-sm shadow-inner">
                     <p><span className="font-semibold text-muted-foreground">From:</span> {pickup}</p>
+                     <Separator/>
                     <p><span className="font-semibold text-muted-foreground">To:</span> {destination}</p>
                 </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
               {rideOptions.filter(o => currentTab === 'padala' ? o.id === 'padala' : o.id !== 'padala' ).map(option => (
                 <RideOptionCard
                   key={option.id}
@@ -222,6 +223,10 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                   onSelect={handleSelectRide}
                 />
               ))}
+               <div className='text-xs text-muted-foreground text-center p-2'>
+                <p>Estimated Time of Arrival (ETA) to Pickup: {selectedRide?.eta || '[X]'} minutes.</p>
+                <p>Total trip time will be displayed upon driver confirmation.</p>
+              </div>
               <Button
                 className="w-full h-14 rounded-full text-lg font-bold"
                 size="lg"
@@ -243,30 +248,30 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
             );
         case 'confirmed':
             return confirmedDriver ? (
-                 <CardContent className="flex flex-col h-full gap-4 p-4">
+                 <CardContent className="flex flex-col h-full gap-4 p-6">
                     <div className="text-center">
                         <h2 className="text-2xl font-bold">Your driver is on the way!</h2>
                         <p className="text-primary font-bold text-lg">{eta} min away</p>
                     </div>
                     <TripDetailsCard driver={confirmedDriver}/>
                     <div className="grid grid-cols-2 gap-4 mt-auto">
-                        <Button variant="outline" size="lg" className="h-12"><Phone className="mr-2"/> Call</Button>
-                        <Button variant="outline" size="lg" className="h-12"><MessageSquare className="mr-2"/> Message</Button>
+                        <Button variant="outline" size="lg" className="h-14 text-base rounded-2xl"><Phone className="mr-2"/> Call</Button>
+                        <Button variant="outline" size="lg" className="h-14 text-base rounded-2xl"><MessageSquare className="mr-2"/> Message</Button>
                     </div>
-                    <Button onClick={reset} variant="destructive" className="mt-2">Cancel Ride</Button>
+                    <Button onClick={reset} variant="destructive" className="mt-2 h-14 rounded-full text-lg">Cancel Ride</Button>
                 </CardContent>
             ) : null;
         case 'discovery':
             return (
                  <CardContent className="flex flex-col h-full gap-4 p-4">
                      <Tabs value={discoveryTab} onValueChange={setDiscoveryTab} className="w-full">
-                        <TabsContent value="places" className="mt-4">
+                        <TabsContent value="places" className="mt-0">
                             <SuggestedPlaces />
                         </TabsContent>
-                        <TabsContent value="food" className="mt-4">
+                        <TabsContent value="food" className="mt-0">
                             <FoodSuggestionCard />
                         </TabsContent>
-                        <TabsContent value="picks" className="mt-4">
+                        <TabsContent value="picks" className="mt-0">
                             <PersonalizedRecommendations />
                         </TabsContent>
                     </Tabs>
@@ -291,25 +296,29 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   const mainContentHeight = view === 'request' ? 'h-full' : 'h-full';
 
   return (
-    <Card className="flex h-full w-full flex-col rounded-t-2xl shadow-2xl">
+    <Card className="flex h-full w-full flex-col rounded-t-3xl shadow-2xl overflow-hidden">
         <div className={cn('transition-all duration-300', view === 'request' ? 'flex-1' : 'flex-1')}>
              <ScrollArea className="h-full">
-                {view === 'discovery' ? renderDiscoveryContent() : renderContent()}
+                {view === 'discovery' ? (
+                  <CardContent className='p-4'>
+                    {renderDiscoveryContent()}
+                  </CardContent>
+                ) : renderContent()}
              </ScrollArea>
         </div>
       
        {view === 'request' && (
-         <div className="mt-auto border-t bg-background rounded-b-2xl">
+         <div className="mt-auto border-t bg-background rounded-b-3xl">
             <div className="grid grid-cols-3 gap-2 p-2">
-                <Button variant={discoveryTab === 'places' ? "secondary" : "ghost"} className="flex-col h-16" onClick={() => {setView('discovery'); setDiscoveryTab('places')}}>
+                <Button variant={discoveryTab === 'places' ? "secondary" : "ghost"} className="flex-col h-16 rounded-2xl text-xs" onClick={() => {setView('discovery'); setDiscoveryTab('places')}}>
                     <MapPin/>
                     <span>Places</span>
                 </Button>
-                 <Button variant={discoveryTab === 'food' ? "secondary" : "ghost"} className="flex-col h-16" onClick={() => {setView('discovery'); setDiscoveryTab('food')}}>
+                 <Button variant={discoveryTab === 'food' ? "secondary" : "ghost"} className="flex-col h-16 rounded-2xl text-xs" onClick={() => {setView('discovery'); setDiscoveryTab('food')}}>
                     <Utensils/>
                     <span>Dining</span>
                 </Button>
-                 <Button variant={discoveryTab === 'picks' ? "secondary" : "ghost"} className="flex-col h-16" onClick={() => {setView('discovery'); setDiscoveryTab('picks')}}>
+                 <Button variant={discoveryTab === 'picks' ? "secondary" : "ghost"} className="flex-col h-16 rounded-2xl text-xs" onClick={() => {setView('discovery'); setDiscoveryTab('picks')}}>
                     <Sparkles/>
                     <span>For You</span>
                 </Button>
@@ -317,8 +326,8 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
         </div>
        )}
         {view === 'discovery' && (
-             <div className="mt-auto border-t bg-background rounded-b-2xl">
-                <Button className='w-full h-14' onClick={() => setView('request')}>Back to Ride</Button>
+             <div className="mt-auto p-2 border-t bg-background rounded-b-3xl">
+                <Button className='w-full h-14 rounded-full text-lg' onClick={() => setView('request')}>Back to Ride</Button>
              </div>
         )}
     </Card>
