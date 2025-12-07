@@ -1,33 +1,43 @@
-import React from 'react';
+
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { getPersonalizedRecommendations, PersonalizedRecommendationsOutput } from '@/ai/flows/personalized-recommendations';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Star, User, Route, Car } from 'lucide-react';
+import { Star, User, Route } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
-async function PersonalizedRecommendationsData() {
-  try {
-    const fakeInput = {
-      userId: 'user-123',
-      travelHistory: ['BGC to Makati', 'Makati to Quezon City', 'Pasay to BGC'],
-      preferences: 'prefers sedans, quiet rides, high-rated drivers',
-    };
-    const recommendations = await getPersonalizedRecommendations(fakeInput);
-    return <PersonalizedRecommendationsClient recommendations={recommendations} />;
-  } catch (error) {
-    console.error("Failed to get personalized recommendations:", error);
-    return <div className="text-destructive">Could not load recommendations.</div>;
-  }
-}
-
 export function PersonalizedRecommendations() {
+  const [recommendations, setRecommendations] = useState<PersonalizedRecommendationsOutput | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchRecommendations() {
+      try {
+        const fakeInput = {
+          userId: 'user-123',
+          travelHistory: ['BGC to Makati', 'Makati to Quezon City', 'Pasay to BGC'],
+          preferences: 'prefers sedans, quiet rides, high-rated drivers',
+        };
+        const result = await getPersonalizedRecommendations(fakeInput);
+        setRecommendations(result);
+      } catch (e) {
+        console.error("Failed to get personalized recommendations:", e);
+        setError("Could not load recommendations.");
+      }
+    }
+
+    fetchRecommendations();
+  }, []);
+
   return (
     <div className="space-y-2">
       <h3 className="text-xl font-bold tracking-tight">Your Picks</h3>
       <p className="text-muted-foreground">Top drivers and routes for you.</p>
-      <React.Suspense fallback={<RecommendationsSkeleton />}>
-        <PersonalizedRecommendationsData />
-      </React.Suspense>
+      {error && <div className="text-destructive">{error}</div>}
+      {!recommendations && !error && <RecommendationsSkeleton />}
+      {recommendations && <PersonalizedRecommendationsClient recommendations={recommendations} />}
     </div>
   );
 }
@@ -57,7 +67,7 @@ function PersonalizedRecommendationsClient({ recommendations }: { recommendation
                 <p className="font-medium text-sm">{driver}</p>
                 <div className="flex items-center text-xs text-yellow-400">
                     <Star className="w-3 h-3 fill-current mr-1"/>
-                    <span>{(Math.random() * (5 - 4.5) + 4.5).toFixed(1)}</span>
+                    <span>{(4.5 + Math.random() * 0.5).toFixed(1)}</span>
                 </div>
               </div>
             </div>

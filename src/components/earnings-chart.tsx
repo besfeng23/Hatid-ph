@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Bar,
@@ -9,8 +10,9 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { Card } from './ui/card';
+import { useState, useEffect } from 'react';
 
-const data = [
+const generateData = () => [
   { name: 'Mon', total: Math.floor(Math.random() * 2000) + 1000 },
   { name: 'Tue', total: Math.floor(Math.random() * 2000) + 1000 },
   { name: 'Wed', total: Math.floor(Math.random() * 2000) + 1000 },
@@ -19,6 +21,7 @@ const data = [
   { name: 'Sat', total: Math.floor(Math.random() * 4000) + 2000 },
   { name: 'Sun', total: Math.floor(Math.random() * 4000) + 2000 },
 ];
+
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -34,6 +37,16 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function EarningsChart() {
+  const [data, setData] = useState<any[]>([]);
+
+  useEffect(() => {
+    setData(generateData());
+  }, []);
+
+  if (!data.length) {
+    return null; // Or a loading indicator
+  }
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
