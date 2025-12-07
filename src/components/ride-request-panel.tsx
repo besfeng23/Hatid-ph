@@ -149,7 +149,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                   />
                   <Input
                     placeholder="Enter pickup location"
-                    className="h-12 rounded-lg bg-gray-100 pl-12 text-base"
+                    className="h-12 rounded-lg bg-secondary pl-12 text-base"
                     value={pickup}
                     onChange={e => setPickup(e.target.value)}
                   />
@@ -161,7 +161,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                   />
                   <Input
                     placeholder="Enter your destination"
-                    className="h-12 rounded-lg bg-gray-100 pl-12 text-base"
+                    className="h-12 rounded-lg bg-secondary pl-12 text-base"
                     value={destination}
                     onChange={e => setDestination(e.target.value)}
                   />
