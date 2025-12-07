@@ -125,21 +125,43 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
 
   const handleConfirmRide = () => {
     setView('confirming');
-    setTimeout(() => {
-      const driver: Driver = {
-          name: 'John',
-          rating: 4.9,
-          vehicle: 'Toyota Vios',
-          plate: 'ABC-1234',
-          avatarUrl: 'https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjQ5NzY5OTN8MA&ixlib=rb-4.1.0&q=80&w=1080',
-          avatarHint: 'man portrait',
-      };
-      setConfirmedDriver(driver);
-      onRideConfirmed(driver); // Pass driver data to parent
-      setEta(5);
-      setView('confirmed');
-    }, 2000);
-  };
+
+    // Simulate multi-step driver search
+    const simulateSearch = (attempts: number) => {
+        if (attempts > 3) { // Fail after 3 attempts
+            toast({
+                variant: 'destructive',
+                title: 'No Drivers Available',
+                description: 'We couldn\'t find a driver for you right now. Please try again in a few moments.',
+            });
+            setView('options');
+            return;
+        }
+
+        setTimeout(() => {
+            // Simulate a 50% chance of a driver accepting
+            if (Math.random() > 0.5) {
+                const driver: Driver = {
+                    name: 'John',
+                    rating: 4.9,
+                    vehicle: 'Toyota Vios',
+                    plate: 'ABC-1234',
+                    avatarUrl: 'https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjQ5NzY5OTN8MA&ixlib=rb-4.1.0&q=80&w=1080',
+                    avatarHint: 'man portrait',
+                };
+                setConfirmedDriver(driver);
+                onRideConfirmed(driver); // Pass driver data to parent
+                setEta(5);
+                setView('confirmed');
+            } else {
+                simulateSearch(attempts + 1);
+            }
+        }, 2000 + Math.random() * 2000); // Wait 2-4 seconds per attempt
+    };
+
+    simulateSearch(1);
+};
+
 
   const handleBack = () => {
     if (view === 'options') {

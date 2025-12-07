@@ -1,3 +1,4 @@
+
 'use client';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
@@ -76,7 +77,7 @@ export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null })
        )}
 
       {isClient && confirmedDriver && (
-        <svg className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
+        <svg key="confirmed-driver" className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
           <defs>
               <path id={confirmedDriverPath.pathId} d={confirmedDriverPath.d} />
           </defs>
