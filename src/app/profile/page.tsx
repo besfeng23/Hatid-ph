@@ -1,3 +1,4 @@
+'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -6,23 +7,40 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Bell, CreditCard, HelpCircle, Shield, User } from 'lucide-react';
+import AuthGuard from '@/components/auth-guard';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
-export default function ProfilePage() {
+function ProfilePage() {
+    const { user } = useUser();
+    const auth = useAuth();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        router.push('/login');
+    };
+
     const avatarImage = PlaceHolderImages.find(p => p.id === 'driver_avatar_1');
+    const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
+    const email = user?.email || 'No email provided';
 
     return (
         <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-3xl">
             <div className="space-y-8">
                 <div className="flex items-center gap-6">
                     <Avatar className="h-24 w-24 border-4 border-primary">
-                        {avatarImage && <AvatarImage src={avatarImage.imageUrl} alt="Juan Dela Cruz" data-ai-hint={avatarImage.imageHint} />}
+                        {user?.photoURL || (avatarImage && avatarImage.imageUrl) ? (
+                            <AvatarImage src={user?.photoURL || avatarImage!.imageUrl} alt={displayName} data-ai-hint={avatarImage?.imageHint} />
+                        ) : null}
                         <AvatarFallback className="text-4xl">
                             <User />
                         </AvatarFallback>
                     </Avatar>
                     <div>
-                        <h1 className="text-3xl font-bold">Juan Dela Cruz</h1>
-                        <p className="text-muted-foreground">juandelacruz@email.com</p>
+                        <h1 className="text-3xl font-bold">{displayName}</h1>
+                        <p className="text-muted-foreground">{email}</p>
                     </div>
                 </div>
 
@@ -35,16 +53,16 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Name</Label>
-                                <Input id="name" defaultValue="Juan Dela Cruz" />
+                                <Input id="name" defaultValue={displayName} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="phone">Phone Number</Label>
-                                <Input id="phone" defaultValue="+63 917 123 4567" />
+                                <Input id="phone" defaultValue={user?.phoneNumber || ''} placeholder="+63 917 123 4567" />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email Address</Label>
-                            <Input id="email" type="email" defaultValue="juandelacruz@email.com" />
+                            <Input id="email" type="email" defaultValue={email} />
                         </div>
                         <Button>Save Changes</Button>
                     </CardContent>
@@ -63,7 +81,7 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
 
-                 <Button variant="destructive" className='w-full'>Log Out</Button>
+                 <Button variant="destructive" className='w-full' onClick={handleLogout}>Log Out</Button>
             </div>
         </div>
     );
@@ -79,5 +97,13 @@ function SettingItem({ icon, title, description }: { icon: React.ReactNode, titl
             </div>
             <Button variant="ghost" size="sm">Manage</Button>
         </div>
+    )
+}
+
+export default function ProfilePageWithAuth() {
+    return (
+        <AuthGuard>
+            <ProfilePage />
+        </AuthGuard>
     )
 }

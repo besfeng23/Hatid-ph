@@ -1,13 +1,18 @@
 
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Car, Menu, User } from 'lucide-react';
+import { Car, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { SidebarTrigger } from './ui/sidebar';
+import { useUser } from '@/firebase';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export function Header() {
+  const { user, isUserLoading } = useUser();
   const avatarImage = PlaceHolderImages.find(p => p.id === 'driver_avatar_1');
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
@@ -21,16 +26,24 @@ export function Header() {
             </Link>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" asChild size="icon">
-                <Link href="/profile">
-                <Avatar className="h-9 w-9">
-                    {avatarImage && <AvatarImage src={avatarImage.imageUrl} alt="User Avatar" />}
-                    <AvatarFallback>
-                    <User />
-                    </AvatarFallback>
-                </Avatar>
-                </Link>
-            </Button>
+            {!isUserLoading && (
+              user ? (
+                <Button variant="ghost" asChild size="icon">
+                    <Link href="/profile">
+                    <Avatar className="h-9 w-9">
+                        {avatarImage && <AvatarImage src={user.photoURL || avatarImage.imageUrl} alt="User Avatar" />}
+                        <AvatarFallback>
+                        <User />
+                        </AvatarFallback>
+                    </Avatar>
+                    </Link>
+                </Button>
+              ) : (
+                <Button asChild>
+                    <Link href="/login">Login</Link>
+                </Button>
+              )
+            )}
         </div>
       </div>
     </header>

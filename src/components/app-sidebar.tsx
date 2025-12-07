@@ -1,13 +1,11 @@
 'use client';
 import {
-  Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 import {
@@ -18,11 +16,24 @@ import {
   Cog,
   Shield,
   Menu,
+  LogIn,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export function AppSidebar() {
   const { isMobile, toggleSidebar } = useSidebar();
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+
   return (
     <>
       {isMobile && (
@@ -68,14 +79,16 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/profile">
-                <User />
-                <span>Profile</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {user && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/profile">
+                  <User />
+                  <span>Profile</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="#">
@@ -97,10 +110,20 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>
-              <LogOut />
-              <span>Log Out</span>
-            </SidebarMenuButton>
+            {!isUserLoading &&
+              (user ? (
+                <SidebarMenuButton onClick={handleLogout}>
+                  <LogOut />
+                  <span>Log Out</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton asChild>
+                  <Link href="/login">
+                    <LogIn />
+                    <span>Log In</span>
+                  </Link>
+                </SidebarMenuButton>
+              ))}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
