@@ -65,7 +65,7 @@ service cloud.firestore {
        * @principle Enforces document ownership and path consistency.
        */
       match /drivers/{driverId} {
-        allow get, list: if isOwner(userId);
+        allow get, list: if isSignedIn();
         allow create: if isOwner(userId) && driverId == userId && request.resource.data.id == driverId;
         allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
         allow delete: if isExistingOwner(userId);

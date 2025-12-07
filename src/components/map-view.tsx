@@ -1,35 +1,29 @@
-
 'use client';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { Car, Sun } from 'lucide-react';
+import { Car } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Driver } from './ride-request-panel';
 
 const mapImage = PlaceHolderImages.find(p => p.id === 'map_manila');
 
 const nearDrivers = [
-  { pathId: 'path1', duration: '10s', delay: '0s' },
-  { pathId: 'path2', duration: '12s', delay: '1s' },
-  { pathId: 'path3', duration: '8s', delay: '2s' },
-  { pathId: 'path4', duration: '15s', delay: '3s' },
+  { pathId: 'path1', duration: '10s', delay: '0s', d: 'M 200 200 C 150 150, 100 250, 50 300' },
+  { pathId: 'path2', duration: '12s', delay: '1s', d: 'M 200 200 C 250 150, 300 250, 350 300' },
+  { pathId: 'path3', duration: '8s', delay: '2s', d: 'M 200 200 C 150 250, 250 250, 200 350' },
+  { pathId: 'path4', duration: '15s', delay: '3s', d: 'M 200 200 C 250 250, 150 350, 100 400' },
 ];
 
-const confirmedDriverPath = { pathId: 'driverPath', duration: '30s', delay: '0s' };
+const confirmedDriverPath = { pathId: 'driverPath', duration: '10s', delay: '0s', d: "M 100 350 C 150 300, 180 250, 200 200" };
 
-
-const Path = ({ d, id }: { d: string; id: string }) => (
-  <path
-    d={d}
-    id={id}
-    fill="none"
-    stroke="hsl(var(--sun) / 0.5)"
-    strokeWidth="3"
-    strokeDasharray="100"
-    strokeDashoffset="100"
-    className="[animation:draw-line_5s_ease-in-out_forwards]"
-  />
+const CarIcon = ({ pathId, duration, delay }: { pathId: string; duration: string; delay: string; }) => (
+    <foreignObject className="w-full h-full">
+        <div className="w-full h-full" style={{ offsetPath: `path(getComputedStyle(document.getElementById('${pathId}')).getPropertyValue('d'))`, animation: `move-car ${duration} ${delay} linear infinite`}}>
+            <Car className="text-primary w-6 h-6" />
+        </div>
+    </foreignObject>
 );
+
 
 export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null }) {
     const [isClient, setIsClient] = useState(false);
@@ -65,29 +59,33 @@ export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null })
           <p className='font-semibold text-sm'>Map of Metro Manila</p>
       </div>
 
-       {isClient && !confirmedDriver && nearDrivers.map(driver => (
-        <svg key={driver.pathId} className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
-           <defs>
-              <path id={driver.pathId} d={`M 200 200 C 150 150, ${Math.random() * 200 + 100} ${Math.random() * 200 + 100}, ${Math.random() * 400} ${Math.random() * 400}`} />
+       {isClient && !confirmedDriver && (
+         <svg key="nearby-drivers" className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
+            <defs>
+                {nearDrivers.map(driver => (
+                    <path key={driver.pathId} id={driver.pathId} d={driver.d} />
+                ))}
             </defs>
-            <g>
-                <path d={`M 200 200 C 150 150, ${Math.random() * 200 + 100} ${Math.random() * 200 + 100}, ${Math.random() * 400} ${Math.random() * 400}`} fill="none" stroke="hsl(var(--sun) / 0.3)" strokeWidth="2" strokeDasharray="5 5" />
-                <foreignObject>
-                    <Car className="text-primary animate-move-along-path" style={{ animationDuration: driver.duration, animationDelay: driver.delay }} />
-                </foreignObject>
-            </g>
+            {nearDrivers.map(driver => (
+                <g key={driver.pathId}>
+                    <path d={driver.d} fill="none" stroke="hsl(var(--sun) / 0.3)" strokeWidth="2" strokeDasharray="5 5" />
+                    <CarIcon pathId={driver.pathId} duration={driver.duration} delay={driver.delay} />
+                </g>
+            ))}
         </svg>
-      ))}
+       )}
 
       {isClient && confirmedDriver && (
         <svg className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
           <defs>
-              <path id={confirmedDriverPath.pathId} d="M 100 350 C 150 300, 180 250, 200 200" />
+              <path id={confirmedDriverPath.pathId} d={confirmedDriverPath.d} />
           </defs>
            <g>
-                <path d="M 100 350 C 150 300, 180 250, 200 200" fill="none" stroke="hsl(var(--sun))" strokeWidth="4" strokeDasharray="10" className='[animation:draw-line_10s_ease-in-out_forwards]'/>
-                 <foreignObject className="offset-path" style={{ offsetPath: `path("M 100 350 C 150 300, 180 250, 200 200")`, animation: 'move-car 10s linear forwards' }}>
-                    <Car className="text-primary w-8 h-8 -rotate-45" />
+                <path d={confirmedDriverPath.d} fill="none" stroke="hsl(var(--sun))" strokeWidth="4" strokeDasharray="250" strokeDashoffset="250" style={{ animation: `draw-line ${confirmedDriverPath.duration} ease-in-out forwards` }}/>
+                 <foreignObject className="w-full h-full">
+                     <div className="w-full h-full" style={{ offsetPath: `path('${confirmedDriverPath.d}')`, animation: `move-car ${confirmedDriverPath.duration} linear forwards` }}>
+                        <Car className="text-primary w-8 h-8 -rotate-45" />
+                    </div>
                 </foreignObject>
             </g>
         </svg>

@@ -93,6 +93,18 @@
         "earnings": {
           "type": "number",
           "description": "The driver's current earnings."
+        },
+        "location": {
+          "type": "object",
+          "description": "The driver's current geospatial location.",
+          "properties": {
+            "latitude": {
+              "type": "number"
+            },
+            "longitude": {
+              "type": "number"
+            }
+          }
         }
       },
       "required": [
