@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -39,8 +38,10 @@ import { FoodSuggestionCard } from './food-suggestion-card';
 import { DeliveryRequestForm } from './delivery-request-form';
 import { cn } from '@/lib/utils';
 import { SetLocationView } from './set-location-view';
+import { Textarea } from './ui/textarea';
+import { Label } from './ui/label';
 
-type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'discovery' | 'setLocation';
+type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'discovery' | 'setLocation' | 'completed';
 
 export type Driver = {
     name: string;
@@ -61,6 +62,9 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   const [eta, setEta] = useState(5);
   const [currentTab, setCurrentTab] = useState('ride');
   const [discoveryTab, setDiscoveryTab] = useState('places');
+  const [rating, setRating] = useState(0);
+  const [tip, setTip] = useState(0);
+
 
   const rideOptions: RideOption[] = [
     {
@@ -148,6 +152,12 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
     onRideConfirmed(null); // Clear driver data
     setDestination('');
     setPickup('');
+    setRating(0);
+    setTip(0);
+  }
+
+  const handleCompleteTrip = () => {
+    setView('completed');
   }
 
   useEffect(() => {
@@ -280,9 +290,64 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                         <Button variant="outline" size="lg" className="h-14 text-base rounded-2xl"><Phone className="mr-2"/> Call</Button>
                         <Button variant="outline" size="lg" className="h-14 text-base rounded-2xl"><MessageSquare className="mr-2"/> Message</Button>
                     </div>
-                    <Button onClick={reset} variant="destructive" className="mt-2 h-14 rounded-full text-lg">Cancel Ride</Button>
+                    <Button onClick={handleCompleteTrip} className="mt-2 h-14 rounded-full text-lg">Simulate Trip Completion</Button>
                 </CardContent>
             ) : null;
+        case 'completed':
+            return (
+                <CardContent className="flex flex-col h-full gap-4 p-6">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold">Thank you for riding with Hatid!</h2>
+                        <p className="text-muted-foreground">Please rate your experience.</p>
+                    </div>
+                    <Card className="bg-secondary/50">
+                        <CardContent className="p-4 space-y-2">
+                             <div className="flex justify-between items-center">
+                                <p className="font-semibold">Total Fare:</p>
+                                <p className="font-bold text-lg">₱{selectedRide?.price.toFixed(2)}</p>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <p className="text-muted-foreground">Payment Method:</p>
+                                <p className="text-muted-foreground">Credit Card</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <div className="space-y-2 text-center">
+                        <Label className="font-semibold">Rate Your Driver</Label>
+                        <div className="flex justify-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                key={star}
+                                className={cn(
+                                    "w-10 h-10 cursor-pointer",
+                                    rating >= star ? "text-primary fill-primary" : "text-muted-foreground/50"
+                                )}
+                                onClick={() => setRating(star)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                     <Textarea placeholder="Add a comment..."/>
+
+                    <div className="space-y-2">
+                        <Label className="font-semibold">Show Appreciation to Your Driver</Label>
+                         <div className="grid grid-cols-4 gap-2">
+                            <Button variant={tip === 20 ? 'secondary' : 'outline'} onClick={() => setTip(20)}>₱20</Button>
+                            <Button variant={tip === 50 ? 'secondary' : 'outline'} onClick={() => setTip(50)}>₱50</Button>
+                            <Button variant={tip === 100 ? 'secondary' : 'outline'} onClick={() => setTip(100)}>₱100</Button>
+                            <Input 
+                                type="number" 
+                                placeholder="Custom" 
+                                className="text-center"
+                                onChange={(e) => setTip(Number(e.target.value))}
+                            />
+                        </div>
+                    </div>
+                    
+                    <Button onClick={reset} className="mt-auto h-14 rounded-full text-lg">Submit & Finish</Button>
+                </CardContent>
+            );
         case 'discovery':
             return (
                  <CardContent className="flex flex-col h-full gap-4 p-4">
