@@ -2,7 +2,7 @@
 'use client';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { Car } from 'lucide-react';
+import { Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const mapImage = PlaceHolderImages.find(p => p.id === 'map_manila');
@@ -73,7 +73,7 @@ export function MapView() {
               width="32"
               height="32"
             >
-              <Car
+              <Sun
                 className="h-7 w-7 text-sun drop-shadow-lg"
                 style={{
                   offsetPath: `path('${(document.getElementById(driver.pathId) as SVGPathElement)?.getAttribute('d')}')`,
