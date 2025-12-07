@@ -297,7 +297,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
 
   return (
     <Card className="flex h-full w-full flex-col rounded-t-3xl shadow-2xl overflow-hidden">
-        <div className={cn('transition-all duration-300', view === 'request' ? 'flex-1' : 'flex-1')}>
+        <div className={cn('transition-all duration-300', view === 'request' ? 'h-full' : 'h-full')}>
              <ScrollArea className="h-full">
                 {view === 'discovery' ? (
                   <CardContent className='p-4'>
