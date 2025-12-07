@@ -29,6 +29,8 @@ import { PersonalizedRecommendations } from './personalized-recommendations';
 import { ScrollArea } from './ui/scroll-area';
 import { RideOptionCard, RideOption } from './ride-option-card';
 import { TripDetailsCard } from './trip-details-card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { FoodSuggestionCard } from './food-suggestion-card';
 
 type View = 'request' | 'options' | 'confirming' | 'confirmed';
 
@@ -177,9 +179,22 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                 <ArrowRight className="ml-2" />
               </Button>
               <Separator className="my-6" />
-              <SuggestedPlaces />
-              <Separator className="my-6" />
-              <PersonalizedRecommendations />
+              <Tabs defaultValue="places">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="places">Places</TabsTrigger>
+                  <TabsTrigger value="food">Dining</TabsTrigger>
+                  <TabsTrigger value="picks">For You</TabsTrigger>
+                </TabsList>
+                <TabsContent value="places" className="mt-4">
+                  <SuggestedPlaces />
+                </TabsContent>
+                <TabsContent value="food" className="mt-4">
+                  <FoodSuggestionCard />
+                </TabsContent>
+                <TabsContent value="picks" className="mt-4">
+                  <PersonalizedRecommendations />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </>
         );
@@ -248,7 +263,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   };
 
   return (
-    <Card className="flex h-full max-h-[calc(100vh-10rem)] w-full flex-col rounded-2xl shadow-lg">
+    <Card className="flex h-full max-h-[calc(100vh-4rem)] w-full flex-col rounded-2xl shadow-lg">
       <ScrollArea className="flex-1">{renderContent()}</ScrollArea>
     </Card>
   );

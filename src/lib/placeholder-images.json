@@ -8,8 +8,8 @@
     },
     {
       "id": "driver_avatar_1",
-      "description": "Avatar for a sample driver, John.",
-      "imageUrl": "https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjQ5NzY5OTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "Avatar for a sample driver, Juan Dela Cruz.",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "man portrait"
     },
     {
@@ -47,6 +47,30 @@
       "description": "Image of a bustling local market.",
       "imageUrl": "https://images.unsplash.com/photo-1596878477485-578740d1b987?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzdHJlZXQlMjBtYXJrZXR8ZW58MHx8fHwxNzY1MDM5MzY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "street market"
+    },
+    {
+      "id": "food_sisig",
+      "description": "A sizzling plate of Filipino sisig.",
+      "imageUrl": "https://images.unsplash.com/photo-1625477811215-17ea8062246f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZmlsaXBpbm8lMjBmb29kfGVufDB8fHx8MTc2NTEzOTM4MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "filipino food"
+    },
+    {
+      "id": "food_adobo",
+      "description": "A classic bowl of Filipino chicken adobo.",
+      "imageUrl": "https://images.unsplash.com/photo-1593870682262-8c9f6a9bb225?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmaWxpcGlubyUyMGZvb2R8ZW58MHx8fHwxNzY1MTM5MzgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "filipino food"
+    },
+    {
+      "id": "food_lechon",
+      "description": "A crispy and savory lechon.",
+      "imageUrl": "https://images.unsplash.com/photo-1583913459026-781129ce061f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaWxpcGlubyUyMGZvb2R8ZW58MHx8fHwxNzY1MTM5MzgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "filipino food"
+    },
+    {
+      "id": "food_default",
+      "description": "A delicious plate of food.",
+      "imageUrl": "https://images.unsplash.com/photo-1651978595428-b79169f223a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVzdGF1cmFudCUyMGZvb2R8ZW58MHx8fHwxNzY1MDk5NzQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "restaurant food"
     }
   ]
 }
