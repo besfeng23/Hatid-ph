@@ -1,3 +1,4 @@
+
 import { MapView } from '@/components/map-view';
 import { RideRequestPanel } from '@/components/ride-request-panel';
 
