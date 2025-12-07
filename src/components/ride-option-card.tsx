@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Users } from 'lucide-react';
 import React from 'react';
 
-type RideOption = {
+export type RideOption = {
   id: string;
   name: string;
   description: string;
@@ -26,11 +26,11 @@ export function RideOptionCard({ option, isSelected, onSelect }: RideOptionCardP
     <div
       onClick={() => onSelect(option)}
       className={cn(
-        'flex items-center gap-4 rounded-lg border-2 p-4 transition-all cursor-pointer bg-secondary/50 hover:bg-accent',
-        isSelected ? 'border-primary bg-primary/10' : 'border-transparent'
+        'flex items-center gap-4 rounded-lg border-2 p-4 transition-all cursor-pointer bg-secondary/50 hover:bg-primary/10',
+        isSelected ? 'border-primary bg-primary/20' : 'border-transparent'
       )}
     >
-      <div className="flex-shrink-0">{option.icon}</div>
+      <div className="flex-shrink-0 text-primary">{option.icon}</div>
       <div className="flex-1">
         <div className="flex justify-between items-baseline">
             <h4 className="font-bold">{option.name}</h4>

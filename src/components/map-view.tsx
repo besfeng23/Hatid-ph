@@ -1,18 +1,21 @@
-
 'use client';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { Sun } from 'lucide-react';
+import { Car, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Driver } from './ride-request-panel';
 
 const mapImage = PlaceHolderImages.find(p => p.id === 'map_manila');
 
-const drivers = [
+const nearDrivers = [
   { pathId: 'path1', duration: '10s', delay: '0s' },
   { pathId: 'path2', duration: '12s', delay: '1s' },
   { pathId: 'path3', duration: '8s', delay: '2s' },
   { pathId: 'path4', duration: '15s', delay: '3s' },
 ];
+
+const confirmedDriverPath = { pathId: 'driverPath', duration: '30s', delay: '0s' };
+
 
 const Path = ({ d, id }: { d: string; id: string }) => (
   <path
@@ -27,7 +30,7 @@ const Path = ({ d, id }: { d: string; id: string }) => (
   />
 );
 
-export function MapView() {
+export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null }) {
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
@@ -63,10 +66,10 @@ export function MapView() {
           <Path id="path2" d="M 600,50 C 500,150 400,50 300,200 S 100,400 50,300" />
           <Path id="path3" d="M 20,20 C 200,100 100,300 400,350 S 600,200 550,100" />
           <Path id="path4" d="M 580,380 Q 400,300 300,200 T 100,150" />
+          <path id="driverPath" d="M 50,50 C 150,150 250,150 250,250 S 350,350 450,250" fill="none" stroke="transparent"/>
         </defs>
 
-        {/* Animated driver icons following paths */}
-        {isClient && drivers.map((driver, index) => (
+        {isClient && !confirmedDriver && nearDrivers.map((driver, index) => (
           <g key={index}>
             <foreignObject
               className="overflow-visible"
@@ -84,6 +87,28 @@ export function MapView() {
             </foreignObject>
           </g>
         ))}
+
+        {isClient && confirmedDriver && (
+             <g>
+                <foreignObject
+                className="overflow-visible"
+                width="32"
+                height="32"
+                >
+                <div className="p-1 bg-background rounded-full shadow-lg">
+                    <Car
+                        className="h-6 w-6 text-primary drop-shadow-lg"
+                        style={{
+                        offsetPath: `path('${(document.getElementById(confirmedDriverPath.pathId) as SVGPathElement)?.getAttribute('d')}')`,
+                        offsetDistance: '0%',
+                        animation: `move ${confirmedDriverPath.duration} linear ${confirmedDriverPath.delay} 1`,
+                        animationFillMode: 'forwards'
+                        }}
+                    />
+                </div>
+                </foreignObject>
+            </g>
+        )}
       </svg>
       <style jsx>{`
         @keyframes move {

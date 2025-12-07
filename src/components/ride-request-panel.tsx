@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -21,23 +20,37 @@ import {
   Wallet,
   Star,
   Loader2,
+  Phone,
+  MessageSquare,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { SuggestedPlaces } from './suggested-places';
 import { PersonalizedRecommendations } from './personalized-recommendations';
 import { ScrollArea } from './ui/scroll-area';
-import { cn } from '@/lib/utils';
-import { RideOptionCard } from './ride-option-card';
+import { RideOptionCard, RideOption } from './ride-option-card';
+import { TripDetailsCard } from './trip-details-card';
 
 type View = 'request' | 'options' | 'confirming' | 'confirmed';
 
-export function RideRequestPanel() {
+export type Driver = {
+    name: string;
+    rating: number;
+    vehicle: string;
+    plate: string;
+    avatarUrl: string;
+    avatarHint: string;
+};
+
+// Add a new prop to pass the driver to the MapView
+export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver: Driver | null) => void }) {
   const [destination, setDestination] = useState('Bonifacio High Street');
   const [pickup, setPickup] = useState('Market! Market!');
   const [view, setView] = useState<View>('request');
-  const [selectedRide, setSelectedRide] = useState<any>(null);
+  const [selectedRide, setSelectedRide] = useState<RideOption | null>(null);
+  const [confirmedDriver, setConfirmedDriver] = useState<Driver | null>(null);
+  const [eta, setEta] = useState(5);
 
-  const rideOptions = [
+  const rideOptions: RideOption[] = [
     {
       id: 'sedan',
       name: 'HatidCar',
@@ -71,13 +84,24 @@ export function RideRequestPanel() {
     setView('options');
   };
 
-  const handleSelectRide = (ride: any) => {
+  const handleSelectRide = (ride: RideOption) => {
     setSelectedRide(ride);
   };
 
   const handleConfirmRide = () => {
     setView('confirming');
     setTimeout(() => {
+      const driver: Driver = {
+          name: 'John',
+          rating: 4.9,
+          vehicle: 'Toyota Vios',
+          plate: 'ABC-1234',
+          avatarUrl: 'https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjQ5NzY5OTN8MA&ixlib=rb-4.1.0&q=80&w=1080',
+          avatarHint: 'man portrait',
+      };
+      setConfirmedDriver(driver);
+      onRideConfirmed(driver); // Pass driver data to parent
+      setEta(5);
       setView('confirmed');
     }, 2000);
   };
@@ -91,8 +115,17 @@ export function RideRequestPanel() {
   const reset = () => {
     setView('request');
     setSelectedRide(null);
+    setConfirmedDriver(null);
+    onRideConfirmed(null); // Clear driver data
     setDestination('Bonifacio High Street');
   }
+
+  useEffect(() => {
+      if (view === 'confirmed' && eta > 0) {
+          const timer = setTimeout(() => setEta(eta - 1), 60 * 1000); // Decrease ETA every minute
+          return () => clearTimeout(timer);
+      }
+  }, [view, eta]);
 
   const renderContent = () => {
     switch (view) {
@@ -197,17 +230,20 @@ export function RideRequestPanel() {
                 </CardContent>
             );
         case 'confirmed':
-            return (
-                 <CardContent className="flex flex-col items-center justify-center h-full gap-2 text-center">
-                    <Car className="h-16 w-16 text-primary" />
-                    <h2 className="text-2xl font-bold">Driver Found!</h2>
-                    <p className="text-muted-foreground max-w-xs">Your driver, John, is on his way in a Toyota Vios (ABC-1234).</p>
-                    <div className="flex items-center gap-1 text-lg font-bold text-yellow-500">
-                        <Star className='h-5 w-5 fill-current'/> 4.9
+            return confirmedDriver ? (
+                 <CardContent className="flex flex-col h-full gap-4 p-4">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold">Your driver is on the way!</h2>
+                        <p className="text-primary font-bold text-lg">{eta} min away</p>
                     </div>
-                    <Button onClick={reset} className="mt-4">Done</Button>
+                    <TripDetailsCard driver={confirmedDriver}/>
+                    <div className="grid grid-cols-2 gap-4 mt-auto">
+                        <Button variant="outline" size="lg" className="h-12"><Phone className="mr-2"/> Call</Button>
+                        <Button variant="outline" size="lg" className="h-12"><MessageSquare className="mr-2"/> Message</Button>
+                    </div>
+                    <Button onClick={reset} variant="destructive" className="mt-2">Cancel Ride</Button>
                 </CardContent>
-            );
+            ) : null;
     }
   };
 
