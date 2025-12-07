@@ -38,8 +38,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { FoodSuggestionCard } from './food-suggestion-card';
 import { DeliveryRequestForm } from './delivery-request-form';
 import { cn } from '@/lib/utils';
+import { SetLocationView } from './set-location-view';
 
-type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'discovery';
+type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'discovery' | 'setLocation';
 
 export type Driver = {
     name: string;
@@ -103,6 +104,12 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   const handleFindRide = () => {
     setView('options');
   };
+  
+  const handleLocationSelect = (pickup: string, destination: string) => {
+    setPickup(pickup);
+    setDestination(destination);
+    setView('options');
+  };
 
   const handleSelectRide = (ride: RideOption) => {
     setSelectedRide(ride);
@@ -129,6 +136,8 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   const handleBack = () => {
     if (view === 'options') {
       setView('request');
+    } else if (view === 'setLocation') {
+      setView('request');
     }
   };
   
@@ -137,7 +146,8 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
     setSelectedRide(null);
     setConfirmedDriver(null);
     onRideConfirmed(null); // Clear driver data
-    setDestination('Bonifacio High Street');
+    setDestination('');
+    setPickup('');
   }
 
   useEffect(() => {
@@ -149,6 +159,15 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
 
   const renderContent = () => {
     switch (view) {
+      case 'setLocation':
+        return (
+          <SetLocationView
+            pickup={pickup}
+            destination={destination}
+            onConfirm={handleLocationSelect}
+            onBack={handleBack}
+          />
+        );
       case 'request':
         return (
           <>
@@ -174,20 +193,23 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                                 placeholder="Enter your destination"
                                 className="h-14 rounded-2xl bg-secondary pl-12 text-base"
                                 value={destination}
+                                onFocus={() => setView('setLocation')}
                                 onChange={e => setDestination(e.target.value)}
                             />
                             </div>
                         </div>
                     </TabsContent>
                     <TabsContent value="padala">
-                        <DeliveryRequestForm />
+                        <div onClick={() => setView('setLocation')}>
+                            <DeliveryRequestForm />
+                        </div>
                     </TabsContent>
                 </Tabs>
 
               <Button
                 className="w-full h-14 rounded-full text-lg font-bold"
                 size="lg"
-                disabled={!destination && currentTab === 'ride'}
+                disabled={currentTab === 'ride' && !destination}
                 onClick={handleFindRide}
               >
                 {currentTab === 'ride' ? 'Find a Ride' : 'Find a Courier'}
@@ -307,7 +329,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
              </ScrollArea>
         </div>
       
-       {view === 'request' && (
+       {(view === 'request' || view === 'setLocation') && (
          <div className="mt-auto border-t bg-background rounded-b-3xl">
             <div className="grid grid-cols-3 gap-2 p-2">
                 <Button variant={discoveryTab === 'places' ? "secondary" : "ghost"} className="flex-col h-16 rounded-2xl text-xs" onClick={() => {setView('discovery'); setDiscoveryTab('places')}}>
