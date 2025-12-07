@@ -1,0 +1,810 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Hatid application, either a rider or a driver.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The phone number of the user."
+        },
+        "userType": {
+          "type": "string",
+          "description": "The type of user (e.g., 'rider', 'driver')."
+        },
+        "languagePreference": {
+          "type": "string",
+          "description": "The user's preferred language (e.g., 'en', 'tl')."
+        },
+        "paymentMethodIds": {
+          "type": "array",
+          "description": "References to PaymentMethods. (Relationship: User 1:N PaymentMethod)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accessibilitySettingsId": {
+          "type": "string",
+          "description": "Reference to AccessibilitySettings. (Relationship: User 1:1 AccessibilitySettings)"
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "phoneNumber",
+        "userType"
+      ]
+    },
+    "Driver": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Driver",
+      "type": "object",
+      "description": "Represents a driver using the Hatid application, extending the User entity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the driver.  Also a reference to the User entity."
+        },
+        "licenseNumber": {
+          "type": "string",
+          "description": "The driver's license number."
+        },
+        "vehicleId": {
+          "type": "string",
+          "description": "Reference to Vehicle. (Relationship: Driver 1:1 Vehicle)"
+        },
+        "availability": {
+          "type": "boolean",
+          "description": "Indicates whether the driver is currently available to accept ride requests."
+        },
+        "rating": {
+          "type": "number",
+          "description": "The average rating of the driver."
+        },
+        "tripIds": {
+          "type": "array",
+          "description": "References to Trips. (Relationship: Driver 1:N Trip)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "earnings": {
+          "type": "number",
+          "description": "The driver's current earnings."
+        }
+      },
+      "required": [
+        "id",
+        "licenseNumber",
+        "vehicleId",
+        "availability"
+      ]
+    },
+    "Rider": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Rider",
+      "type": "object",
+      "description": "Represents a rider using the Hatid application, extending the User entity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the rider.  Also a reference to the User entity."
+        },
+        "rating": {
+          "type": "number",
+          "description": "The average rating of the rider."
+        },
+        "tripIds": {
+          "type": "array",
+          "description": "References to Trips. (Relationship: Rider 1:N Trip)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "loyaltyProgramId": {
+          "type": "string",
+          "description": "Reference to LoyaltyProgram. (Relationship: Rider 1:1 LoyaltyProgram)"
+        },
+        "savedLocationIds": {
+          "type": "array",
+          "description": "References to SavedLocations. (Relationship: Rider 1:N SavedLocation)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "Trip": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Trip",
+      "type": "object",
+      "description": "Represents a ride trip within the Hatid application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the trip."
+        },
+        "riderId": {
+          "type": "string",
+          "description": "Reference to Rider. (Relationship: Rider 1:N Trip)"
+        },
+        "driverId": {
+          "type": "string",
+          "description": "Reference to Driver. (Relationship: Driver 1:N Trip)"
+        },
+        "startLocation": {
+          "type": "string",
+          "description": "The starting location of the trip (e.g., coordinates or address)."
+        },
+        "endLocation": {
+          "type": "string",
+          "description": "The ending location of the trip (e.g., coordinates or address)."
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The start time of the trip.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The end time of the trip.",
+          "format": "date-time"
+        },
+        "fare": {
+          "type": "number",
+          "description": "The fare for the trip."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the trip (e.g., 'scheduled', 'inProgress', 'completed', 'cancelled')."
+        },
+        "paymentMethodId": {
+          "type": "string",
+          "description": "Reference to PaymentMethod. (Relationship: Trip 1:1 PaymentMethod)"
+        },
+        "scheduledTime": {
+          "type": "string",
+          "description": "The time the trip was scheduled for. Will be null if the trip wasn't scheduled",
+          "format": "date-time"
+        },
+        "routeOptimizationEvents": {
+          "type": "string",
+          "description": "Json block of the different optimization events that occurred during the trip."
+        }
+      },
+      "required": [
+        "id",
+        "riderId",
+        "driverId",
+        "startLocation",
+        "endLocation",
+        "startTime",
+        "fare",
+        "status"
+      ]
+    },
+    "Vehicle": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Vehicle",
+      "type": "object",
+      "description": "Represents a vehicle used by a driver in the Hatid application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the vehicle."
+        },
+        "make": {
+          "type": "string",
+          "description": "The make of the vehicle (e.g., Toyota)."
+        },
+        "model": {
+          "type": "string",
+          "description": "The model of the vehicle (e.g., Vios)."
+        },
+        "year": {
+          "type": "number",
+          "description": "The year the vehicle was manufactured."
+        },
+        "plateNumber": {
+          "type": "string",
+          "description": "The license plate number of the vehicle."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of vehicle (e.g., sedan, SUV)."
+        }
+      },
+      "required": [
+        "id",
+        "make",
+        "model",
+        "year",
+        "plateNumber",
+        "type"
+      ]
+    },
+    "PaymentMethod": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PaymentMethod",
+      "type": "object",
+      "description": "Represents a payment method used within the Hatid application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the payment method."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N PaymentMethod)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of payment method (e.g., 'creditCard', 'eWallet', 'cash')."
+        },
+        "details": {
+          "type": "string",
+          "description": "The details of the payment method (e.g., card number, e-wallet ID)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "type",
+        "details"
+      ]
+    },
+    "LoyaltyProgram": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LoyaltyProgram",
+      "type": "object",
+      "description": "Represents a loyalty program for riders within the Hatid application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the loyalty program."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the loyalty program (e.g., 'Gold', 'Silver', 'Bronze')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the loyalty program."
+        },
+        "discountPercentage": {
+          "type": "number",
+          "description": "The discount percentage offered by the loyalty program."
+        },
+        "perks": {
+          "type": "string",
+          "description": "Any perks offered by the loyalty program."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "discountPercentage"
+      ]
+    },
+    "TrafficIncident": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TrafficIncident",
+      "type": "object",
+      "description": "Represents a traffic incident reported by a user within the Hatid application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the traffic incident."
+        },
+        "reporterId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N TrafficIncident)"
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the traffic incident (e.g., coordinates or address)."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of traffic incident (e.g., 'accident', 'roadClosure', 'heavyTraffic')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the traffic incident."
+        },
+        "reportedTime": {
+          "type": "string",
+          "description": "The time the traffic incident was reported.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "reporterId",
+        "location",
+        "type",
+        "reportedTime"
+      ]
+    },
+    "SuggestedPlace": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SuggestedPlace",
+      "type": "object",
+      "description": "Represents a suggested destination in Metro Manila.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the suggested place."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the place."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the place."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the place (e.g., coordinates or address)."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the place (e.g., 'restaurant', 'museum', 'park')."
+        },
+        "rating": {
+          "type": "number",
+          "description": "The average rating of the place."
+        },
+        "imageURL": {
+          "type": "string",
+          "description": "A link to an image of the place",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "location",
+        "category"
+      ]
+    },
+    "AccessibilitySettings": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AccessibilitySettings",
+      "type": "object",
+      "description": "Represents accessibility settings for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the accessibility settings."
+        },
+        "voiceControlEnabled": {
+          "type": "boolean",
+          "description": "Indicates whether voice control is enabled."
+        },
+        "screenReaderEnabled": {
+          "type": "boolean",
+          "description": "Indicates whether screen reader is enabled."
+        },
+        "fontSize": {
+          "type": "string",
+          "description": "The preferred font size (e.g., 'small', 'medium', 'large')."
+        },
+        "colorContrast": {
+          "type": "string",
+          "description": "The preferred color contrast (e.g., 'normal', 'high')."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "EmergencyContact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmergencyContact",
+      "type": "object",
+      "description": "Represents an emergency contact for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the emergency contact."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N EmergencyContact)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the emergency contact."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The phone number of the emergency contact."
+        },
+        "relationship": {
+          "type": "string",
+          "description": "The relationship of the contact to the user (e.g., 'family', 'friend')."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "phoneNumber",
+        "relationship"
+      ]
+    },
+    "LostItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LostItem",
+      "type": "object",
+      "description": "Represents a lost item reported by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the lost item."
+        },
+        "riderId": {
+          "type": "string",
+          "description": "Reference to Rider. (Relationship: Rider 1:N LostItem)"
+        },
+        "tripId": {
+          "type": "string",
+          "description": "Reference to Trip. (Relationship: Trip 1:N LostItem)"
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the lost item."
+        },
+        "locationFound": {
+          "type": "string",
+          "description": "The location where the item was found or lost."
+        },
+        "reportTime": {
+          "type": "string",
+          "description": "The time the item was reported lost.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the lost item (e.g., 'reported', 'found', 'returned')."
+        }
+      },
+      "required": [
+        "id",
+        "riderId",
+        "description",
+        "reportTime",
+        "status"
+      ]
+    },
+    "SavedLocation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SavedLocation",
+      "type": "object",
+      "description": "Represents a saved location for a rider.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the saved location."
+        },
+        "riderId": {
+          "type": "string",
+          "description": "Reference to Rider. (Relationship: Rider 1:N SavedLocation)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the saved location (e.g., 'Home', 'Work')."
+        },
+        "address": {
+          "type": "string",
+          "description": "The address of the saved location."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Latitude coordinate of saved location"
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Longitude coordinate of saved location"
+        }
+      },
+      "required": [
+        "id",
+        "riderId",
+        "name",
+        "address",
+        "latitude",
+        "longitude"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Includes userId as a parameter for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/drivers/{driverId}",
+        "definition": {
+          "entityName": "Driver",
+          "schema": {
+            "$ref": "#/backend/entities/Driver"
+          },
+          "description": "Stores driver-specific data associated with a user. Includes userId and driverId as parameters for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "driverId",
+              "description": "The unique identifier of the driver.  Matches the userId."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/riders/{riderId}",
+        "definition": {
+          "entityName": "Rider",
+          "schema": {
+            "$ref": "#/backend/entities/Rider"
+          },
+          "description": "Stores rider-specific data associated with a user. Includes userId and riderId as parameters for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "riderId",
+              "description": "The unique identifier of the rider. Matches the userId."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/trips/{tripId}",
+        "definition": {
+          "entityName": "Trip",
+          "schema": {
+            "$ref": "#/backend/entities/Trip"
+          },
+          "description": "Stores trip data. Includes denormalized 'riderId' and 'driverId' for authorization independence.",
+          "params": [
+            {
+              "name": "tripId",
+              "description": "The unique identifier of the trip."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/vehicles/{vehicleId}",
+        "definition": {
+          "entityName": "Vehicle",
+          "schema": {
+            "$ref": "#/backend/entities/Vehicle"
+          },
+          "description": "Stores vehicle data.",
+          "params": [
+            {
+              "name": "vehicleId",
+              "description": "The unique identifier of the vehicle."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/paymentMethods/{paymentMethodId}",
+        "definition": {
+          "entityName": "PaymentMethod",
+          "schema": {
+            "$ref": "#/backend/entities/PaymentMethod"
+          },
+          "description": "Stores payment methods for a user. Includes userId and paymentMethodId as parameters for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "paymentMethodId",
+              "description": "The unique identifier of the payment method."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/loyaltyPrograms/{loyaltyProgramId}",
+        "definition": {
+          "entityName": "LoyaltyProgram",
+          "schema": {
+            "$ref": "#/backend/entities/LoyaltyProgram"
+          },
+          "description": "Stores loyalty program information.",
+          "params": [
+            {
+              "name": "loyaltyProgramId",
+              "description": "The unique identifier of the loyalty program."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/trafficIncidents/{trafficIncidentId}",
+        "definition": {
+          "entityName": "TrafficIncident",
+          "schema": {
+            "$ref": "#/backend/entities/TrafficIncident"
+          },
+          "description": "Stores traffic incident reports.",
+          "params": [
+            {
+              "name": "trafficIncidentId",
+              "description": "The unique identifier of the traffic incident."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/suggestedPlaces/{suggestedPlaceId}",
+        "definition": {
+          "entityName": "SuggestedPlace",
+          "schema": {
+            "$ref": "#/backend/entities/SuggestedPlace"
+          },
+          "description": "Stores suggested places.",
+          "params": [
+            {
+              "name": "suggestedPlaceId",
+              "description": "The unique identifier of the suggested place."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/accessibilitySettings/{accessibilitySettingsId}",
+        "definition": {
+          "entityName": "AccessibilitySettings",
+          "schema": {
+            "$ref": "#/backend/entities/AccessibilitySettings"
+          },
+          "description": "Stores accessibility settings for a user. Includes userId and accessibilitySettingsId as parameters for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "accessibilitySettingsId",
+              "description": "The unique identifier of the accessibility settings.  Should match userId."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/emergencyContacts/{emergencyContactId}",
+        "definition": {
+          "entityName": "EmergencyContact",
+          "schema": {
+            "$ref": "#/backend/entities/EmergencyContact"
+          },
+          "description": "Stores emergency contacts for a user. Includes userId and emergencyContactId as parameters for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "emergencyContactId",
+              "description": "The unique identifier of the emergency contact."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/lostItems/{lostItemId}",
+        "definition": {
+          "entityName": "LostItem",
+          "schema": {
+            "$ref": "#/backend/entities/LostItem"
+          },
+          "description": "Stores lost item reports for a user. Includes userId and lostItemId as parameters for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user. Should match the riderId on the document."
+            },
+            {
+              "name": "lostItemId",
+              "description": "The unique identifier of the lost item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/savedLocations/{savedLocationId}",
+        "definition": {
+          "entityName": "SavedLocation",
+          "schema": {
+            "$ref": "#/backend/entities/SavedLocation"
+          },
+          "description": "Stores saved locations for a user. Includes userId and savedLocationId as parameters for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user. Should match the riderId on the document."
+            },
+            {
+              "name": "savedLocationId",
+              "description": "The unique identifier of the saved location."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "admin_role",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection used to store admin roles. The presence of a document indicates the user is an admin.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to prioritize authorization independence, clarity, and scalability. It utilizes denormalization for authorization, structural segregation for homogeneous security postures, and consistent access modeling.  Specifically, user-owned data is stored in hierarchical paths under the `/users/{userId}` collection. Collaborative data (such as trips involving drivers and riders) denormalizes relevant authorization data (driverId, riderId) into each Trip document to avoid the need for `get()` calls in the security rules. Global roles are managed via existence checks in dedicated collections (e.g., /roles_admin/{uid}).\n\n**Authorization Independence:** Achieved by denormalizing user roles and relationships directly into documents where those attributes are needed for authorization. For example, the `Trip` document includes both `driverId` and `riderId`, eliminating the need to fetch related User documents to determine authorization.\n\n**QAPs Support:** The structure supports secure `list` operations by ensuring that collections contain documents with consistent security requirements (Structural Segregation).  Path-based ownership (`/users/{userId}/savedLocations/{savedLocationId}`) allows listing of a user's saved locations without complex filtering. Collections like `suggestedPlaces` can be queried and listed securely without user-specific filtering due to their public nature.\n\nThe decision to store Driver and Rider profiles as separate entities, referenced by the User ID, allows for simpler queries related to specific roles.  All user-specific data is namespaced under /users/{userId} to allow for easy management of user data.\n\nThe Trip entity uses a top-level collection to allow for easier global queries. Since both riderId and driverId are stored on the document, rules can be used to only allow Riders and Drivers to query Trips involving them without needing to check subcollections."
+  }
+}

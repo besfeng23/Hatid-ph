@@ -1,0 +1,260 @@
+/**
+ * Core Philosophy:
+ * This ruleset enforces a strict security model based on user ownership, collaborative access for shared data, and role-based administration. The default posture is to deny access unless explicitly granted.
+ *
+ * Data Structure:
+ * The data is organized into two main categories:
+ * 1. User-Private Data: All data exclusively owned by a single user is nested under the `/users/{userId}` path (e.g., payment methods, saved locations). This hierarchical structure allows for simple and secure path-based ownership rules.
+ * 2. Shared & Public Data: Data that is either collaborative (like a trip between a rider and driver) or public (like loyalty programs) is stored in top-level collections.
+ *
+ * Key Security Decisions:
+ * - User Isolation: Users can only read and write their own data within the `/users/{userId}` data tree. Listing other users' documents or profiles is explicitly disallowed.
+ * - Collaborative Access: For `trips`, access is granted only to the specific rider and driver involved in that trip, whose UIDs are denormalized onto the trip document itself. Open-ended listing of all trips is denied to prevent data leakage.
+ * - Public Data: Collections like `loyaltyPrograms` and `suggestedPlaces` are configured to be publicly readable but not writable by clients, making them safe for general consumption.
+ * - Admin Roles: A `/roles_admin` collection is used to manage administrative privileges. The existence of a user's UID in this collection grants them elevated access. Client-side modification of roles is disabled.
+ *
+ * Denormalization for Authorization:
+ * This ruleset relies heavily on denormalization to enable efficient and secure authorization. For example, the `/trips/{tripId}` document contains both `riderId` and `driverId`. This avoids slow and costly `get()` calls to other documents during rule evaluation, ensuring that authorization decisions are fast and based on the data being accessed.
+ *
+ * Structural Segregation:
+ * The data model separates private user data from public data by placing them in different collections. User-specific `savedLocations` are in a user subcollection, while universally accessible `suggestedPlaces` are in a top-level collection. This design simplifies security rules and makes list operations inherently more secure.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for cleaner, more maintainable rules.
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /**
+     * @description A User's own profile. Users can create their own profile, and then only they can read or modify it.
+     * @path /users/{userId}
+     * @allow (create) A new user with auth.uid 'user_abc' creating their own document at /users/user_abc.
+     * @deny (update) A user with auth.uid 'user_xyz' trying to update the document at /users/user_abc.
+     * @principle Restricts access to a user's own data tree and enforces self-creation.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if false; // Disallow listing all users for privacy.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId) || isAdmin();
+
+      /**
+       * @description A user's driver-specific profile. Only the user can manage this document.
+       * @path /users/{userId}/drivers/{driverId}
+       * @allow (create) User 'user_abc' creating their driver profile at /users/user_abc/drivers/user_abc.
+       * @deny (get) User 'user_xyz' trying to read /users/user_abc/drivers/user_abc.
+       * @principle Enforces document ownership and path consistency.
+       */
+      match /drivers/{driverId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && driverId == userId && request.resource.data.id == driverId;
+        allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description A user's rider-specific profile. Only the user can manage this document.
+       * @path /users/{userId}/riders/{riderId}
+       * @allow (create) User 'user_abc' creating their rider profile at /users/user_abc/riders/user_abc.
+       * @deny (get) User 'user_xyz' trying to read /users/user_abc/riders/user_abc.
+       * @principle Enforces document ownership and path consistency.
+       */
+      match /riders/{riderId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && riderId == userId && request.resource.data.id == riderId;
+        allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description A user's payment methods. Only the user can manage them.
+       * @path /users/{userId}/paymentMethods/{paymentMethodId}
+       * @allow (read) User 'user_abc' reading their own payment methods.
+       * @deny (write) User 'user_xyz' trying to create a payment method for 'user_abc'.
+       * @principle Enforces document ownership within a user's data tree.
+       */
+      match /paymentMethods/{paymentMethodId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description A user's accessibility settings. Only the user can manage them.
+       * @path /users/{userId}/accessibilitySettings/{accessibilitySettingsId}
+       * @allow (read) User 'user_abc' reading their own settings.
+       * @deny (write) User 'user_xyz' trying to modify settings for 'user_abc'.
+       * @principle Enforces document ownership within a user's data tree.
+       */
+      match /accessibilitySettings/{accessibilitySettingsId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && accessibilitySettingsId == userId && request.resource.data.id == accessibilitySettingsId;
+        allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description A user's emergency contacts. Only the user can manage them.
+       * @path /users/{userId}/emergencyContacts/{emergencyContactId}
+       * @allow (read) User 'user_abc' reading their own contacts.
+       * @deny (write) User 'user_xyz' trying to add a contact for 'user_abc'.
+       * @principle Enforces document ownership within a user's data tree.
+       */
+      match /emergencyContacts/{emergencyContactId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description A user's lost item reports. Only the user can manage them.
+       * @path /users/{userId}/lostItems/{lostItemId}
+       * @allow (read) User 'user_abc' reading their own lost item reports.
+       * @deny (write) User 'user_xyz' trying to create a report for 'user_abc'.
+       * @principle Enforces document ownership and validates relational integrity.
+       */
+      match /lostItems/{lostItemId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.riderId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.riderId == resource.data.riderId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description A user's saved locations. Only the user can manage them.
+       * @path /users/{userId}/savedLocations/{savedLocationId}
+       * @allow (read) User 'user_abc' reading their own saved locations.
+       * @deny (write) User 'user_xyz' trying to create a location for 'user_abc'.
+       * @principle Enforces document ownership and validates relational integrity.
+       */
+      match /savedLocations/{savedLocationId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.riderId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.riderId == resource.data.riderId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    // Helper functions specific to Trip logic
+    function isTripParticipant(trip) {
+      return request.auth.uid == trip.data.riderId || request.auth.uid == trip.data.driverId;
+    }
+    function isExistingTripParticipant() {
+      return resource != null && isTripParticipant(resource);
+    }
+
+    /**
+     * @description A ride trip involving a rider and a driver. Access is restricted to participants.
+     * @path /trips/{tripId}
+     * @allow (get) The rider or driver associated with the trip document reading it.
+     * @deny (list) Any user trying to list all trips in the system to prevent data leakage.
+     * @deny (update) A user not associated with the trip trying to modify it.
+     * @principle Implements a shared access model using denormalized participant IDs.
+     */
+    match /trips/{tripId} {
+      allow get: if isTripParticipant(resource);
+      allow list: if false; // Deny listing all trips to prevent data leakage.
+      allow create: if isSignedIn() && request.resource.data.riderId == request.auth.uid;
+      allow update: if isExistingTripParticipant();
+      allow delete: if isExistingTripParticipant() || isAdmin();
+    }
+
+    /**
+     * @description Vehicle information. CRITICAL: This rule is locked down due to a schema issue.
+     * @path /vehicles/{vehicleId}
+     * @allow (none) No operations are currently allowed.
+     * @deny (all) All operations are denied until the schema is fixed.
+     * @principle Enforces a secure default. The rule cannot safely grant access without an ownership field on the document.
+     */
+    match /vehicles/{vehicleId} {
+      // CRITICAL: Cannot implement owner-only writes. The 'Vehicle' entity is missing an 'ownerId' or 'driverId' field.
+      // This prevents the rule from verifying who owns the vehicle. Access is fully denied until the schema is updated.
+      allow get: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow list: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow create: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow update: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+    }
+
+    /**
+     * @description Loyalty program details, which are public and read-only for clients.
+     * @path /loyaltyPrograms/{loyaltyProgramId}
+     * @allow (read) Any user, signed in or not, can read loyalty program info.
+     * @deny (write) No client can modify loyalty programs; this is managed server-side.
+     * @principle Provides public, read-only access to global configuration data.
+     */
+    match /loyaltyPrograms/{loyaltyProgramId} {
+      allow get, list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Suggested places, which are public and read-only for clients.
+     * @path /suggestedPlaces/{suggestedPlaceId}
+     * @allow (read) Any user, signed in or not, can read suggested place info.
+     * @deny (write) No client can modify suggested places; this is managed server-side.
+     * @principle Provides public, read-only access to global content.
+     */
+    match /suggestedPlaces/{suggestedPlaceId} {
+      allow get, list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+    
+    // Helper function specific to TrafficIncident logic
+    function isReporter(incident) {
+      return request.auth.uid == incident.data.reporterId;
+    }
+
+    /**
+     * @description Traffic incidents reported by users. Anyone can read, but only the reporter can manage their own entry.
+     * @path /trafficIncidents/{trafficIncidentId}
+     * @allow (create) Any signed-in user creating a new traffic report.
+     * @allow (read) Any user, signed-in or not, reading traffic reports.
+     * @deny (update) A user trying to update a report they did not create.
+     * @principle Implements a "public read, owner-only write" model.
+     */
+    match /trafficIncidents/{trafficIncidentId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.reporterId == request.auth.uid;
+      allow update: if resource != null && isReporter(resource);
+      allow delete: if resource != null && isReporter(resource);
+    }
+    
+    /**
+     * @description Admin role documents. The existence of a doc means the user is an admin. Not manageable by clients.
+     * @path /roles_admin/{userId}
+     * @allow (get) An admin checking their own role status.
+     * @deny (write) All client-side writes are forbidden to prevent self-promotion to admin.
+     * @principle Secures role-management data from client modification.
+     */
+    match /roles_admin/{userId} {
+      allow get: if isAdmin() && isOwner(userId);
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
