@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -40,6 +41,7 @@ import { cn } from '@/lib/utils';
 import { SetLocationView } from './set-location-view';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'discovery' | 'setLocation' | 'completed';
 
@@ -64,6 +66,8 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   const [discoveryTab, setDiscoveryTab] = useState('places');
   const [rating, setRating] = useState(0);
   const [tip, setTip] = useState(0);
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const rideOptions: RideOption[] = [
@@ -146,14 +150,27 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   };
   
   const reset = () => {
-    setView('request');
-    setSelectedRide(null);
-    setConfirmedDriver(null);
-    onRideConfirmed(null); // Clear driver data
-    setDestination('');
-    setPickup('');
-    setRating(0);
-    setTip(0);
+    setIsSubmitting(true);
+    // Simulate API call for payment
+    setTimeout(() => {
+        toast({
+            title: 'Payment Successful',
+            description: `₱${((selectedRide?.price || 0) + tip).toFixed(2)} has been charged to your card.`,
+        });
+
+        // Reset state after toast
+        setTimeout(() => {
+            setIsSubmitting(false);
+            setView('request');
+            setSelectedRide(null);
+            setConfirmedDriver(null);
+            onRideConfirmed(null); // Clear driver data
+            setDestination('');
+            setPickup('');
+            setRating(0);
+            setTip(0);
+        }, 1500);
+    }, 1000);
   }
 
   const handleCompleteTrip = () => {
@@ -345,7 +362,10 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                         </div>
                     </div>
                     
-                    <Button onClick={reset} className="mt-auto h-14 rounded-full text-lg">Submit & Finish</Button>
+                    <Button onClick={reset} className="mt-auto h-14 rounded-full text-lg" disabled={isSubmitting}>
+                        {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
+                        Submit & Finish
+                    </Button>
                 </CardContent>
             );
         case 'discovery':

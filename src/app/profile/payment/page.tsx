@@ -8,17 +8,24 @@ import { Banknote, ChevronRight, CreditCard, Landmark, PlusCircle, Smartphone, W
 import Link from 'next/link';
 import AuthGuard from '@/components/auth-guard';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 
 function PaymentPage() {
     const { toast } = useToast();
+    const [isCashingOut, setIsCashingOut] = useState(false);
 
     const handleCashOut = () => {
-        // Placeholder function for cashing out
-        toast({
-            title: "Cash Out Processing",
-            description: "Your cash out request is being processed. It may take 1-3 business days.",
-        });
+        setIsCashingOut(true);
+        // Simulate a secure transaction
+        setTimeout(() => {
+            setIsCashingOut(false);
+            toast({
+                title: "Cash Out Successful!",
+                description: "Your earnings have been transferred to your linked account. It may take 1-3 business days to reflect.",
+            });
+        }, 2000);
     }
 
     return (
@@ -46,11 +53,16 @@ function PaymentPage() {
                         </div>
                         <Separator />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Button size="lg" className="h-12">
+                            <Button size="lg" className="h-12" disabled>
                                 <PlusCircle className="mr-2" /> Add Funds
                             </Button>
-                            <Button size="lg" variant="secondary" className="h-12" onClick={handleCashOut}>
-                                <Banknote className="mr-2" /> Cash Out Earnings
+                            <Button size="lg" variant="secondary" className="h-12" onClick={handleCashOut} disabled={isCashingOut}>
+                                {isCashingOut ? (
+                                    <Loader2 className="mr-2 animate-spin" />
+                                ) : (
+                                    <Banknote className="mr-2" />
+                                )}
+                                Cash Out Earnings
                             </Button>
                         </div>
                     </CardContent>

@@ -1,3 +1,4 @@
+
 /**
  * Core Philosophy:
  * This ruleset enforces a strict security model based on user ownership, collaborative access for shared data, and role-based administration. The default posture is to deny access unless explicitly granted.
@@ -65,7 +66,7 @@ service cloud.firestore {
        * @principle Enforces document ownership and path consistency.
        */
       match /drivers/{driverId} {
-        allow get, list: if isSignedIn();
+        allow get, list: if isOwner(userId) || isAdmin();
         allow create: if isOwner(userId) && driverId == userId && request.resource.data.id == driverId;
         allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
         allow delete: if isExistingOwner(userId);
