@@ -36,21 +36,6 @@ export function AppSidebar() {
 
   return (
     <>
-      {isMobile && (
-        <div className="p-2 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg shadow-lg">
-              <Car className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <span className="text-2xl font-bold text-primary tracking-tight font-headline">
-              Hatid
-            </span>
-          </Link>
-          <button onClick={() => toggleSidebar()}>
-            <Menu />
-          </button>
-        </div>
-      )}
       <SidebarHeader>
         <div className="flex items-center gap-3" data-testid="sidebar-header">
           <div className="p-2 bg-primary rounded-lg shadow-lg">
