@@ -1,3 +1,4 @@
+
 'use client';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
@@ -63,6 +64,45 @@ export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null })
       <div className='absolute top-4 left-4 bg-background/80 backdrop-blur-sm p-2 rounded-lg'>
           <p className='font-semibold text-sm'>Map of Metro Manila</p>
       </div>
+
+       {isClient && !confirmedDriver && nearDrivers.map(driver => (
+        <svg key={driver.pathId} className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
+           <defs>
+              <path id={driver.pathId} d={`M 200 200 C 150 150, ${Math.random() * 200 + 100} ${Math.random() * 200 + 100}, ${Math.random() * 400} ${Math.random() * 400}`} />
+            </defs>
+            <g>
+                <path d={`M 200 200 C 150 150, ${Math.random() * 200 + 100} ${Math.random() * 200 + 100}, ${Math.random() * 400} ${Math.random() * 400}`} fill="none" stroke="hsl(var(--sun) / 0.3)" strokeWidth="2" strokeDasharray="5 5" />
+                <foreignObject>
+                    <Car className="text-primary animate-move-along-path" style={{ animationDuration: driver.duration, animationDelay: driver.delay }} />
+                </foreignObject>
+            </g>
+        </svg>
+      ))}
+
+      {isClient && confirmedDriver && (
+        <svg className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
+          <defs>
+              <path id={confirmedDriverPath.pathId} d="M 100 350 C 150 300, 180 250, 200 200" />
+          </defs>
+           <g>
+                <path d="M 100 350 C 150 300, 180 250, 200 200" fill="none" stroke="hsl(var(--sun))" strokeWidth="4" strokeDasharray="10" className='[animation:draw-line_10s_ease-in-out_forwards]'/>
+                 <foreignObject className="offset-path" style={{ offsetPath: `path("M 100 350 C 150 300, 180 250, 200 200")`, animation: 'move-car 10s linear forwards' }}>
+                    <Car className="text-primary w-8 h-8 -rotate-45" />
+                </foreignObject>
+            </g>
+        </svg>
+      )}
+
+      <style jsx>{`
+        @keyframes move-car {
+            0% {
+                offset-distance: 0%;
+            }
+            100% {
+                offset-distance: 100%;
+            }
+        }
+      `}</style>
     </div>
   );
 }

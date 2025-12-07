@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -10,7 +11,7 @@ export default function Home() {
 
   return (
     <AuthGuard>
-      <div className="relative h-[calc(100vh-5rem)] w-full">
+      <div className="relative h-screen w-full">
         <div className="h-1/2 w-full">
             <MapView confirmedDriver={confirmedDriver} />
         </div>
