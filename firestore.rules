@@ -35,6 +35,10 @@ service cloud.firestore {
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
+    
+    function isCreatingOwnDocument(userId) {
+        return isOwner(userId) && request.resource.data.id == userId;
+    }
 
     function isAdmin() {
       return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
@@ -48,11 +52,10 @@ service cloud.firestore {
      * @principle Restricts access to a user's own data tree and enforces self-creation.
      */
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
+      allow get, update: if isOwner(userId) || isAdmin();
       allow list: if false; // Disallow listing all users for privacy.
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId) || isAdmin();
+      allow create: if isCreatingOwnDocument(userId);
+      allow delete: if isOwner(userId) || isAdmin();
 
       /**
        * @description A user's driver-specific profile. Only the user can manage this document.

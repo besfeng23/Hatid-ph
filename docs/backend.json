@@ -10,6 +10,10 @@
           "type": "string",
           "description": "Unique identifier for the user."
         },
+        "displayName": {
+          "type": "string",
+          "description": "The display name of the user."
+        },
         "firstName": {
           "type": "string",
           "description": "The first name of the user."
@@ -49,10 +53,7 @@
       },
       "required": [
         "id",
-        "firstName",
-        "lastName",
         "email",
-        "phoneNumber",
         "userType"
       ]
     },
