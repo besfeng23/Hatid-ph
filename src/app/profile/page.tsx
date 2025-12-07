@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Bell, CreditCard, HelpCircle, Loader2, Shield, User } from 'lucide-react';
+import { Bell, ChevronRight, CreditCard, HelpCircle, Loader2, Shield, User } from 'lucide-react';
 import AuthGuard from '@/components/auth-guard';
 import { useUser, useAuth, useFirestore } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 function ProfilePage() {
     const { user } = useUser();
@@ -60,10 +61,8 @@ function ProfilePage() {
             phoneNumber: phoneNumber,
         };
 
-        // Use non-blocking update
         setDocumentNonBlocking(userDocRef, userData, { merge: true });
 
-        // Simulate save time and show toast
         setTimeout(() => {
             setIsSaving(false);
             toast({
@@ -128,10 +127,10 @@ function ProfilePage() {
                         <CardDescription>Manage your account preferences.</CardDescription>
                     </CardHeader>
                     <CardContent className="divide-y divide-border">
-                        <SettingItem icon={<CreditCard />} title="Payment Methods" description="Manage your saved cards and payment options." />
-                        <SettingItem icon={<Bell />} title="Notifications" description="Choose how you receive notifications." />
-                        <SettingItem icon={<Shield />} title="Security" description="Change your password and manage account security." />
-                        <SettingItem icon={<HelpCircle />} title="Help Center" description="Get support or report an issue." />
+                        <SettingItem icon={<CreditCard />} title="Payment Methods" description="Manage your saved cards and payment options." href="/profile/payment" />
+                        <SettingItem icon={<Bell />} title="Notifications" description="Choose how you receive notifications." href="#" />
+                        <SettingItem icon={<Shield />} title="Security" description="Change your password and manage account security." href="#" />
+                        <SettingItem icon={<HelpCircle />} title="Help Center" description="Get support or report an issue." href="#" />
                     </CardContent>
                 </Card>
 
@@ -141,16 +140,16 @@ function ProfilePage() {
     );
 }
 
-function SettingItem({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function SettingItem({ icon, title, description, href }: { icon: React.ReactNode, title: string, description: string, href: string }) {
     return (
-        <div className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+        <Link href={href} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0 hover:bg-secondary/50 -mx-6 px-6 transition-colors">
             <div className="text-primary">{icon}</div>
             <div className="flex-1">
                 <h4 className="font-semibold">{title}</h4>
                 <p className="text-sm text-muted-foreground">{description}</p>
             </div>
-            <Button variant="ghost" size="sm">Manage</Button>
-        </div>
+            <ChevronRight className="text-muted-foreground" />
+        </Link>
     )
 }
 
