@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "map_manila",
+      "description": "A stylized map of Metro Manila.",
+      "imageUrl": "https://images.unsplash.com/photo-1619468129361-605ebea04b44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaXR5JTIwbWFwfGVufDB8fHx8MTc2NTA4NjMxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city map"
+    },
+    {
+      "id": "driver_avatar_1",
+      "description": "Avatar for a sample driver, John.",
+      "imageUrl": "https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjQ5NzY5OTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "driver_avatar_2",
+      "description": "Avatar for a sample driver, Maria.",
+      "imageUrl": "https://images.unsplash.com/photo-1546961329-78bef0414d7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2NTAxNzM4OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "driver_avatar_3",
+      "description": "Avatar for a sample driver, Alex.",
+      "imageUrl": "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjUwMjYxNTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "place_intramuros",
+      "description": "Image of the historic walls of Intramuros.",
+      "imageUrl": "https://images.unsplash.com/photo-1702422578496-7cdce281bf90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxoaXN0b3JpYyUyMGFyY2hpdGVjdHVyZXxlbnwwfHx8fDE3NjUwMzQ4ODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "historic architecture"
+    },
+    {
+      "id": "place_bgc",
+      "description": "Image of Bonifacio High Street in BGC.",
+      "imageUrl": "https://images.unsplash.com/photo-1567449303183-ae0d6ed1498e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb2Rlcm4lMjBjaXR5fGVufDB8fHx8MTc2NTA5MzA2MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern city"
+    },
+    {
+      "id": "place_museum",
+      "description": "Image of the National Museum of Fine Arts.",
+      "imageUrl": "https://images.unsplash.com/photo-1578305595623-39a5cb48a187?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtdXNldW0lMjBidWlsZGluZ3xlbnwwfHx8fDE3NjUwMjUyMTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "museum building"
+    },
+    {
+      "id": "place_market",
+      "description": "Image of a bustling local market.",
+      "imageUrl": "https://images.unsplash.com/photo-1596878477485-578740d1b987?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzdHJlZXQlMjBtYXJrZXR8ZW58MHx8fHwxNzY1MDM5MzY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "street market"
+    }
+  ]
 }
