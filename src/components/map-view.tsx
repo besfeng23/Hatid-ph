@@ -38,17 +38,19 @@ export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null })
     }, []);
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl shadow-lg">
-      {mapImage && (
-        <Image
-          src={mapImage.imageUrl}
-          alt={mapImage.description}
-          fill
-          priority
-          className="object-cover"
-          data-ai-hint={mapImage.imageHint}
-        />
-      )}
+    <div className="relative h-full w-full overflow-hidden">
+       <div className='absolute inset-0'>
+         {mapImage && (
+            <Image
+            src={mapImage.imageUrl}
+            alt={mapImage.description}
+            fill
+            priority
+            className="object-cover"
+            data-ai-hint={mapImage.imageHint}
+            />
+        )}
+       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/50" />
 
       {/* User's location pin */}
@@ -58,68 +60,9 @@ export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null })
           <div className="relative h-4 w-4 rounded-full bg-primary border-2 border-white shadow-md" />
         </div>
       </div>
-
-      {/* SVG for animated paths */}
-      <svg className="absolute inset-0 w-full h-full overflow-visible">
-        <defs>
-          <Path id="path1" d="M 50,200 Q 150,50 300,150 T 500,250" />
-          <Path id="path2" d="M 600,50 C 500,150 400,50 300,200 S 100,400 50,300" />
-          <Path id="path3" d="M 20,20 C 200,100 100,300 400,350 S 600,200 550,100" />
-          <Path id="path4" d="M 580,380 Q 400,300 300,200 T 100,150" />
-          <path id="driverPath" d="M 50,50 C 150,150 250,150 250,250 S 350,350 450,250" fill="none" stroke="transparent"/>
-        </defs>
-
-        {isClient && !confirmedDriver && nearDrivers.map((driver, index) => (
-          <g key={index}>
-            <foreignObject
-              className="overflow-visible"
-              width="32"
-              height="32"
-            >
-              <Sun
-                className="h-7 w-7 text-sun drop-shadow-lg"
-                style={{
-                  offsetPath: `path('${(document.getElementById(driver.pathId) as SVGPathElement)?.getAttribute('d')}')`,
-                  offsetDistance: '0%',
-                  animation: `move ${driver.duration} linear ${driver.delay} infinite`,
-                }}
-              />
-            </foreignObject>
-          </g>
-        ))}
-
-        {isClient && confirmedDriver && (
-             <g>
-                <foreignObject
-                className="overflow-visible"
-                width="32"
-                height="32"
-                >
-                <div className="p-1 bg-background rounded-full shadow-lg">
-                    <Car
-                        className="h-6 w-6 text-primary drop-shadow-lg"
-                        style={{
-                        offsetPath: `path('${(document.getElementById(confirmedDriverPath.pathId) as SVGPathElement)?.getAttribute('d')}')`,
-                        offsetDistance: '0%',
-                        animation: `move ${confirmedDriverPath.duration} linear ${confirmedDriverPath.delay} 1`,
-                        animationFillMode: 'forwards'
-                        }}
-                    />
-                </div>
-                </foreignObject>
-            </g>
-        )}
-      </svg>
-      <style jsx>{`
-        @keyframes move {
-          from {
-            offset-distance: 0%;
-          }
-          to {
-            offset-distance: 100%;
-          }
-        }
-      `}</style>
+      <div className='absolute top-4 left-4 bg-background/80 backdrop-blur-sm p-2 rounded-lg'>
+          <p className='font-semibold text-sm'>Map of Metro Manila</p>
+      </div>
     </div>
   );
 }

@@ -23,6 +23,9 @@ import {
   Phone,
   MessageSquare,
   Package,
+  MapPin,
+  Utensils,
+  Sparkles,
 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { SuggestedPlaces } from './suggested-places';
@@ -33,8 +36,9 @@ import { TripDetailsCard } from './trip-details-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { FoodSuggestionCard } from './food-suggestion-card';
 import { DeliveryRequestForm } from './delivery-request-form';
+import { cn } from '@/lib/utils';
 
-type View = 'request' | 'options' | 'confirming' | 'confirmed';
+type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'discovery';
 
 export type Driver = {
     name: string;
@@ -47,13 +51,14 @@ export type Driver = {
 
 // Add a new prop to pass the driver to the MapView
 export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver: Driver | null) => void }) {
-  const [destination, setDestination] = useState('Bonifacio High Street');
-  const [pickup, setPickup] = useState('Market! Market!');
+  const [destination, setDestination] = useState('Market! Market!');
+  const [pickup, setPickup] = useState('Current Location');
   const [view, setView] = useState<View>('request');
   const [selectedRide, setSelectedRide] = useState<RideOption | null>(null);
   const [confirmedDriver, setConfirmedDriver] = useState<Driver | null>(null);
   const [eta, setEta] = useState(5);
   const [currentTab, setCurrentTab] = useState('ride');
+  const [discoveryTab, setDiscoveryTab] = useState('places');
 
   const rideOptions: RideOption[] = [
     {
@@ -131,7 +136,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
     setSelectedRide(null);
     setConfirmedDriver(null);
     onRideConfirmed(null); // Clear driver data
-    setDestination('Bonifacio High Street');
+    setDestination('Market! Market!');
   }
 
   useEffect(() => {
@@ -150,9 +155,6 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
               <CardTitle className="text-3xl font-bold text-foreground">
                 Hello! Where to?
               </CardTitle>
-              <CardDescription>
-                Your next destination in Manila is just a tap away.
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <Tabs defaultValue="ride" className="w-full" onValueChange={setCurrentTab}>
@@ -162,18 +164,6 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                     </TabsList>
                     <TabsContent value="ride" className="space-y-4 pt-4">
                          <div className="space-y-2">
-                            <div className="relative">
-                            <Search
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                size={20}
-                            />
-                            <Input
-                                placeholder="Enter pickup location"
-                                className="h-12 rounded-lg bg-secondary pl-12 text-base"
-                                value={pickup}
-                                onChange={e => setPickup(e.target.value)}
-                            />
-                            </div>
                             <div className="relative">
                             <Search
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -196,29 +186,12 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
               <Button
                 className="w-full h-14 rounded-full text-lg font-bold"
                 size="lg"
-                disabled={!destination || !pickup}
+                disabled={!destination && currentTab === 'ride'}
                 onClick={handleFindRide}
               >
                 {currentTab === 'ride' ? 'Find a Ride' : 'Find a Courier'}
                 <ArrowRight className="ml-2" />
               </Button>
-              <Separator className="my-6" />
-              <Tabs defaultValue="places">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="places">Places</TabsTrigger>
-                  <TabsTrigger value="food">Dining</TabsTrigger>
-                  <TabsTrigger value="picks">For You</TabsTrigger>
-                </TabsList>
-                <TabsContent value="places" className="mt-4">
-                  <SuggestedPlaces />
-                </TabsContent>
-                <TabsContent value="food" className="mt-4">
-                  <FoodSuggestionCard />
-                </TabsContent>
-                <TabsContent value="picks" className="mt-4">
-                  <PersonalizedRecommendations />
-                </TabsContent>
-              </Tabs>
             </CardContent>
           </>
         );
@@ -283,12 +256,71 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                     <Button onClick={reset} variant="destructive" className="mt-2">Cancel Ride</Button>
                 </CardContent>
             ) : null;
+        case 'discovery':
+            return (
+                 <CardContent className="flex flex-col h-full gap-4 p-4">
+                     <Tabs value={discoveryTab} onValueChange={setDiscoveryTab} className="w-full">
+                        <TabsContent value="places" className="mt-4">
+                            <SuggestedPlaces />
+                        </TabsContent>
+                        <TabsContent value="food" className="mt-4">
+                            <FoodSuggestionCard />
+                        </TabsContent>
+                        <TabsContent value="picks" className="mt-4">
+                            <PersonalizedRecommendations />
+                        </TabsContent>
+                    </Tabs>
+                 </CardContent>
+            )
     }
   };
 
+  const renderDiscoveryContent = () => {
+    switch (discoveryTab) {
+        case 'places':
+            return <SuggestedPlaces />;
+        case 'food':
+            return <FoodSuggestionCard />;
+        case 'picks':
+            return <PersonalizedRecommendations />;
+        default:
+            return <SuggestedPlaces/>;
+    }
+  }
+
+  const mainContentHeight = view === 'request' ? 'h-full' : 'h-full';
+
   return (
-    <Card className="flex h-full max-h-[calc(100vh-4rem)] w-full flex-col rounded-2xl shadow-lg">
-      <ScrollArea className="flex-1">{renderContent()}</ScrollArea>
+    <Card className="flex h-full w-full flex-col rounded-t-2xl shadow-2xl">
+        <div className={cn('transition-all duration-300', view === 'request' ? 'flex-1' : 'flex-1')}>
+             <ScrollArea className="h-full">
+                {view === 'discovery' ? renderDiscoveryContent() : renderContent()}
+             </ScrollArea>
+        </div>
+      
+       {view === 'request' && (
+         <div className="mt-auto border-t bg-background rounded-b-2xl">
+            <div className="grid grid-cols-3 gap-2 p-2">
+                <Button variant={discoveryTab === 'places' ? "secondary" : "ghost"} className="flex-col h-16" onClick={() => {setView('discovery'); setDiscoveryTab('places')}}>
+                    <MapPin/>
+                    <span>Places</span>
+                </Button>
+                 <Button variant={discoveryTab === 'food' ? "secondary" : "ghost"} className="flex-col h-16" onClick={() => {setView('discovery'); setDiscoveryTab('food')}}>
+                    <Utensils/>
+                    <span>Dining</span>
+                </Button>
+                 <Button variant={discoveryTab === 'picks' ? "secondary" : "ghost"} className="flex-col h-16" onClick={() => {setView('discovery'); setDiscoveryTab('picks')}}>
+                    <Sparkles/>
+                    <span>For You</span>
+                </Button>
+            </div>
+        </div>
+       )}
+        {view === 'discovery' && (
+             <div className="mt-auto border-t bg-background rounded-b-2xl">
+                <Button className='w-full h-14' onClick={() => setView('request')}>Back to Ride</Button>
+             </div>
+        )}
     </Card>
   );
 }
