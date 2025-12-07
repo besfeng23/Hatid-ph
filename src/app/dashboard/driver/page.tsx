@@ -1,5 +1,4 @@
 import { DriverDashboard } from '@/components/driver-dashboard';
-import {-3, Building, TrendingUp } from 'lucide-react';
 
 export default function DriverDashboardPage() {
   return (
