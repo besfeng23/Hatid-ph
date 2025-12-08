@@ -43,7 +43,7 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { useToast } from '@/hooks/use-toast';
 
-type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'discovery' | 'setLocation' | 'completed';
+type View = 'request' | 'options' | 'confirming' | 'confirmed' | 'setLocation' | 'completed';
 
 export type Driver = {
     name: string;
@@ -63,7 +63,6 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   const [confirmedDriver, setConfirmedDriver] = useState<Driver | null>(null);
   const [eta, setEta] = useState(5);
   const [currentTab, setCurrentTab] = useState('ride');
-  const [discoveryTab, setDiscoveryTab] = useState('places');
   const [rating, setRating] = useState(0);
   const [tip, setTip] = useState(0);
   const { toast } = useToast();
@@ -220,50 +219,20 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
       case 'request':
         return (
           <>
-            <CardHeader className='pb-4'>
-              <CardTitle className="text-3xl font-bold text-foreground">
-                Hello! Where to?
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-3 p-0">
                 <Tabs defaultValue="ride" className="w-full" onValueChange={setCurrentTab}>
-                    <TabsList className="grid w-full grid-cols-2 h-12">
+                    <TabsList className="grid w-full grid-cols-2 h-12 bg-background/80 backdrop-blur-sm">
                         <TabsTrigger value="ride" className="text-base">Ride</TabsTrigger>
                         <TabsTrigger value="padala" className="text-base">Padala</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="ride" className="space-y-4 pt-4">
-                         <div className="space-y-2">
-                            <div className="relative">
-                            <MapPin
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                size={20}
-                            />
-                            <Input
-                                placeholder="Enter your destination"
-                                className="h-14 rounded-2xl bg-secondary pl-12 text-base"
-                                value={destination}
-                                onFocus={() => setView('setLocation')}
-                                onChange={e => setDestination(e.target.value)}
-                            />
-                            </div>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="padala">
-                        <div onClick={() => setView('setLocation')}>
-                            <DeliveryRequestForm />
-                        </div>
-                    </TabsContent>
                 </Tabs>
-
-              <Button
-                className="w-full h-14 rounded-full text-lg font-bold"
-                size="lg"
-                disabled={currentTab === 'ride' && !destination}
-                onClick={handleFindRide}
-              >
-                {currentTab === 'ride' ? 'Find a Ride' : 'Find a Courier'}
-                <ArrowRight className="ml-2" />
-              </Button>
+                <div
+                    className="relative flex items-center h-14 w-full cursor-pointer rounded-2xl bg-background/80 p-4 shadow-2xl backdrop-blur-sm"
+                    onClick={() => setView('setLocation')}
+                >
+                    <Search className="mr-4 text-primary" size={24} />
+                    <span className="text-lg font-semibold text-foreground">Where to?</span>
+                </div>
             </CardContent>
           </>
         );
@@ -390,75 +359,21 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                     </Button>
                 </CardContent>
             );
-        case 'discovery':
-            return (
-                 <CardContent className="flex flex-col h-full gap-4 p-4">
-                     <Tabs value={discoveryTab} onValueChange={setDiscoveryTab} className="w-full">
-                        <TabsContent value="places" className="mt-0">
-                            <SuggestedPlaces />
-                        </TabsContent>
-                        <TabsContent value="food" className="mt-0">
-                            <FoodSuggestionCard />
-                        </TabsContent>
-                        <TabsContent value="picks" className="mt-0">
-                            <PersonalizedRecommendations />
-                        </TabsContent>
-                    </Tabs>
-                 </CardContent>
-            )
     }
   };
 
-  const renderDiscoveryContent = () => {
-    switch (discoveryTab) {
-        case 'places':
-            return <SuggestedPlaces />;
-        case 'food':
-            return <FoodSuggestionCard />;
-        case 'picks':
-            return <PersonalizedRecommendations />;
-        default:
-            return <SuggestedPlaces/>;
-    }
-  }
-
-  const mainContentHeight = view === 'request' ? 'h-full' : 'h-full';
+  const isPanelFloating = view === 'request';
 
   return (
-    <Card className="flex h-full w-full flex-col rounded-t-3xl shadow-2xl overflow-hidden">
-        <div className={cn('transition-all duration-300', view === 'request' ? 'h-full' : 'h-full')}>
-             <ScrollArea className="h-full">
-                {view === 'discovery' ? (
-                  <CardContent className='p-4'>
-                    {renderDiscoveryContent()}
-                  </CardContent>
-                ) : renderContent()}
+    <Card className={cn(
+        "flex w-full flex-col overflow-hidden transition-all duration-300 ease-in-out",
+        isPanelFloating ? "rounded-3xl shadow-2xl bg-transparent border-none" : "h-screen md:h-auto md:max-h-[90vh] rounded-t-3xl shadow-2xl"
+    )}>
+        <div className={cn('transition-all duration-300', isPanelFloating ? 'h-auto' : 'h-full')}>
+             <ScrollArea className={cn(isPanelFloating ? 'h-auto' : 'h-full')}>
+                {renderContent()}
              </ScrollArea>
         </div>
-      
-       {(view === 'request' || view === 'setLocation') && (
-         <div className="mt-auto border-t bg-background rounded-b-3xl">
-            <div className="grid grid-cols-3 gap-2 p-2">
-                <Button variant={discoveryTab === 'places' ? "secondary" : "ghost"} className="flex-col h-16 rounded-2xl text-xs" onClick={() => {setView('discovery'); setDiscoveryTab('places')}}>
-                    <MapPin/>
-                    <span>Places</span>
-                </Button>
-                 <Button variant={discoveryTab === 'food' ? "secondary" : "ghost"} className="flex-col h-16 rounded-2xl text-xs" onClick={() => {setView('discovery'); setDiscoveryTab('food')}}>
-                    <Utensils/>
-                    <span>Dining</span>
-                </Button>
-                 <Button variant={discoveryTab === 'picks' ? "secondary" : "ghost"} className="flex-col h-16 rounded-2xl text-xs" onClick={() => {setView('discovery'); setDiscoveryTab('picks')}}>
-                    <Sparkles/>
-                    <span>For You</span>
-                </Button>
-            </div>
-        </div>
-       )}
-        {view === 'discovery' && (
-             <div className="mt-auto p-2 border-t bg-background rounded-b-3xl">
-                <Button className='w-full h-14 rounded-full text-lg' onClick={() => setView('request')}>Back to Ride</Button>
-             </div>
-        )}
     </Card>
   );
 }

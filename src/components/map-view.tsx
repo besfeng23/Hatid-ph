@@ -47,7 +47,7 @@ export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null })
             />
         )}
        </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/50" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-background" />
 
       {/* User's location pin */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -56,10 +56,7 @@ export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null })
           <div className="relative h-4 w-4 rounded-full bg-primary border-2 border-white shadow-md" />
         </div>
       </div>
-      <div className='absolute top-4 left-4 bg-background/80 backdrop-blur-sm p-2 rounded-lg'>
-          <p className='font-semibold text-sm'>Map of Metro Manila</p>
-      </div>
-
+      
        {isClient && !confirmedDriver && (
          <svg key="nearby-drivers" className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
             <defs>

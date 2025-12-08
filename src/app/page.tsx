@@ -12,10 +12,8 @@ export default function Home() {
   return (
     <AuthGuard>
       <div className="relative h-screen w-full">
-        <div className="h-1/2 w-full">
-            <MapView confirmedDriver={confirmedDriver} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-2/3">
+        <MapView confirmedDriver={confirmedDriver} />
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
             <RideRequestPanel onRideConfirmed={setConfirmedDriver} />
         </div>
       </div>
