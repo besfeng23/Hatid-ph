@@ -36,7 +36,8 @@ export function RideOptionCard({ option, isSelected, onSelect }: RideOptionCardP
             <h4 className="font-bold text-lg">{option.name}</h4>
             <p className="font-bold text-lg text-foreground">₱{option.price.toFixed(2)}</p>
         </div>
-        <div className="flex justify-between items-baseline text-sm text-muted-foreground">
+        <p className='text-sm text-muted-foreground'>{option.description}</p>
+        <div className="flex justify-between items-baseline text-sm text-muted-foreground mt-1">
             <div className='flex items-center gap-2'>
                 {option.capacity > 0 && <Users size={14}/>}
                 {option.capacity > 0 && <span>{option.capacity}</span>}

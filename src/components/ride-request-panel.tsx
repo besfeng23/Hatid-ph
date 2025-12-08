@@ -73,38 +73,38 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
     {
       id: 'sedan',
       name: 'HatidCar',
-      description: 'Comfortable sedans',
+      description: 'Comfortable sedans for up to 4 people.',
       capacity: 4,
       price: 280.5,
       eta: '5 min',
-      icon: <Car className="w-10 h-10 text-primary" />,
+      icon: <Car className="w-12 h-12 text-primary" />,
     },
     {
       id: 'motorcycle',
       name: 'HatidMoto',
-      description: 'Quick & nimble bikes',
+      description: 'Quick & nimble bikes for 1 rider.',
       capacity: 1,
       price: 150.0,
       eta: '3 min',
-      icon: <Bike className="w-10 h-10 text-primary" />,
+      icon: <Bike className="w-12 h-12 text-primary" />,
     },
     {
       id: 'van',
       name: 'HatidPlus',
-      description: 'For bigger groups',
+      description: 'For bigger groups. Maximum capacity: 6 passengers.',
       capacity: 6,
       price: 420.75,
       eta: '8 min',
-      icon: <Users className="w-10 h-10 text-primary" />,
+      icon: <Users className="w-12 h-12 text-primary" />,
     },
      {
       id: 'padala',
       name: 'HatidPadala',
-      description: 'On-demand delivery',
+      description: 'On-demand package delivery.',
       capacity: 0, 
       price: 120.0,
       eta: '4 min',
-      icon: <Package className="w-10 h-10 text-primary" />,
+      icon: <Package className="w-12 h-12 text-primary" />,
     },
   ];
 
@@ -273,7 +273,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                 disabled={!selectedRide}
                 onClick={handleConfirmRide}
               >
-                Confirm {selectedRide?.name || 'Service'}
+                {selectedRide ? `Confirm ${selectedRide.name} - ₱${selectedRide.price.toFixed(2)}` : 'Confirm Service'}
               </Button>
             </CardContent>
           </>
