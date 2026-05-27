@@ -31,21 +31,23 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
     try {
-      initiateEmailSignIn(auth, email, password);
-      // The onAuthStateChanged listener in FirebaseProvider will handle the redirect
+      await initiateEmailSignIn(auth, email, password);
+      // Redirect is still handled centrally through auth state.
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.message || 'Login failed. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
 
   if (isUserLoading || (!isUserLoading && user)) {
     return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-    )
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (

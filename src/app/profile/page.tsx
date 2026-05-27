@@ -12,8 +12,7 @@ import AuthGuard from '@/components/auth-guard';
 import { useUser, useAuth, useFirestore } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
@@ -40,16 +39,22 @@ function ProfilePage() {
                     setDisplayName(data.displayName || data.firstName || '');
                     setPhoneNumber(data.phoneNumber || '');
                 }
+            }).catch(() => {
+                toast({
+                    variant: 'destructive',
+                    title: 'Could not load profile',
+                    description: 'Please refresh and try again.',
+                });
             });
         }
-    }, [user, firestore]);
+    }, [user, firestore, toast]);
 
     const handleLogout = async () => {
         await signOut(auth);
         router.push('/login');
     };
 
-    const handleSaveChanges = () => {
+    const handleSaveChanges = async () => {
         if (!user) return;
         setIsSaving(true);
         const userDocRef = doc(firestore, 'users', user.uid);
@@ -61,15 +66,21 @@ function ProfilePage() {
             phoneNumber: phoneNumber,
         };
 
-        setDocumentNonBlocking(userDocRef, userData, { merge: true });
-
-        setTimeout(() => {
-            setIsSaving(false);
+        try {
+            await setDoc(userDocRef, userData, { merge: true });
             toast({
                 title: 'Profile Updated',
                 description: 'Your changes have been saved successfully.',
             });
-        }, 1000);
+        } catch {
+            toast({
+                variant: 'destructive',
+                title: 'Profile update failed',
+                description: 'Your changes were not saved. Please try again.',
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const avatarImage = PlaceHolderImages.find(p => p.id === 'driver_avatar_1');

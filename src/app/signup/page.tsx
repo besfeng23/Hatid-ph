@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,8 +9,15 @@ import { Car, Loader2 } from 'lucide-react';
 import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
 import { useAuth, useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import Link from 'next/link';
+
+function getAuthErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Sign up failed. Please try again.';
+}
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -31,21 +38,23 @@ export default function SignupPage() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
     try {
-      initiateEmailSignUp(auth, email, password);
-      // The onAuthStateChanged listener in FirebaseProvider will handle the redirect
-    } catch (err: any) {
-      setError(err.message);
+      await initiateEmailSignUp(auth, email, password);
+      // Redirect is still handled centrally through auth state.
+    } catch (err: unknown) {
+      setError(getAuthErrorMessage(err));
+    } finally {
       setIsLoading(false);
     }
   };
   
   if (isUserLoading || (!isUserLoading && user)) {
     return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-    )
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
