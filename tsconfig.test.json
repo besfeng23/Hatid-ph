@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".tmp-tests",
+    "module": "commonjs",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "isolatedModules": false,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "src/lib/trips/**/*.ts",
+    "tests/**/*.ts"
+  ]
+}
