@@ -1,55 +1,20 @@
-
 'use client';
+
 import {
   Bar,
   BarChart,
   ResponsiveContainer,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { Card } from './ui/card';
-import { useState, useEffect } from 'react';
+import { demoEarningsByDay } from '@/lib/demo/mock-earnings';
 
-const generateData = () => [
-  { name: 'Mon', total: Math.floor(Math.random() * 2000) + 1000 },
-  { name: 'Tue', total: Math.floor(Math.random() * 2000) + 1000 },
-  { name: 'Wed', total: Math.floor(Math.random() * 2000) + 1000 },
-  { name: 'Thu', total: Math.floor(Math.random() * 2000) + 1000 },
-  { name: 'Fri', total: Math.floor(Math.random() * 3000) + 1500 },
-  { name: 'Sat', total: Math.floor(Math.random() * 4000) + 2000 },
-  { name: 'Sun', total: Math.floor(Math.random() * 4000) + 2000 },
-];
-
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <Card className="p-4 bg-background/90 backdrop-blur-sm">
-        <p className="label font-bold text-primary">{`${label}`}</p>
-        <p className="intro text-foreground">{`Earnings: ₱${payload[0].value.toLocaleString()}`}</p>
-      </Card>
-    );
-  }
-
-  return null;
-};
-
+// MOCK EARNINGS: display-only prototype data, not ledger or payout data.
 export function EarningsChart() {
-  const [data, setData] = useState<any[]>([]);
-
-  useEffect(() => {
-    setData(generateData());
-  }, []);
-
-  if (!data.length) {
-    return null; // Or a loading indicator
-  }
-
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
+      <BarChart data={demoEarningsByDay}>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
         <XAxis
           dataKey="name"
@@ -63,11 +28,7 @@ export function EarningsChart() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={value => `₱${value / 1000}k`}
-        />
-        <Tooltip
-          cursor={{ fill: 'hsl(var(--primary) / 0.1)' }}
-          content={<CustomTooltip />}
+          tickFormatter={(value) => `${value / 1000}k`}
         />
         <Bar
           dataKey="total"

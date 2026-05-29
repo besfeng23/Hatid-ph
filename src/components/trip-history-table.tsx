@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -9,39 +8,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from './ui/badge';
 import { Star } from 'lucide-react';
-
-const trips = [
-  {
-    date: '2024-07-21',
-    route: 'BGC to Makati',
-    fare: 250,
-    rating: 5,
-  },
-  {
-    date: '2024-07-21',
-    route: 'Makati to Quezon City',
-    fare: 450,
-    rating: 5,
-  },
-  {
-    date: '2024-07-20',
-    route: 'Pasay to BGC',
-    fare: 300,
-    rating: 4,
-  },
-    {
-    date: '2024-07-20',
-    route: 'Quezon City to Marikina',
-    fare: 350,
-    rating: 5,
-  },
-    {
-    date: '2024-07-19',
-    route: 'Taguig to Pasig',
-    fare: 220,
-    rating: 5,
-  },
-];
+import { demoTripHistory } from '@/lib/demo/mock-trip-history';
 
 export function TripHistoryTable() {
   return (
@@ -55,8 +22,8 @@ export function TripHistoryTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {trips.map((trip, index) => (
-          <TableRow key={index}>
+        {demoTripHistory.map((trip) => (
+          <TableRow key={`${trip.date}-${trip.route}`}>
             <TableCell className="font-medium">{trip.date}</TableCell>
             <TableCell>{trip.route}</TableCell>
             <TableCell className="text-right">₱{trip.fare.toFixed(2)}</TableCell>
