@@ -172,11 +172,11 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
   
   const reset = () => {
     setIsSubmitting(true);
-    // Simulate API call for payment
+    // Simulate demo trip finalization with no live payment processing.
     setTimeout(() => {
         toast({
-            title: 'Payment Successful',
-            description: `₱${((selectedRide?.price || 0) + tip).toFixed(2)} has been charged to your card.`,
+            title: 'Demo trip recorded',
+            description: `No real payment was processed. Demo total shown: ₱${((selectedRide?.price || 0) + tip).toFixed(2)}.`,
         });
 
         // Reset state after toast
@@ -311,13 +311,16 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                     <Card className="bg-secondary/50">
                         <CardContent className="p-4 space-y-2">
                              <div className="flex justify-between items-center">
-                                <p className="font-semibold">Total Fare:</p>
+                                <p className="font-semibold">Demo Fare:</p>
                                 <p className="font-bold text-lg">₱{selectedRide?.price.toFixed(2)}</p>
                             </div>
                             <div className="flex justify-between items-center text-sm">
-                                <p className="text-muted-foreground">Payment Method:</p>
-                                <p className="text-muted-foreground">Credit Card</p>
+                                <p className="text-muted-foreground">Payment Status:</p>
+                                <p className="text-muted-foreground">Prototype only</p>
                             </div>
+                            <p className="text-xs text-muted-foreground">
+                                No live charge, wallet deduction, or payout occurs in this demo flow.
+                            </p>
                         </CardContent>
                     </Card>
 
@@ -355,7 +358,7 @@ export function RideRequestPanel({ onRideConfirmed }: { onRideConfirmed: (driver
                     
                     <Button onClick={reset} className="mt-auto h-14 rounded-full text-lg" disabled={isSubmitting}>
                         {isSubmitting && <Loader2 className="mr-2 animate-spin" />}
-                        Submit & Finish
+                        Submit Demo Feedback & Reset
                     </Button>
                 </CardContent>
             );
