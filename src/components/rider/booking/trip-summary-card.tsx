@@ -1,0 +1,3 @@
+import { MapPin, Navigation } from 'lucide-react';
+import { SectionCard } from '../section-card';
+export function TripSummaryCard({ pickup, destination }: { pickup: string; destination: string }) { return <SectionCard><div className="space-y-3"><div className="flex gap-3"><Navigation className="h-5 w-5 text-primary" /><div><p className="text-xs font-bold text-muted-foreground">Pickup</p><p className="font-semibold">{pickup}</p></div></div><div className="ml-2 h-5 border-l border-dashed" /><div className="flex gap-3"><MapPin className="h-5 w-5 text-red-500" /><div><p className="text-xs font-bold text-muted-foreground">Drop-off</p><p className="font-semibold">{destination}</p></div></div></div></SectionCard>; }

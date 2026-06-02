@@ -3,14 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import { Inter } from 'next/font/google';
 import { FirebaseClientProvider } from '@/firebase';
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-});
 
 
 export const metadata: Metadata = {
@@ -24,15 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(inter.variable, 'dark')}>
-       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={cn('font-sans')}>
       <body
         className={cn(
           'font-body antialiased bg-background text-foreground'

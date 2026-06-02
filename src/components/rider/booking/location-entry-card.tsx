@@ -1,0 +1,4 @@
+import Link from 'next/link';
+import { MapPin, Navigation } from 'lucide-react';
+import { SectionCard } from '../section-card';
+export function LocationEntryCard({ pickup = 'Use current pickup area', destination = 'Where are you going?' }: { pickup?: string; destination?: string }) { return <SectionCard className="space-y-4"><Link href="/rider/search" className="block space-y-4"><div className="flex gap-3"><Navigation className="mt-1 h-5 w-5 text-primary" /><div><p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Pickup</p><p className="font-semibold">{pickup}</p></div></div><div className="h-px bg-slate-100" /><div className="flex gap-3"><MapPin className="mt-1 h-5 w-5 text-red-500" /><div><p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Drop-off</p><p className="text-lg font-extrabold">{destination}</p></div></div></Link></SectionCard>; }

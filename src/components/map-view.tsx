@@ -1,104 +1,53 @@
-
 'use client';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+
 import Image from 'next/image';
-import { Car } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Driver } from './ride-request-panel';
+import { Car, MapPin, Navigation } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
+import type { Driver } from './ride-request-panel';
 
-const mapImage = PlaceHolderImages.find(p => p.id === 'map_manila');
+const mapImage = PlaceHolderImages.find((place) => place.id === 'map_manila');
 
-const nearDrivers = [
-  { pathId: 'path1', duration: '10s', delay: '0s', d: 'M 200 200 C 150 150, 100 250, 50 300' },
-  { pathId: 'path2', duration: '12s', delay: '1s', d: 'M 200 200 C 250 150, 300 250, 350 300' },
-  { pathId: 'path3', duration: '8s', delay: '2s', d: 'M 200 200 C 150 250, 250 250, 200 350' },
-  { pathId: 'path4', duration: '15s', delay: '3s', d: 'M 200 200 C 250 250, 150 350, 100 400' },
-];
+type MapMode = 'home' | 'search' | 'quote' | 'driver-state';
 
-const confirmedDriverPath = { pathId: 'driverPath', duration: '10s', delay: '0s', d: "M 100 350 C 150 300, 180 250, 200 200" };
+type MapViewProps = {
+  mode?: MapMode;
+  confirmedDriver?: Driver | null;
+  showUserPin?: boolean;
+  showPickupPin?: boolean;
+  showDestinationPin?: boolean;
+  showRoute?: boolean;
+  className?: string;
+};
 
-const CarIcon = ({ pathId, duration, delay }: { pathId: string; duration: string; delay: string; }) => (
-    <foreignObject className="w-full h-full">
-        <div className="w-full h-full" style={{ offsetPath: `path(getComputedStyle(document.getElementById('${pathId}')).getPropertyValue('d'))`, animation: `move-car ${duration} ${delay} linear infinite`}}>
-            <Car className="text-primary w-6 h-6" />
-        </div>
-    </foreignObject>
-);
-
-
-export function MapView({ confirmedDriver }: { confirmedDriver: Driver | null }) {
-    const [isClient, setIsClient] = useState(false);
-
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+export function MapView({
+  mode = 'home',
+  confirmedDriver,
+  showUserPin = mode === 'home' || mode === 'search',
+  showPickupPin = mode === 'quote',
+  showDestinationPin = mode === 'search' || mode === 'quote',
+  showRoute = mode === 'quote' || mode === 'driver-state',
+  className,
+}: MapViewProps) {
+  const showDriverMarker = mode === 'driver-state' && confirmedDriver;
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
-       <div className='absolute inset-0'>
-         {mapImage && (
-            <Image
-            src={mapImage.imageUrl}
-            alt={mapImage.description}
-            fill
-            priority
-            className="object-cover"
-            data-ai-hint={mapImage.imageHint}
-            />
-        )}
-       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-background" />
+    <div className={cn('relative h-full min-h-72 w-full overflow-hidden bg-slate-200', className)}>
+      {mapImage ? (
+        <Image src={mapImage.imageUrl} alt="Prototype map shell for Manila" fill priority className="object-cover opacity-90" data-ai-hint={mapImage.imageHint} />
+      ) : null}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/20 to-white/70" />
+      <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-2 text-xs font-bold text-muted-foreground shadow-sm">Visual map prototype · not live routing</div>
 
-      {/* User's location pin */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="relative flex flex-col items-center">
-          <div className="absolute h-12 w-12 rounded-full bg-primary/50" style={{ animation: 'pulse-glow 2s infinite' }} />
-          <div className="relative h-4 w-4 rounded-full bg-primary border-2 border-white shadow-md" />
-        </div>
-      </div>
-      
-       {isClient && !confirmedDriver && (
-         <svg key="nearby-drivers" className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
-            <defs>
-                {nearDrivers.map(driver => (
-                    <path key={driver.pathId} id={driver.pathId} d={driver.d} />
-                ))}
-            </defs>
-            {nearDrivers.map(driver => (
-                <g key={driver.pathId}>
-                    <path d={driver.d} fill="none" stroke="hsl(var(--sun) / 0.3)" strokeWidth="2" strokeDasharray="5 5" />
-                    <CarIcon pathId={driver.pathId} duration={driver.duration} delay={driver.delay} />
-                </g>
-            ))}
-        </svg>
-       )}
-
-      {isClient && confirmedDriver && (
-        <svg key="confirmed-driver" className='absolute inset-0 w-full h-full' viewBox="0 0 400 400">
-          <defs>
-              <path id={confirmedDriverPath.pathId} d={confirmedDriverPath.d} />
-          </defs>
-           <g>
-                <path d={confirmedDriverPath.d} fill="none" stroke="hsl(var(--sun))" strokeWidth="4" strokeDasharray="250" strokeDashoffset="250" style={{ animation: `draw-line ${confirmedDriverPath.duration} ease-in-out forwards` }}/>
-                 <foreignObject className="w-full h-full">
-                     <div className="w-full h-full" style={{ offsetPath: `path('${confirmedDriverPath.d}')`, animation: `move-car ${confirmedDriverPath.duration} linear forwards` }}>
-                        <Car className="text-primary w-8 h-8 -rotate-45" />
-                    </div>
-                </foreignObject>
-            </g>
-        </svg>
-      )}
-
-      <style jsx>{`
-        @keyframes move-car {
-            0% {
-                offset-distance: 0%;
-            }
-            100% {
-                offset-distance: 100%;
-            }
-        }
-      `}</style>
+      {showRoute ? <div className="absolute left-[28%] top-[38%] h-32 w-44 rotate-[-18deg] rounded-full border-4 border-dashed border-primary/70" /> : null}
+      {showUserPin ? <Pin className="left-1/2 top-1/2" label="You" tone="blue" pulse /> : null}
+      {showPickupPin ? <Pin className="left-[32%] top-[60%]" label="Pickup" tone="blue" /> : null}
+      {showDestinationPin ? <Pin className="left-[66%] top-[34%]" label="Drop-off" tone="red" /> : null}
+      {showDriverMarker ? <div className="absolute left-[38%] top-[45%] rounded-full bg-white p-2 text-primary shadow-lg"><Car className="h-6 w-6" /><span className="sr-only">Assigned demo driver marker</span></div> : null}
     </div>
   );
+}
+
+function Pin({ className, label, tone, pulse }: { className: string; label: string; tone: 'blue' | 'red'; pulse?: boolean }) {
+  return <div className={cn('absolute -translate-x-1/2 -translate-y-1/2', className)}><div className="relative flex flex-col items-center gap-1">{pulse ? <div className="absolute top-1 h-12 w-12 rounded-full bg-primary/20 animate-ping" /> : null}<div className={cn('relative flex h-9 w-9 items-center justify-center rounded-full border-4 border-white shadow-lg', tone === 'blue' ? 'bg-primary text-primary-foreground' : 'bg-red-500 text-white')}>{tone === 'blue' ? <Navigation className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}</div><span className="rounded-full bg-white/90 px-2 py-1 text-[11px] font-bold shadow-sm">{label}</span></div></div>;
 }
