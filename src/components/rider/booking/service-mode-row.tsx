@@ -1,2 +1,16 @@
-import { Car, Bookmark } from 'lucide-react';
-export function ServiceModeRow() { return <div className="flex gap-3 overflow-x-auto px-1 pb-1"><div className="flex min-w-32 items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-sm"><Car className="h-5 w-5" /> Ride</div><div className="flex min-w-36 items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-muted-foreground shadow-sm"><Bookmark className="h-5 w-5" /> Saved trips</div></div>; }
+import { Bookmark, Car } from 'lucide-react';
+
+export function ServiceModeRow() {
+  return (
+    <div className="flex gap-3 overflow-x-auto px-1 pb-1">
+      <div className="flex min-w-[10rem] items-center gap-2 rounded-[1.65rem] bg-primary px-5 py-4 text-base font-bold text-primary-foreground shadow-lg">
+        <Car className="h-5 w-5" />
+        Ride
+      </div>
+      <div className="flex min-w-[10rem] items-center gap-2 rounded-[1.65rem] border border-slate-200 bg-white px-5 py-4 text-base font-bold text-slate-500 shadow-sm">
+        <Bookmark className="h-5 w-5" />
+        Saved trips
+      </div>
+    </div>
+  );
+}
