@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useFirestore, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { PrimaryCta } from '../primary-cta';
+import { SecondaryCta } from '../secondary-cta';
 import { ProfilePhotoUploader } from './profile-photo-uploader';
 
 export function RiderProfileForm() {
@@ -27,25 +28,40 @@ export function RiderProfileForm() {
     setPhone(user?.phoneNumber || '');
     setFullName(user?.displayName || '');
     if (user && firestore) {
-      getDoc(doc(firestore, 'users', user.uid)).then((snap) => {
-        const data = snap.data();
-        if (data) {
-          setFullName(String(data.displayName || data.fullName || user.displayName || ''));
-          setPhone(String(data.phoneNumber || user.phoneNumber || ''));
-          setEmail(String(data.email || user.email || ''));
-          setHomeCity(String(data.homeCity || ''));
-        }
-      }).catch(() => undefined);
+      getDoc(doc(firestore, 'users', user.uid))
+        .then((snap) => {
+          const data = snap.data();
+          if (data) {
+            setFullName(String(data.displayName || data.fullName || user.displayName || ''));
+            setPhone(String(data.phoneNumber || user.phoneNumber || ''));
+            setEmail(String(data.email || user.email || ''));
+            setHomeCity(String(data.homeCity || ''));
+          }
+        })
+        .catch(() => undefined);
     }
   }, [firestore, user]);
 
   const canSave = fullName.trim().length > 1 && phone.trim().length > 5 && email.includes('@');
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!user || !firestore || !canSave) return;
     setIsSaving(true);
     try {
-      await setDoc(doc(firestore, 'users', user.uid), { id: user.uid, displayName: fullName.trim(), fullName: fullName.trim(), phoneNumber: phone.trim(), email: email.trim(), homeCity: homeCity.trim(), riderProfileSetup: true }, { merge: true });
+      await setDoc(
+        doc(firestore, 'users', user.uid),
+        {
+          id: user.uid,
+          displayName: fullName.trim(),
+          fullName: fullName.trim(),
+          phoneNumber: phone.trim(),
+          email: email.trim(),
+          homeCity: homeCity.trim(),
+          riderProfileSetup: true,
+        },
+        { merge: true }
+      );
       toast({ title: 'Profile saved', description: 'Rider profile details were saved for this prototype.' });
       router.push('/');
     } catch {
@@ -55,5 +71,44 @@ export function RiderProfileForm() {
     }
   }
 
-  return <form onSubmit={handleSubmit} className="space-y-5"><ProfilePhotoUploader photoUrl={user?.photoURL} displayName={fullName} /><div className="space-y-4"><div className="space-y-2"><Label htmlFor="fullName">Full name *</Label><Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} className="h-13 rounded-2xl" placeholder="Juan dela Cruz" /></div><div className="space-y-2"><Label htmlFor="phone">Phone *</Label><Input id="phone" value={phone} onChange={(event) => setPhone(event.target.value)} className="h-13 rounded-2xl" placeholder="+63 917 123 4567" /></div><div className="space-y-2"><Label htmlFor="email">Email *</Label><Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="h-13 rounded-2xl" placeholder="rider@example.com" /></div><div className="space-y-2"><Label htmlFor="homeCity">Home city (optional)</Label><Input id="homeCity" value={homeCity} onChange={(event) => setHomeCity(event.target.value)} className="h-13 rounded-2xl" placeholder="Quezon City" /></div></div><PrimaryCta type="submit" disabled={!canSave || isSaving}>{isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : 'Save and continue'}</PrimaryCta></form>;
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <ProfilePhotoUploader photoUrl={user?.photoURL} displayName={fullName} />
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Full name *</Label>
+            <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} className="h-14 rounded-[1.35rem] border-slate-200" placeholder="Maria Santos" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Mobile number *</Label>
+            <Input id="phone" value={phone} onChange={(event) => setPhone(event.target.value)} className="h-14 rounded-[1.35rem] border-slate-200" placeholder="+63 917 123 4567" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email address *</Label>
+            <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="h-14 rounded-[1.35rem] border-slate-200" placeholder="rider@example.com" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="homeCity">City / home base (optional)</Label>
+            <Input id="homeCity" value={homeCity} onChange={(event) => setHomeCity(event.target.value)} className="h-14 rounded-[1.35rem] border-slate-200" placeholder="Quezon City" />
+          </div>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <PrimaryCta type="submit" disabled={!canSave || isSaving}>
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            'Continue'
+          )}
+        </PrimaryCta>
+        <SecondaryCta type="button" onClick={() => router.push('/')}>
+          Save and finish later
+        </SecondaryCta>
+      </div>
+    </form>
+  );
 }
