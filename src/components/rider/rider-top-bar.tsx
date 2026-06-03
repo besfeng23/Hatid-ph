@@ -1,29 +1,40 @@
 import Link from 'next/link';
-import { ArrowLeft, Bell, Menu, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type Props = { title?: string; subtitle?: string; showBack?: boolean; backHref?: string; className?: string };
+type Props = {
+  title?: string;
+  subtitle?: string;
+  showBack?: boolean;
+  backHref?: string;
+  className?: string;
+};
+
 export function RiderTopBar({ title = 'Hatid', subtitle, showBack, backHref = '/', className }: Props) {
   return (
-    <header className={cn('flex items-center justify-between gap-3 px-4 py-4', className)}>
+    <header className={cn('flex items-center justify-between gap-3 px-5 py-5', className)}>
       <div className="flex items-center gap-3">
         {showBack ? (
-          <Button asChild variant="ghost" size="icon" className="rounded-full bg-white shadow-sm">
-            <Link href={backHref} aria-label="Go back"><ArrowLeft className="h-5 w-5" /></Link>
+          <Button asChild variant="ghost" size="icon" className="h-11 w-11 rounded-full border border-slate-200 bg-white shadow-sm">
+            <Link href={backHref} aria-label="Go back">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
           </Button>
         ) : (
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm"><Menu className="h-5 w-5" /></div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+            <Menu className="h-5 w-5" />
+          </div>
         )}
-        <div>
-          <p className="text-lg font-extrabold tracking-tight">{title}</p>
-          {subtitle ? <p className="text-xs font-medium text-muted-foreground">{subtitle}</p> : null}
+        <div className="space-y-0.5">
+          <p className="text-[1.45rem] font-black tracking-tight leading-none">{title}</p>
+          {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <div className="hidden items-center gap-1 rounded-full bg-white px-3 py-2 text-xs font-semibold text-primary shadow-sm sm:flex"><ShieldCheck className="h-4 w-4" /> Prototype safe</div>
-        <Button variant="ghost" size="icon" className="rounded-full bg-white shadow-sm" aria-label="Notifications"><Bell className="h-5 w-5" /></Button>
-      </div>
+
+      <Button variant="ghost" size="icon" className="h-11 w-11 rounded-full border border-slate-200 bg-white shadow-sm" aria-label="Notifications">
+        <Bell className="h-5 w-5" />
+      </Button>
     </header>
   );
 }
