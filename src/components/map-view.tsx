@@ -1,12 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { Car, MapPin, Navigation } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import type { Driver } from './ride-request-panel';
-
-const mapImage = PlaceHolderImages.find((place) => place.id === 'map_manila');
 
 type MapMode = 'home' | 'search' | 'quote' | 'driver-state';
 
@@ -20,6 +16,16 @@ type MapViewProps = {
   className?: string;
 };
 
+const labels = [
+  { text: 'BONIFACIO GLOBAL CITY', className: 'left-[45%] top-[17%]' },
+  { text: 'Makati', className: 'left-[18%] top-[27%]' },
+  { text: 'Ortigas Center', className: 'left-[58%] top-[27%]' },
+  { text: 'Pateros', className: 'left-[82%] top-[35%]' },
+  { text: 'Taguig', className: 'left-[48%] top-[57%]' },
+  { text: 'SM Aura Premier', className: 'left-[12%] top-[45%]' },
+  { text: 'Estancia Mall', className: 'left-[77%] top-[49%]' },
+];
+
 export function MapView({
   mode = 'home',
   confirmedDriver,
@@ -32,22 +38,56 @@ export function MapView({
   const showDriverMarker = mode === 'driver-state' && confirmedDriver;
 
   return (
-    <div className={cn('relative h-full min-h-72 w-full overflow-hidden bg-slate-200', className)}>
-      {mapImage ? (
-        <Image src={mapImage.imageUrl} alt="Prototype map shell for Manila" fill priority className="object-cover opacity-90" data-ai-hint={mapImage.imageHint} />
-      ) : null}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/20 to-white/70" />
-      <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-2 text-xs font-bold text-muted-foreground shadow-sm">Visual map prototype · not live routing</div>
+    <div className={cn('relative h-full min-h-[19rem] w-full overflow-hidden rounded-[2.2rem] bg-[#ebf3fd]', className)}>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.98),_rgba(235,243,253,0.93)_45%,_rgba(224,236,250,0.96)_100%)]" />
+      <div className="absolute -right-4 top-0 h-full w-24 rounded-full bg-[#d8e7fb] opacity-95" />
+      <div className="absolute left-[76%] top-0 h-full w-[3px] rotate-[11deg] rounded-full bg-[#d7e5fb]" />
+      <div className="absolute left-[28%] top-0 h-full w-[3px] rotate-[-11deg] rounded-full bg-white/70" />
+      <div className="absolute left-[52%] top-[22%] h-[34%] w-[16%] rounded-full bg-[#d8efdb] blur-sm" />
+      <div className="absolute left-[17%] top-[48%] h-[18%] w-[13%] rounded-full bg-[#d8efdb] blur-sm" />
+      <div className="absolute left-[12%] top-[40%] h-[4px] w-[32%] rotate-[18deg] rounded-full bg-[#f7d375] opacity-95" />
+      <div className="absolute left-[49%] top-[44%] h-[4px] w-[28%] rotate-[-15deg] rounded-full bg-[#f7d375] opacity-95" />
+      <div className="absolute left-[18%] top-[63%] h-[3px] w-[49%] rotate-[-8deg] rounded-full bg-[#cad8ec] opacity-95" />
+      <div className="absolute left-[64%] top-[57%] h-[3px] w-[24%] rotate-[26deg] rounded-full bg-[#cad8ec] opacity-95" />
 
-      {showRoute ? <div className="absolute left-[28%] top-[38%] h-32 w-44 rotate-[-18deg] rounded-full border-4 border-dashed border-primary/70" /> : null}
-      {showUserPin ? <Pin className="left-1/2 top-1/2" label="You" tone="blue" pulse /> : null}
-      {showPickupPin ? <Pin className="left-[32%] top-[60%]" label="Pickup" tone="blue" /> : null}
-      {showDestinationPin ? <Pin className="left-[66%] top-[34%]" label="Drop-off" tone="red" /> : null}
-      {showDriverMarker ? <div className="absolute left-[38%] top-[45%] rounded-full bg-white p-2 text-primary shadow-lg"><Car className="h-6 w-6" /><span className="sr-only">Assigned demo driver marker</span></div> : null}
+      <div className="absolute left-4 top-4 rounded-full bg-white/95 px-4 py-2 text-sm font-bold text-slate-500 shadow-sm">
+        Visual map prototype · not live routing
+      </div>
+
+      {showRoute ? (
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 400 400" fill="none">
+          <path d="M115 278 C150 242, 205 260, 242 224 S323 172, 340 118" stroke="#4f7ef4" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : null}
+
+      {labels.map((label) => (
+        <span key={label.text} className={cn('absolute text-[11px] font-bold tracking-wide text-slate-500', label.className)}>
+          {label.text}
+        </span>
+      ))}
+
+      {showUserPin ? <MapMarker className="left-[52%] top-[47%]" label="You are here" tone="blue" pulse /> : null}
+      {showPickupPin ? <MapMarker className="left-[20%] top-[56%]" label="Pickup" tone="blue" /> : null}
+      {showDestinationPin ? <MapMarker className="left-[71%] top-[34%]" label={mode === 'search' ? 'Use this location' : 'Drop-off'} tone="red" /> : null}
+      {showDriverMarker ? (
+        <div className="absolute left-[38%] top-[53%] flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg">
+          <Car className="h-5 w-5" />
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function Pin({ className, label, tone, pulse }: { className: string; label: string; tone: 'blue' | 'red'; pulse?: boolean }) {
-  return <div className={cn('absolute -translate-x-1/2 -translate-y-1/2', className)}><div className="relative flex flex-col items-center gap-1">{pulse ? <div className="absolute top-1 h-12 w-12 rounded-full bg-primary/20 animate-ping" /> : null}<div className={cn('relative flex h-9 w-9 items-center justify-center rounded-full border-4 border-white shadow-lg', tone === 'blue' ? 'bg-primary text-primary-foreground' : 'bg-red-500 text-white')}>{tone === 'blue' ? <Navigation className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}</div><span className="rounded-full bg-white/90 px-2 py-1 text-[11px] font-bold shadow-sm">{label}</span></div></div>;
+function MapMarker({ className, label, tone, pulse }: { className: string; label: string; tone: 'blue' | 'red'; pulse?: boolean }) {
+  return (
+    <div className={cn('absolute -translate-x-1/2 -translate-y-1/2', className)}>
+      <div className="relative flex flex-col items-center gap-2">
+        {pulse ? <div className="absolute top-1 h-12 w-12 rounded-full bg-primary/20" style={{ animation: 'pulse-glow 2s infinite' }} /> : null}
+        <div className={cn('relative flex h-10 w-10 items-center justify-center rounded-full border-4 border-white shadow-lg', tone === 'blue' ? 'bg-primary text-white' : 'bg-red-500 text-white')}>
+          {tone === 'blue' ? <Navigation className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+        </div>
+        <span className="rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm">{label}</span>
+      </div>
+    </div>
+  );
 }
