@@ -1,7 +1,26 @@
 import { Camera, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { SecondaryCta } from '../secondary-cta';
 
 export function ProfilePhotoUploader({ photoUrl, displayName }: { photoUrl?: string | null; displayName?: string }) {
-  return <div className="flex items-center gap-4 rounded-3xl bg-slate-50 p-4"><Avatar className="h-20 w-20 border-4 border-white shadow-sm">{photoUrl ? <AvatarImage src={photoUrl} alt={displayName || 'Rider'} /> : null}<AvatarFallback><User className="h-8 w-8" /></AvatarFallback></Avatar><div className="flex-1"><p className="font-bold">Profile photo</p><p className="text-sm text-muted-foreground">Optional for setup. Camera can be requested later if you choose to upload.</p><Button type="button" variant="outline" className="mt-3 rounded-full" disabled><Camera className="mr-2 h-4 w-4" /> Add later</Button></div></div>;
+  return (
+    <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center gap-4">
+        <Avatar className="h-24 w-24 border-4 border-white bg-slate-100 shadow-sm">
+          {photoUrl ? <AvatarImage src={photoUrl} alt={displayName || 'Rider'} /> : null}
+          <AvatarFallback className="bg-slate-100 text-slate-400">
+            <User className="h-10 w-10" />
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 space-y-2">
+          <p className="text-[1.1rem] font-extrabold tracking-tight text-slate-950">Add a profile photo</p>
+          <p className="text-sm leading-6 text-slate-500">Help drivers and support identify you more easily. Camera access can still be requested later.</p>
+          <SecondaryCta type="button" className="mt-1 h-11 rounded-2xl px-4 py-0 text-sm" disabled>
+            <Camera className="mr-2 h-4 w-4" />
+            Add photo later
+          </SecondaryCta>
+        </div>
+      </div>
+    </div>
+  );
 }
