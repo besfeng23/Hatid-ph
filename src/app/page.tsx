@@ -1,5 +1,4 @@
 
-"use client";
 import React, { useState, useEffect } from 'react';
 import { 
   Camera, CheckCircle2, Shield, ChevronRight, ChevronLeft, MapPin, 
@@ -8,7 +7,7 @@ import {
   MoreHorizontal, CreditCard, Tag
 } from 'lucide-react';
 
-// --- Global Styles for Hiding Scrollbars ---
+// --- Global Styles for Hiding Scrollbars & Animations ---
 const style = document.createElement('style');
 style.textContent = `
   .hide-scrollbar::-webkit-scrollbar { display: none; }
