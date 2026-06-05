@@ -39,7 +39,7 @@ The intended production direction is hybrid:
 
 - The client is never authoritative for trips, dispatch, driver availability, payment status, wallet balances, payouts, admin overrides, KYC/KYB, safety incidents, or compliance data.
 - All money flows must be server-owned, ledger-derived, auditable, idempotent, and reconciled.
-- No admin direct balance edits.
+- No admin direct balance edits
 - No real payment/payout feature ships without webhook verification and reconciliation.
 - SpeedCash is only a future adapter candidate until API, webhook, settlement, reconciliation, compliance, and legal review pass.
 - AI is later. It must not silently decide driver approvals, suspensions, refunds, payout approvals, safety closure, fraud punishment, or legal/compliance outcomes.
