@@ -369,6 +369,11 @@ const RecommendationsView = () => {
 export default function App() {
   const [currentView, setCurrentView] = useState('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleNavClick = (id) => {
     setCurrentView(id);
@@ -383,6 +388,10 @@ export default function App() {
       if (typeof document !== 'undefined' && document.body) document.body.style.overflow = 'auto'; 
     };
   }, [isMobileMenuOpen]);
+
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-[#fbfbfd] font-sans text-[#1d1d1f] selection:bg-[#0071e3]/20 selection:text-[#0071e3]">
