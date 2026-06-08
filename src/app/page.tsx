@@ -8,19 +8,6 @@ import {
   MoreHorizontal, CreditCard, Tag
 } from 'lucide-react';
 
-// --- Global Styles for Hiding Scrollbars & Animations ---
-const style = document.createElement('style');
-style.textContent = `
-  .hide-scrollbar::-webkit-scrollbar { display: none; }
-  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes slideUp {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-`;
-document.head.appendChild(style);
-
 // --- Shared Components ---
 
 const HatidLogo = ({ className = "text-2xl" }) => (
@@ -52,7 +39,7 @@ const SimpleLogo = ({ className = "text-2xl" }) => (
   </div>
 );
 
-const BottomNav = ({ activeTab, setActiveTab }) => {
+const BottomNav = ({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: (id: string) => void }) => {
   const tabs = [
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'trips', icon: Clock, label: 'Trips' },
@@ -85,7 +72,7 @@ const BottomNav = ({ activeTab, setActiveTab }) => {
   );
 };
 
-const MapBackground = ({ type = 'home' }) => {
+const MapBackground = ({ type = 'home' }: { type: string }) => {
   return (
     <div className="absolute inset-0 bg-[#eef2f5] overflow-hidden -z-10">
       {/* Soft Map Overlay Gradient for better text contrast */}
@@ -185,7 +172,7 @@ const MapBackground = ({ type = 'home' }) => {
 
 // --- Screens ---
 
-const ScreenProfileSetup = ({ onNext }) => (
+const ScreenProfileSetup = ({ onNext }: { onNext: () => void }) => (
   <div className="flex flex-col h-full bg-white overflow-y-auto w-full hide-scrollbar animate-slide-up">
     <div className="px-6 py-4 pt-12 flex justify-between items-center bg-white/95 backdrop-blur-sm sticky top-0 z-20">
       <SimpleLogo />
@@ -322,7 +309,7 @@ const ScreenProfileSetup = ({ onNext }) => (
   </div>
 );
 
-const ScreenPermissions = ({ onNext }) => {
+const ScreenPermissions = ({ onNext }: { onNext: () => void }) => {
   const permissions = [
     { icon: MapPin, title: 'Location', desc: 'Used to set your pickup location, find nearby drivers, and track trips.' },
     { icon: Bell, title: 'Notifications', desc: 'Get real-time updates about your rides, promos, and important alerts.' },
@@ -401,7 +388,7 @@ const ScreenPermissions = ({ onNext }) => {
   );
 };
 
-const ScreenHome = ({ onNavigate }) => {
+const ScreenHome = ({ onNavigate }: { onNavigate: (screen: string) => void }) => {
   const [activeTab, setActiveTab] = useState('home');
 
   return (
@@ -499,7 +486,7 @@ const ScreenHome = ({ onNavigate }) => {
   );
 };
 
-const ScreenDropOffSearch = ({ onNavigate }) => {
+const ScreenDropOffSearch = ({ onNavigate }: { onNavigate: (screen: string) => void }) => {
   const recentSearches = [
     { title: 'Ayala Malls Glorietta', desc: 'Palm Drive, Makati City', icon: Clock },
     { title: 'SM Mall of Asia', desc: 'Seaside Blvd, Pasay City', icon: Clock },
@@ -611,7 +598,7 @@ const ScreenDropOffSearch = ({ onNavigate }) => {
   );
 };
 
-const ScreenDropOffSelected = ({ onNavigate }) => {
+const ScreenDropOffSelected = ({ onNavigate }: { onNavigate: (screen: string) => void }) => {
   return (
     <div className="flex flex-col h-full relative overflow-hidden w-full bg-white z-50 animate-slide-up">
       <div className="px-5 py-4 pt-12 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-30 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-b border-gray-100">
@@ -663,7 +650,7 @@ const ScreenDropOffSelected = ({ onNavigate }) => {
   );
 };
 
-const ScreenSavedPlaces = ({ onNavigate }) => {
+const ScreenSavedPlaces = ({ onNavigate }: { onNavigate: (screen: string) => void }) => {
   return (
     <div className="flex flex-col h-full bg-white w-full z-50 animate-slide-up">
       <div className="px-5 py-4 pt-12 flex items-center justify-between border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur-md z-20">
@@ -765,7 +752,7 @@ const ScreenSavedPlaces = ({ onNavigate }) => {
   );
 };
 
-const ScreenChooseRide = ({ onNavigate }) => {
+const ScreenChooseRide = ({ onNavigate }: { onNavigate: (screen: string) => void }) => {
   const rides = [
     { id: 'car', name: 'Hatid Car', cap: 4, desc: 'Affordable everyday rides', eta: '3 - 5 min', price: '₱212.00', img: 'https://img.icons8.com/color/96/000000/sedan.png' },
     { id: 'moto', name: 'Hatid Moto', cap: 1, desc: 'Beat traffic, faster arrivals', eta: '2 - 4 min', price: '₱138.00', img: 'https://img.icons8.com/color/96/000000/motorcycle.png' },
@@ -775,6 +762,10 @@ const ScreenChooseRide = ({ onNavigate }) => {
 
   const [selectedRide, setSelectedRide] = useState('car');
   const activeRide = rides.find(r => r.id === selectedRide);
+
+  if (!activeRide) {
+    return null; // Or show a loading/error state
+  }
 
   return (
     <div className="flex flex-col h-full relative overflow-hidden w-full bg-white z-50 animate-slide-up">
@@ -901,23 +892,30 @@ export default function HatidApp() {
 
   // Add styles dynamically on mount
   useEffect(() => {
-    const styleId = 'hatid-animations';
+    const styleId = 'hatid-global-styles';
     if (!document.getElementById(styleId)) {
-        const customStyle = document.createElement('style');
-        customStyle.id = styleId;
-        customStyle.textContent = `
-        @keyframes shimmer {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+          .hide-scrollbar::-webkit-scrollbar { display: none; }
+          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+          .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+          @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes shimmer {
             100% { transform: translateX(100%); }
-        }
+          }
         `;
-        document.head.appendChild(customStyle);
+        document.head.appendChild(style);
     }
   }, []);
 
   // Simple Router Simulation
   return (
     <div className="bg-gray-900 min-h-screen flex items-center justify-center p-4 font-sans selection:bg-blue-200">
-      <div className="w-full max-w-[400px] h-[850px] max-h-[90vh] bg-white rounded-[3rem] shadow-2xl overflow-hidden relative border-[10px] border-gray-800 ring-4 ring-gray-700/50 flex flex-col">
+      <div className="w-full max-w-[400px] h-[850px] max-h-[90vh] bg-white rounded-[3rem] shadow-2xl overflow-hidden relative border-[10px] border-gray-800 ring-4 ring-gray-700/50 flex flex-.col">
         {/* iPhone Notch Simulation */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-[28px] bg-gray-800 rounded-b-[20px] z-[100] flex justify-center items-center gap-3">
            <div className="w-14 h-1.5 bg-black/40 rounded-full"></div>

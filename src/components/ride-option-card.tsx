@@ -1,9 +1,11 @@
+
 'use client';
 
 import { cn } from '@/lib/utils';
 import { CheckCircle2, Users } from 'lucide-react';
 import React from 'react';
 
+// This type is now more generic and can be used with data from the API.
 export type RideOption = {
   id: string;
   name: string;
