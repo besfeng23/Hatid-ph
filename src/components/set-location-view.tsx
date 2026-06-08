@@ -5,7 +5,7 @@ import { collection, query } from 'firebase/firestore';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser } from '@/firebase';
 import { demoLocationSuggestions, demoRecentSearches, demoSavedPlaces, type DemoPlace } from '@/lib/demo/location-suggestions';
 import { LocationSearchField } from './rider/booking/location-search-field';
 import { RecentSearchList } from './rider/booking/recent-search-list';
@@ -18,7 +18,7 @@ type SavedLocationDoc = { id: string; name?: string; address?: string; type?: st
 export function useSavedLocationPlaces() {
   const { user } = useUser();
   const firestore = useFirestore();
-  const savedLocationsQuery = useMemoFirebase(() => {
+  const savedLocationsQuery = useMemo(() => {
     if (!user || !firestore) return null;
     return query(collection(firestore, 'users', user.uid, 'savedLocations'));
   }, [user, firestore]);

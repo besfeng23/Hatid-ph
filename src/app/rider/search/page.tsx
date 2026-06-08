@@ -62,7 +62,7 @@ function RiderSearchPage() {
           disabled={continueDisabled}
           onClick={() => {
             const params = new URLSearchParams({
-              pickup: formatDemoPlaceLabel(demoPickup),
+              pickup: formatDemoPlaceLabel(demoPickup as any),
               destination: destinationLabel,
             });
             router.push(`/rider/ride-options?${params.toString()}`);
