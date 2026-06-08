@@ -17,11 +17,6 @@ import { demoLocationSuggestions, demoPickup, demoRecentSearches, type DemoPlace
 // Inlined implementations from the deleted prototype file
 const formatDemoPlaceLabel = (place: DemoPlace) => `${place.name}, ${place.address}`;
 
-const buildRideOptionsHref = (params: { pickup: string; destination: string }) => {
-  const searchParams = new URLSearchParams(params);
-  return `/rider/ride-options?${searchParams.toString()}`;
-};
-
 function RiderSearchPage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
@@ -65,7 +60,13 @@ function RiderSearchPage() {
         <RecentSearchList places={demoRecentSearches} onSelect={selectPlace} />
         <PrimaryCta
           disabled={continueDisabled}
-          onClick={() => router.push(buildRideOptionsHref({ pickup: formatDemoPlaceLabel(demoPickup), destination: destinationLabel }))}
+          onClick={() => {
+            const params = new URLSearchParams({
+              pickup: formatDemoPlaceLabel(demoPickup),
+              destination: destinationLabel,
+            });
+            router.push(`/rider/ride-options?${params.toString()}`);
+          }}
         >
           Continue to fare estimates
         </PrimaryCta>
