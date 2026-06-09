@@ -1,10 +1,8 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import { FirebaseClientProvider } from '@/firebase';
-
+import { PlatformProvider } from '@/platform/provider';
 
 export const metadata: Metadata = {
   title: 'Hatid: Your Ride in Manila',
@@ -23,10 +21,10 @@ export default function RootLayout({
           'font-body antialiased bg-background text-foreground'
         )}
       >
-        <FirebaseClientProvider>
-            {children}
-            <Toaster />
-        </FirebaseClientProvider>
+        <PlatformProvider>
+          {children}
+          <Toaster />
+        </PlatformProvider>
       </body>
     </html>
   );
