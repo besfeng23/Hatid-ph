@@ -1,0 +1,27 @@
+# Hatid CODEOWNERS
+
+/docs/architecture/ @hatid/principal-architects
+/docs/adr/ @hatid/principal-architects
+/docs/governance/ @hatid/principal-architects
+/docs/frontend/ @hatid/design-leads @hatid/frontend-leads
+
+/supabase/migrations/ @hatid/data-architects @hatid/security-architects
+/supabase/tests/pgtap/ @hatid/data-architects
+/supabase/functions/auth-service/ @hatid/iam-leads
+/supabase/functions/workflow-service/ @hatid/platform-leads
+/supabase/functions/ledger-service/ @hatid/finance-platform-leads
+/supabase/functions/payment-service/ @hatid/finance-platform-leads
+/supabase/functions/dispatch-service/ @hatid/dispatch-leads
+/supabase/functions/trip-service/ @hatid/dispatch-leads @hatid/platform-leads
+/supabase/functions/compliance-service/ @hatid/compliance-leads
+/supabase/functions/ops-service/ @hatid/operations-leads
+
+/apps/rider/ @hatid/frontend-leads
+/apps/driver/ @hatid/frontend-leads
+/apps/admin/ @hatid/admin-platform-leads
+
+/packages/ui/ @hatid/design-leads @hatid/frontend-leads
+/packages/types/ @hatid/principal-architects
+/packages/design-tokens/ @hatid/design-leads
+
+/.github/ @hatid/platform-leads @hatid/principal-architects
