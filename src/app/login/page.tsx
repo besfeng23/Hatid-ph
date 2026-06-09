@@ -1,25 +1,25 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Car, Loader2 } from 'lucide-react';
-import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
-import { useAuth, useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import Link from 'next/link';
+import { SupabaseContext } from '@/supabase/context';
+import { useSupabaseUser } from '@/supabase/hooks';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
+  const { supabase } = useContext(SupabaseContext);
   const router = useRouter();
-  const { user, isUserLoading } = useUser();
+  const { user, isLoading: isUserLoading } = useSupabaseUser();
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -33,8 +33,14 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await initiateEmailSignIn(auth, email, password);
-      // Redirect is still handled centrally through auth state.
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+      }
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please try again.');
     } finally {

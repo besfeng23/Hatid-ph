@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useUser } from '@/firebase';
+import { useSupabaseUser } from '@/supabase/hooks';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -9,16 +10,16 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Header } from './header';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, isUserLoading } = useUser();
+  const { user, isLoading } = useSupabaseUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (!isLoading && !user) {
       router.push('/login');
     }
-  }, [isUserLoading, user, router]);
+  }, [isLoading, user, router]);
 
-  if (isUserLoading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />

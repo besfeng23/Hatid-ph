@@ -1,15 +1,16 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Car, Loader2 } from 'lucide-react';
-import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
-import { useAuth, useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { SupabaseContext } from '@/supabase/context';
+import { useSupabaseUser } from '@/supabase/hooks';
 
 function getAuthErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -24,9 +25,9 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
+  const { supabase } = useContext(SupabaseContext);
   const router = useRouter();
-  const { user, isUserLoading } = useUser();
+  const { user, isLoading: isUserLoading } = useSupabaseUser();
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -40,8 +41,14 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      await initiateEmailSignUp(auth, email, password);
-      // Redirect is still handled centrally through auth state.
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+      }
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err));
     } finally {
