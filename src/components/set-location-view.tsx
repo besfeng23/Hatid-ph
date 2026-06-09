@@ -1,11 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { collection, query } from 'firebase/firestore';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { useCollection, useFirestore, useUser } from '@/firebase';
 import { demoLocationSuggestions, demoRecentSearches, demoSavedPlaces, type DemoPlace } from '@/lib/demo/location-suggestions';
 import { LocationSearchField } from './rider/booking/location-search-field';
 import { RecentSearchList } from './rider/booking/recent-search-list';
@@ -13,22 +11,8 @@ import { SavedPlacesSection } from './rider/booking/saved-places-section';
 
 interface SetLocationViewProps { pickup: string; destination: string; onConfirm: (pickup: string, destination: string) => void; onBack: () => void; }
 
-type SavedLocationDoc = { id: string; name?: string; address?: string; type?: string };
-
 export function useSavedLocationPlaces() {
-  const { user } = useUser();
-  const firestore = useFirestore();
-  const savedLocationsQuery = useMemo(() => {
-    if (!user || !firestore) return null;
-    return query(collection(firestore, 'users', user.uid, 'savedLocations'));
-  }, [user, firestore]);
-  const { data, isLoading } = useCollection(savedLocationsQuery);
-  const places = useMemo<DemoPlace[]>(() => {
-    const saved = (data || []) as SavedLocationDoc[];
-    if (saved.length === 0) return demoSavedPlaces;
-    return saved.map((location) => ({ id: location.id, name: location.name || 'Saved place', address: location.address || 'Address unavailable', tag: location.name === 'Home' ? 'home' : location.name === 'Work' ? 'work' : 'favorite' }));
-  }, [data]);
-  return { places, isLoading };
+  return { places: demoSavedPlaces, isLoading: false };
 }
 
 export function SetLocationView({ pickup: initialPickup, destination: initialDestination, onConfirm, onBack }: SetLocationViewProps) {
