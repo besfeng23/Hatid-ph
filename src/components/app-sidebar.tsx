@@ -1,3 +1,4 @@
+
 'use client';
 import {
   SidebarContent,
@@ -19,18 +20,19 @@ import {
   LogIn,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth, useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useSupabaseUser } from '@/supabase/hooks';
+import { useContext } from 'react';
 import { useRouter } from 'next/navigation';
+import { SupabaseContext } from '@/supabase/context';
 
 export function AppSidebar() {
   const { isMobile, toggleSidebar } = useSidebar();
-  const { user, isUserLoading } = useUser();
-  const auth = useAuth();
+  const { user, isLoading: isUserLoading } = useSupabaseUser();
+  const { supabase } = useContext(SupabaseContext)
   const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await supabase.auth.signOut();
     router.push('/login');
   };
 

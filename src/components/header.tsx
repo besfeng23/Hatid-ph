@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Car, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { SidebarTrigger } from './ui/sidebar';
-import { useUser } from '@/firebase';
+import { useSupabaseUser } from '@/supabase/hooks';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export function Header() {
-  const { user, isUserLoading } = useUser();
+  const { user, isLoading: isUserLoading } = useSupabaseUser();
   const avatarImage = PlaceHolderImages.find(p => p.id === 'driver_avatar_1');
 
   return (
@@ -31,7 +31,7 @@ export function Header() {
                 <Button variant="ghost" asChild size="icon">
                     <Link href="/profile">
                     <Avatar className="h-9 w-9">
-                        {avatarImage && <AvatarImage src={user.photoURL || avatarImage.imageUrl} alt="User Avatar" />}
+                        {avatarImage && <AvatarImage src={user.user_metadata.avatar_url || avatarImage.imageUrl} alt="User Avatar" />}
                         <AvatarFallback>
                         <User />
                         </AvatarFallback>

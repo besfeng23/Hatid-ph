@@ -1,22 +1,21 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useFirestore, useUser } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
+import { useSupabaseUser } from '@/supabase/hooks';
 import { PrimaryCta } from '../primary-cta';
 import { SecondaryCta } from '../secondary-cta';
 import { ProfilePhotoUploader } from './profile-photo-uploader';
+import { SupabaseContext } from '@/supabase/context';
 
 export function RiderProfileForm() {
-  const { user } = useUser();
-  const firestore = useFirestore();
+  const { user } = useSupabaseUser();
+  const { supabase } = useContext(SupabaseContext);
   const router = useRouter();
-  const { toast } = useToast();
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -25,47 +24,43 @@ export function RiderProfileForm() {
 
   useEffect(() => {
     setEmail(user?.email || '');
-    setPhone(user?.phoneNumber || '');
-    setFullName(user?.displayName || '');
-    if (user && firestore) {
-      getDoc(doc(firestore, 'users', user.uid))
-        .then((snap) => {
-          const data = snap.data();
+    setPhone(user?.phone || '');
+    if (user && supabase) {
+        supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+        .then(({ data, error }) => {
           if (data) {
-            setFullName(String(data.displayName || data.fullName || user.displayName || ''));
-            setPhone(String(data.phoneNumber || user.phoneNumber || ''));
-            setEmail(String(data.email || user.email || ''));
-            setHomeCity(String(data.homeCity || ''));
+            setFullName(data.full_name || '');
+            setHomeCity(data.home_city || '');
           }
         })
         .catch(() => undefined);
     }
-  }, [firestore, user]);
+  }, [supabase, user]);
 
   const canSave = fullName.trim().length > 1 && phone.trim().length > 5 && email.includes('@');
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!user || !firestore || !canSave) return;
+    if (!user || !supabase || !canSave) return;
     setIsSaving(true);
     try {
-      await setDoc(
-        doc(firestore, 'users', user.uid),
+      await supabase.from('profiles').upsert(
         {
-          id: user.uid,
-          displayName: fullName.trim(),
-          fullName: fullName.trim(),
-          phoneNumber: phone.trim(),
+          id: user.id,
+          full_name: fullName.trim(),
+          phone: phone.trim(),
           email: email.trim(),
-          homeCity: homeCity.trim(),
-          riderProfileSetup: true,
+          home_city: homeCity.trim(),
+          rider_profile_setup: true,
         },
-        { merge: true }
       );
-      toast({ title: 'Profile saved', description: 'Rider profile details were saved for this prototype.' });
       router.push('/');
-    } catch {
-      toast({ variant: 'destructive', title: 'Profile not saved', description: 'Please try again.' });
+    } catch(e) {
+        console.error(e);
     } finally {
       setIsSaving(false);
     }
@@ -73,7 +68,7 @@ export function RiderProfileForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <ProfilePhotoUploader photoUrl={user?.photoURL} displayName={fullName} />
+      <ProfilePhotoUploader photoUrl={user?.user_metadata.avatar_url} displayName={fullName} />
       <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
         <div className="space-y-4">
           <div className="space-y-2">

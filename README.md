@@ -1,6 +1,6 @@
 # Hatid
 
-[https://github.com/besfeng23/Hatid](https://github.com/besfeng23/Hatid)
+[https://github.com/besfeng23/Hatid-ph](https://github.com/besfeng23/Hatid-ph)
 
 Hatid is a Philippines-focused ride-hailing, delivery, driver, dispatch, payment, payout, safety, admin, and compliance platform.
 
