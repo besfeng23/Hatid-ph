@@ -37,7 +37,7 @@ Client code must not be authoritative for trips, dispatch, driver availability, 
 
 Production-critical state must be server-owned, auditable, and recoverable.
 
-Firestore may be used for selected realtime read models, but it must not be treated as the source of truth for production-critical flows.
+Firebase and Firestore are prohibited. Selected realtime read models must use the approved Supabase-first architecture and must not become the source of truth for production-critical flows.
 
 ## High-risk work
 

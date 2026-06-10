@@ -1,3 +1,27 @@
+# SUPERSEDED DOCUMENT
+
+This document is preserved for historical reference only.
+
+It is NOT an active architecture source of truth.
+
+Active authority is:
+
+* `docs/architecture/00_ARCHITECTURE_BASELINE_V1.md`
+* `docs/governance/26_FINAL_ARCHITECTURE_GOVERNANCE_AUDIT.md`
+* `docs/adr/ADR-001-REMOVE-FIREBASE.md`
+* `docs/adr/ADR-002-SUPABASE-FIRST.md`
+* `docs/adr/ADR-003-ORGANIZATION-FIRST-MULTITENANCY.md`
+* `docs/adr/ADR-004-LEDGER-FIRST-FINANCE.md`
+* `docs/adr/ADR-005-WORKFLOW-ENGINE-FIRST.md`
+* `docs/adr/ADR-006-EVENT-STREAMING.md`
+* `docs/adr/ADR-007-OBSERVABILITY-OPENTELEMETRY.md`
+* `docs/adr/ADR-008-REPOSITORY-GOVERNANCE.md`
+* `docs/adr/ADR-009-CANONICAL-UI-UX.md`
+
+If this document conflicts with the active architecture baseline, the active baseline wins.
+
+---
+
 # Open Questions and Legal Review
 
 This file tracks decisions that cannot be solved by code alone. Do not let Codex or implementation work guess these answers.

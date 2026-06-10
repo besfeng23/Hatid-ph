@@ -64,6 +64,7 @@ Deliver:
 - `audit.audit_logs`
 - `audit.idempotency_keys`
 - `integration.outbox_events`
+- minimum durable outbox event envelope, including event identity, type, version, organization context, aggregate reference, payload, occurrence time, trace context, and delivery state
 - trace/correlation ID standard
 - structured JSON logging
 - initial OpenTelemetry wrapper
@@ -95,7 +96,13 @@ Deliver:
 - `ledger-service`
 - pgTAP ledger invariant tests
 
+Restriction:
+
+- Phase 6 establishes ledger-safe system mutation paths only. Manual ledger adjustment, refund approval, payout override, and chargeback resolution must not be enabled until the Phase 7 maker-checker foundation exists.
+
 ## Phase 7 — Operations + Maker-Checker
+
+Phase 7 is the approval foundation for finance and compliance high-risk actions.
 
 Deliver:
 
@@ -115,12 +122,16 @@ Deliver:
 - STR workflow
 - DSAR/LER foundations
 
+Dependency:
+
+- AML case closure and DSAR/LER export require the Phase 7 maker-checker approval foundation.
+
 ## Phase 9 — Event Streaming Foundation
 
 Deliver:
 
-- Redis Streams integration
-- outbox processor
+- operational Redis Streams for dispatch and telemetry scale
+- outbox processor that publishes the Phase 4 durable event envelope
 - dispatch stream contracts
 - DLQ
 - replay mechanism
