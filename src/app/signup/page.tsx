@@ -1,15 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Car, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Car, Loader2 } from 'lucide-react';
-import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
-import { useAuth, useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useUser } from '@/platform/provider';
 
 function getAuthErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -24,7 +23,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
   const router = useRouter();
   const { user, isUserLoading } = useUser();
 
@@ -34,14 +32,13 @@ export default function SignupPage() {
     }
   }, [user, isUserLoading, router]);
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignup = async (event: React.FormEvent) => {
+    event.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      await initiateEmailSignUp(auth, email, password);
-      // Redirect is still handled centrally through auth state.
+      throw new Error('Sign up is temporarily disabled while Hatid migrates from Firebase to Supabase.');
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err));
     } finally {
@@ -77,7 +74,7 @@ export default function SignupPage() {
                   type="email"
                   placeholder="juan@delacruz.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                 />
               </div>
@@ -87,7 +84,7 @@ export default function SignupPage() {
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(event) => setPassword(event.target.value)}
                   required
                   minLength={6}
                 />
