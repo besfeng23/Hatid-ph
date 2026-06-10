@@ -138,8 +138,8 @@ const Splash = ({ onNext }: { onNext: () => void }) => (
 const Login = ({ onNext, phone, setPhone }: { onNext: () => void; phone: string; setPhone: (value: string) => void }) => (
   <div className="h-full bg-white flex flex-col px-6 pt-20 animate-slide-up">
     <HatidLogo />
-    <h1 className="text-[32px] font-extrabold text-[#001144] tracking-tight leading-[1.1] mt-8 mb-3">What's your<br />number?</h1>
-    <p className="text-gray-500 mb-8 font-medium text-[15px]">We'll text you a code to verify your phone.</p>
+    <h1 className="text-[32px] font-extrabold text-[#001144] tracking-tight leading-[1.1] mt-8 mb-3">What&apos;s your<br />number?</h1>
+    <p className="text-gray-500 mb-8 font-medium text-[15px]">We&apos;ll text you a code to verify your phone.</p>
     <div className="flex border-2 border-gray-200 rounded-2xl overflow-hidden focus-within:border-[#0033cc] focus-within:ring-4 focus-within:ring-blue-500/10 transition-all mb-8 shadow-sm">
       <div className="bg-gray-50 px-4 py-4 flex items-center border-r border-gray-200 font-extrabold text-gray-700">🇵🇭 +63</div>
       <input type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="9XX XXX XXXX" className="w-full px-4 py-4 outline-none font-bold text-gray-900 text-lg bg-transparent" />
@@ -148,7 +148,7 @@ const Login = ({ onNext, phone, setPhone }: { onNext: () => void; phone: string;
       Continue <ChevronRight size={20} strokeWidth={3} />
     </button>
     <p className="mt-auto pb-10 text-center text-xs text-gray-400 font-medium leading-relaxed">
-      By continuing, you agree to Hatid's <br /><span className="text-[#0033cc] font-bold">Terms of Service</span> and <span className="text-[#0033cc] font-bold">Privacy Policy</span>.
+      By continuing, you agree to Hatid&apos;s <br /><span className="text-[#0033cc] font-bold">Terms of Service</span> and <span className="text-[#0033cc] font-bold">Privacy Policy</span>.
     </p>
   </div>
 );
