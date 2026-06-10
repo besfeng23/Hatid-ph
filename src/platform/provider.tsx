@@ -7,6 +7,7 @@ type HatidUser = {
   email?: string | null;
   phone?: string | null;
   name?: string | null;
+  photoUrl?: string | null;
 };
 
 interface PlatformProviderProps {

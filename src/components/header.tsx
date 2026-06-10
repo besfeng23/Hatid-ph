@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Car, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { SidebarTrigger } from './ui/sidebar';
-import { useUser } from '@/firebase';
+import { useUser } from '@/platform/provider';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export function Header() {
@@ -31,7 +31,7 @@ export function Header() {
                 <Button variant="ghost" asChild size="icon">
                     <Link href="/profile">
                     <Avatar className="h-9 w-9">
-                        {avatarImage && <AvatarImage src={user.photoURL || avatarImage.imageUrl} alt="User Avatar" />}
+                        {avatarImage && <AvatarImage src={user.photoUrl || avatarImage.imageUrl} alt="User Avatar" />}
                         <AvatarFallback>
                         <User />
                         </AvatarFallback>

@@ -1,0 +1,59 @@
+name: Architecture Drift Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  architecture-drift:
+    name: Reject Firebase and legacy architecture drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check production code for Firebase references
+        shell: bash
+        run: |
+          set -euo pipefail
+          paths=()
+          for path in src apps packages app lib server supabase; do
+            if [[ -e "$path" ]]; then
+              paths+=("$path")
+            fi
+          done
+
+          if ((${#paths[@]} > 0)) && rg --line-number --ignore-case 'firebase' "${paths[@]}"; then
+            echo "::error::Production code must not contain Firebase references."
+            exit 1
+          fi
+
+      - name: Check package manifest for Firebase dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if rg --line-number --ignore-case '"(?:firebase|firebase-admin|firebase-functions|@firebase/[^\"]+)"' package.json; then
+            echo "::error::package.json must not declare Firebase dependencies."
+            exit 1
+          fi
+
+      - name: Check active documentation for legacy platform authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' active_docs < <(find . -type f -name '*.md' \
+            ! -path './docs/legacy/*' \
+            ! -path './node_modules/*' \
+            ! -path './.next/*' \
+            ! -path './.git/*' -print0)
+          forbidden='Firebase Auth can remain|Firestore may be used|Firebase remains useful|Firebase App Hosting|Cloud Run services|Cloud Tasks|Pub/Sub|Cloud SQL'
+
+          if ((${#active_docs[@]} > 0)) && rg --line-number --ignore-case --regexp "$forbidden" "${active_docs[@]}"; then
+            echo "::error::Active documentation contains legacy Firebase/GCP architecture language. Preserve such text only under docs/legacy/."
+            exit 1
+          fi

@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Car, Loader2 } from 'lucide-react';
-import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
-import { useAuth, useUser } from '@/firebase';
+import { useUser } from '@/platform/provider';
+import { signInWithEmail } from '@/platform/prototype-services';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
@@ -17,7 +17,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
   const router = useRouter();
   const { user, isUserLoading } = useUser();
 
@@ -33,10 +32,10 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await initiateEmailSignIn(auth, email, password);
+      await signInWithEmail(email, password);
       // Redirect is still handled centrally through auth state.
-    } catch (err: any) {
-      setError(err?.message || 'Login failed. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

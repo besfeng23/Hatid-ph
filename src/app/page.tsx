@@ -1,6 +1,7 @@
 
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   Camera, CheckCircle2, Shield, ChevronRight, ChevronLeft, MapPin, 
   Bell, Menu, Wallet, Car, Bike, Package, Home, Briefcase, 
@@ -838,7 +839,13 @@ const ScreenChooseRide = ({ onNavigate }: { onNavigate: (screen: string) => void
                }`}
              >
                 <div className="w-[72px] h-[52px] bg-transparent flex justify-center items-center relative">
-                   <img src={ride.img} className={`w-[72px] object-contain transition-transform duration-300 ${selectedRide === ride.id ? 'scale-110 drop-shadow-md' : 'drop-shadow-sm'}`} alt={ride.name} />
+                   <Image
+                     src={ride.img}
+                     width={72}
+                     height={52}
+                     className={`h-[52px] w-[72px] object-contain transition-transform duration-300 ${selectedRide === ride.id ? 'scale-110 drop-shadow-md' : 'drop-shadow-sm'}`}
+                     alt={ride.name}
+                   />
                 </div>
                 <div className="flex-1">
                    <div className="flex items-center gap-2 mb-1">

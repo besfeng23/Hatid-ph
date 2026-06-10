@@ -4,44 +4,39 @@ Hatid is a Philippines-focused ride-hailing, delivery, driver, dispatch, payment
 
 ## Current status
 
-Hatid is currently a prototype. It is not production-ready.
+Hatid is currently a prototype. It is not production-ready. Existing UI or mocked behavior must not be treated as production system authority.
 
-The current app has a Next.js UI shell with rider, driver, profile, payment, demo location, and AI-related prototype files. Core production systems are not complete yet:
+**Hatid is now Supabase-first and Firebase is prohibited.**
 
-- dispatch is simulated or incomplete
-- payments are simulated or incomplete
-- wallet/payout behavior is not production-safe
-- maps/routing/fare calculations are not production-grade
-- driver onboarding and compliance are not complete
-- admin/safety/support operations are not production-ready
+The frozen production direction uses Supabase Auth, Supabase PostgreSQL/PostGIS, Supabase Storage, Supabase Edge Functions, Vercel, Cloudflare/WAF protection, and Redis Streams initially. Production-critical state must be server-owned, auditable, recoverable, organization-scoped, and protected by default-deny RLS.
 
-Do not treat UI polish as product truth.
+## Documentation authority
 
-## Architecture direction
+Start with the documentation authority index:
 
-See `/docs` for the production source package.
+- [`docs/README.md`](docs/README.md)
+- [`docs/architecture/00_ARCHITECTURE_BASELINE_V1.md`](docs/architecture/00_ARCHITECTURE_BASELINE_V1.md)
+- [`docs/governance/26_FINAL_ARCHITECTURE_GOVERNANCE_AUDIT.md`](docs/governance/26_FINAL_ARCHITECTURE_GOVERNANCE_AUDIT.md)
+- [`docs/governance/22_SPRINT_0B_FOUNDATION_DIRECTIVE.md`](docs/governance/22_SPRINT_0B_FOUNDATION_DIRECTIVE.md)
+- [`docs/architecture/24_FINAL_IMPLEMENTATION_ROADMAP.md`](docs/architecture/24_FINAL_IMPLEMENTATION_ROADMAP.md)
 
-The approved production direction is Supabase-first:
+Documents under `docs/legacy/` are superseded historical references. They must not be used as implementation or architecture authority.
 
-- Next.js PWA/frontends
-- Supabase Auth for identity
-- PostgreSQL via Supabase for authoritative data
-- Supabase Storage for KYC/KYB, vehicle, support, and incident files
-- Supabase Realtime plus event streaming for live updates
-- Supabase Edge Functions for service boundaries
-- Vercel for frontend hosting
-- Redis Streams initially, Kafka later, for event streaming
-- PostGIS for geospatial dispatch
-- BigQuery or analytics warehouse later for AI-ready event streams
+## Frozen implementation boundaries
 
-## Non-negotiable production rules
+- The client is never authoritative for trips, dispatch, driver availability, payment status, balances, payouts, administrative overrides, onboarding approvals, safety incidents, or compliance data.
+- Tenant-owned business records require `organization_id`.
+- Default-deny RLS and pgTAP coverage are mandatory for production tables.
+- Trip, onboarding, payout, refund, AML, and compliance lifecycles must use the workflow engine.
+- Finance authority is the immutable double-entry ledger; wallet and account balances are projections only.
+- Audit, idempotency, and durable outbox foundations precede business logic.
+- External provider calls must not occur inside critical database transactions.
 
-- The client is never authoritative for trips, dispatch, driver availability, payment status, wallet balances, payouts, admin overrides, KYC/KYB, safety incidents, or compliance data.
-- All money flows must be server-owned, ledger-derived, auditable, idempotent, and reconciled.
-- No admin direct balance edits
-- No real payment/payout feature ships without webhook verification and reconciliation.
-- SpeedCash is only a future adapter candidate until API, webhook, settlement, reconciliation, compliance, and legal review pass.
-- AI is later. It must not silently decide driver approvals, suspensions, refunds, payout approvals, safety closure, fraud punishment, or legal/compliance outcomes.
+## Implementation start rule
+
+Sprint 0B is the only approved next implementation phase. Follow [`docs/governance/22_SPRINT_0B_FOUNDATION_DIRECTIVE.md`](docs/governance/22_SPRINT_0B_FOUNDATION_DIRECTIVE.md).
+
+This repository does not claim Sprint 0B is complete merely because governance documents exist.
 
 ## Development
 
@@ -50,21 +45,17 @@ npm install
 npm run dev
 ```
 
-Default dev server:
+The development server uses port 9002 by default.
+
+## Required checks
+
+Run available checks before review:
 
 ```bash
-npm run dev
-# Next.js dev server on port 9002
-```
-
-## Scripts
-
-```bash
-npm run dev
-npm run build
-npm run start
 npm run lint
 npm run typecheck
+npm test
+npm run build
 ```
 
 ## Environment
@@ -72,33 +63,3 @@ npm run typecheck
 Copy `.env.example` to `.env.local` for local development.
 
 Never commit `.env`, service account keys, payment secrets, provider credentials, or private keys.
-
-## Project source docs
-
-Start here:
-
-- `docs/architecture/00_ARCHITECTURE_BASELINE_V1.md`
-- `docs/governance/19_ARCHITECTURE_COMPLIANCE_CHECKLIST.md`
-- `docs/governance/20_REPOSITORY_GOVERNANCE.md`
-- `docs/frontend/21_UI_UX_BASELINE_V1.md`
-- `docs/governance/22_SPRINT_0B_FOUNDATION_DIRECTIVE.md`
-- `docs/governance/23_FIREBASE_ERADICATION_PLAN.md`
-- `docs/architecture/24_FINAL_IMPLEMENTATION_ROADMAP.md`
-
-## Phase order
-
-1. Sprint 0B governance foundation
-2. Legacy platform eradication
-3. Organization foundation
-4. IAM, JWT, RLS, and pgTAP
-5. Audit, outbox, idempotency, and observability
-6. Workflow engine
-7. Finance core
-8. Event streaming
-9. Dispatch core
-10. Trip lifecycle
-11. Rider app
-12. Driver app
-13. Admin portal
-14. Compliance
-15. SRE hardening
