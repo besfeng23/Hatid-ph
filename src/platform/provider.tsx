@@ -2,11 +2,15 @@
 
 import React, { createContext, useContext, type ReactNode } from 'react';
 
-type HatidUser = {
+export type HatidUser = {
   id: string;
+  uid: string;
   email?: string | null;
   phone?: string | null;
+  phoneNumber?: string | null;
   name?: string | null;
+  displayName?: string | null;
+  photoURL?: string | null;
 };
 
 interface PlatformProviderProps {
