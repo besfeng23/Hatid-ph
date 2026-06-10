@@ -15,23 +15,25 @@ import {
   LogOut,
   Cog,
   Shield,
-  Menu,
   LogIn,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth, useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useUser } from '@/platform/provider';
 import { useRouter } from 'next/navigation';
 
 export function AppSidebar() {
   const { isMobile, toggleSidebar } = useSidebar();
   const { user, isUserLoading } = useUser();
-  const auth = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut(auth);
     router.push('/login');
+  };
+
+  const closeMobileSidebar = () => {
+    if (isMobile) {
+      toggleSidebar();
+    }
   };
 
   return (
@@ -50,7 +52,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/">
+              <Link href="/" onClick={closeMobileSidebar}>
                 <Car />
                 <span>Rider</span>
               </Link>
@@ -58,7 +60,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/dashboard/driver">
+              <Link href="/dashboard/driver" onClick={closeMobileSidebar}>
                 <LayoutDashboard />
                 <span>Driver</span>
               </Link>
@@ -67,7 +69,7 @@ export function AppSidebar() {
           {user && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/profile">
+                <Link href="/profile" onClick={closeMobileSidebar}>
                   <User />
                   <span>Profile</span>
                 </Link>
@@ -76,7 +78,7 @@ export function AppSidebar() {
           )}
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="#">
+              <Link href="#" onClick={closeMobileSidebar}>
                 <Shield />
                 <span>Safety</span>
               </Link>
@@ -84,7 +86,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="#">
+              <Link href="#" onClick={closeMobileSidebar}>
                 <Cog />
                 <span>Settings</span>
               </Link>
@@ -103,7 +105,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               ) : (
                 <SidebarMenuButton asChild>
-                  <Link href="/login">
+                  <Link href="/login" onClick={closeMobileSidebar}>
                     <LogIn />
                     <span>Log In</span>
                   </Link>
