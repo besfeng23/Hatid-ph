@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AuthGuard from '@/components/auth-guard';
 import { MapView } from '@/components/map-view';
@@ -46,9 +45,7 @@ function RiderRideOptionsPage() {
   }, [searchParams]);
 
   const rideOptions: RideOption[] = estimates.map((estimate) => {
-    const serviceOption = supportedRideOptions.find(
-      (option) => option.id === estimate.fare.serviceLevel
-    );
+    const serviceOption = supportedRideOptions.find((option) => option.id === estimate.fare.serviceLevel);
 
     return {
       id: estimate.fare.serviceLevel,
@@ -74,12 +71,7 @@ function RiderRideOptionsPage() {
         <PaymentPreferenceRow />
         <div className="space-y-3">
           {rideOptions.map((option) => (
-            <RideOptionCard
-              key={option.id}
-              option={option}
-              isSelected={selected?.id === option.id}
-              onSelect={setSelected}
-            />
+            <RideOptionCard key={option.id} option={option} isSelected={selected?.id === option.id} onSelect={setSelected} />
           ))}
         </div>
         <PromoRow />
@@ -89,10 +81,21 @@ function RiderRideOptionsPage() {
   );
 }
 
+function RideOptionsFallback() {
+  return (
+    <RiderScreenContainer className="pb-6">
+      <RiderTopBar showBack backHref="/rider/search" title="Fare estimates" subtitle="Prototype quote only" />
+      <div className="px-4 text-sm text-slate-500">Loading prototype fare estimate...</div>
+    </RiderScreenContainer>
+  );
+}
+
 export default function RiderRideOptionsPageWithAuth() {
   return (
     <AuthGuard>
-      <RiderRideOptionsPage />
+      <Suspense fallback={<RideOptionsFallback />}>
+        <RiderRideOptionsPage />
+      </Suspense>
     </AuthGuard>
   );
 }
