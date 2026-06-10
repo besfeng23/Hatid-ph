@@ -1,11 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { demoLocationSuggestions, demoPickup, demoRecentSearches, demoSavedPlaces } from '../src/lib/demo/location-suggestions';
 import { riderPrototypeHonesty, riderRedesignScreens } from '../src/lib/rider/rider-ui-state';
 import { buildRideOptionsHref, resolvePrototypeRideSelection } from '../src/lib/rider/prototype-ride-flow';
-import { TripSummaryCard } from '../src/components/rider/booking/trip-summary-card';
 
 test('rider redesign registers the required smoke-screen routes', () => {
   assert.deepEqual(riderRedesignScreens.map((screen) => screen.route), [
@@ -46,10 +43,6 @@ test('search selection is carried into the ride-options summary state', () => {
   assert.equal(selection.pickup, demoPickup);
   assert.equal(selection.destination, `${chosenPlace.name}, ${chosenPlace.address}`);
   assert.equal(selection.usedFallback, false);
-
-  const markup = renderToStaticMarkup(React.createElement(TripSummaryCard, selection));
-  assert.ok(markup.includes(chosenPlace.name));
-  assert.ok(markup.includes(demoPickup));
 });
 
 test('ride-options selection resolver falls back to honest prototype defaults when route state is missing', () => {

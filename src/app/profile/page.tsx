@@ -9,68 +9,55 @@ import { Label } from '@/components/ui/label';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Bell, ChevronRight, CreditCard, HelpCircle, Loader2, Shield, User } from 'lucide-react';
 import AuthGuard from '@/components/auth-guard';
-import { useUser, useAuth, useFirestore } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useUser } from '@/platform/provider';
+import { loadPrototypeProfile, savePrototypeProfile, signOutUser } from '@/platform/prototype-services';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
 function ProfilePage() {
     const { user } = useUser();
-    const auth = useAuth();
-    const firestore = useFirestore();
     const router = useRouter();
     const { toast } = useToast();
 
-    const [displayName, setDisplayName] = useState(user?.displayName || '');
-    const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
+    const [displayName, setDisplayName] = useState(user?.name || '');
+    const [phoneNumber, setPhoneNumber] = useState(user?.phone || '');
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        if (user) {
-            setDisplayName(user.displayName || user.email?.split('@')[0] || '');
-            setPhoneNumber(user.phoneNumber || '');
+        if (!user) return;
 
-            const userDocRef = doc(firestore, 'users', user.uid);
-            getDoc(userDocRef).then(docSnap => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    setDisplayName(data.displayName || data.firstName || '');
-                    setPhoneNumber(data.phoneNumber || '');
-                }
-            }).catch(() => {
-                toast({
-                    variant: 'destructive',
-                    title: 'Could not load profile',
-                    description: 'Please refresh and try again.',
-                });
+        setDisplayName(user.name || user.email?.split('@')[0] || '');
+        setPhoneNumber(user.phone || '');
+        loadPrototypeProfile(user.id).catch(() => {
+            toast({
+                variant: 'destructive',
+                title: 'Could not load profile',
+                description: 'Account services are not connected in this prototype.',
             });
-        }
-    }, [user, firestore, toast]);
+        });
+    }, [user, toast]);
 
     const handleLogout = async () => {
-        await signOut(auth);
+        await signOutUser();
         router.push('/login');
     };
 
     const handleSaveChanges = async () => {
         if (!user) return;
         setIsSaving(true);
-        const userDocRef = doc(firestore, 'users', user.uid);
-        
         const userData = {
-            id: user.uid,
-            email: user.email,
-            displayName: displayName,
-            phoneNumber: phoneNumber,
+            id: user.id,
+            email: user.email ?? null,
+            name: displayName,
+            phone: phoneNumber,
         };
 
         try {
-            await setDoc(userDocRef, userData, { merge: true });
+            await savePrototypeProfile(userData);
             toast({
                 title: 'Profile Updated',
-                description: 'Your changes have been saved successfully.',
+                description: 'Your changes have been saved.',
             });
         } catch {
             toast({
@@ -92,8 +79,8 @@ function ProfilePage() {
             <div className="space-y-8">
                 <div className="flex items-center gap-6">
                     <Avatar className="h-24 w-24 border-4 border-primary">
-                        {user?.photoURL || (avatarImage && avatarImage.imageUrl) ? (
-                            <AvatarImage src={user?.photoURL || avatarImage!.imageUrl} alt={userDisplayName} data-ai-hint={avatarImage?.imageHint} />
+                        {user?.photoUrl || (avatarImage && avatarImage.imageUrl) ? (
+                            <AvatarImage src={user?.photoUrl || avatarImage!.imageUrl} alt={userDisplayName} data-ai-hint={avatarImage?.imageHint} />
                         ) : null}
                         <AvatarFallback className="text-4xl">
                             <User />

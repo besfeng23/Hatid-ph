@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Car, Loader2 } from 'lucide-react';
-import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
-import { useAuth, useUser } from '@/firebase';
+import { useUser } from '@/platform/provider';
+import { signUpWithEmail } from '@/platform/prototype-services';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -24,7 +24,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
   const router = useRouter();
   const { user, isUserLoading } = useUser();
 
@@ -40,7 +39,7 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      await initiateEmailSignUp(auth, email, password);
+      await signUpWithEmail(email, password);
       // Redirect is still handled centrally through auth state.
     } catch (err: unknown) {
       setError(getAuthErrorMessage(err));
