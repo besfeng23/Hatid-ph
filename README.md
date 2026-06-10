@@ -6,7 +6,7 @@ Hatid is a Philippines-focused ride-hailing, delivery, driver, dispatch, payment
 
 Hatid is currently a prototype. It is not production-ready.
 
-The current app has a Next.js/Firebase UI shell with rider, driver, profile, payment, Firestore, and AI-related prototype files. Core production systems are not complete yet:
+The current app has a Next.js UI shell with rider, driver, profile, payment, demo location, and AI-related prototype files. Core production systems are not complete yet:
 
 - dispatch is simulated or incomplete
 - payments are simulated or incomplete
@@ -21,19 +21,18 @@ Do not treat UI polish as product truth.
 
 See `/docs` for the production source package.
 
-The intended production direction is hybrid:
+The approved production direction is Supabase-first:
 
 - Next.js PWA/frontends
-- Firebase Auth for identity
-- Firebase/FCM for push and selected client-facing read models
-- Firestore as projection/read-model layer only for production-critical flows
-- Cloud Run for authoritative backend services
-- Cloud Tasks for retries, expiries, timeouts, webhook replay, and payout retry
-- Pub/Sub for domain event fanout
-- Cloud Scheduler for reconciliation, cleanup, reminders, and expiry scans
-- Cloud SQL PostgreSQL + PostGIS for authoritative trip, dispatch, fare, ledger, payout, driver, vehicle, audit, safety, and compliance data
-- Cloud Storage for KYC/KYB, vehicle, support, and incident files
-- BigQuery later for analytics and AI-ready event streams
+- Supabase Auth for identity
+- PostgreSQL via Supabase for authoritative data
+- Supabase Storage for KYC/KYB, vehicle, support, and incident files
+- Supabase Realtime plus event streaming for live updates
+- Supabase Edge Functions for service boundaries
+- Vercel for frontend hosting
+- Redis Streams initially, Kafka later, for event streaming
+- PostGIS for geospatial dispatch
+- BigQuery or analytics warehouse later for AI-ready event streams
 
 ## Non-negotiable production rules
 
@@ -78,28 +77,28 @@ Never commit `.env`, service account keys, payment secrets, provider credentials
 
 Start here:
 
-- `docs/00_PROJECT_SOURCE_INDEX.md`
-- `docs/02_CURRENT_REPO_AUDIT.md`
-- `docs/03_PRODUCTION_ARCHITECTURE.md`
-- `docs/07_DATABASE_SCHEMA.md`
-- `docs/08_TRIP_STATE_MACHINE.md`
-- `docs/11_PAYMENT_LEDGER_AND_PAYOUTS.md`
-- `docs/15_SECURITY_AND_RBAC.md`
-- `docs/18_IMPLEMENTATION_ROADMAP.md`
-- `docs/20_CODEX_IMPLEMENTATION_RULES.md`
+- `docs/architecture/00_ARCHITECTURE_BASELINE_V1.md`
+- `docs/governance/19_ARCHITECTURE_COMPLIANCE_CHECKLIST.md`
+- `docs/governance/20_REPOSITORY_GOVERNANCE.md`
+- `docs/frontend/21_UI_UX_BASELINE_V1.md`
+- `docs/governance/22_SPRINT_0B_FOUNDATION_DIRECTIVE.md`
+- `docs/governance/23_FIREBASE_ERADICATION_PLAN.md`
+- `docs/architecture/24_FINAL_IMPLEMENTATION_ROADMAP.md`
 
 ## Phase order
 
-1. Repo cleanup and honesty
-2. Auth/profile correctness
-3. Real data model and write boundaries
-4. Trip state machine
-5. Maps/geocoding/fare quote
-6. Driver onboarding
-7. Driver availability and dispatch
-8. Payment ledger and receipts
-9. Admin console
-10. Safety tools
-11. Payouts and reconciliation
-12. Analytics and AI
-13. Production hardening and launch readiness
+1. Sprint 0B governance foundation
+2. Legacy platform eradication
+3. Organization foundation
+4. IAM, JWT, RLS, and pgTAP
+5. Audit, outbox, idempotency, and observability
+6. Workflow engine
+7. Finance core
+8. Event streaming
+9. Dispatch core
+10. Trip lifecycle
+11. Rider app
+12. Driver app
+13. Admin portal
+14. Compliance
+15. SRE hardening
