@@ -43,3 +43,6 @@ next-env.d.ts
 
 # IDX
 .idx/
+
+# generated test output
+/.tmp-tests/
