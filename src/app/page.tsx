@@ -1,25 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
   Bell,
+  Bike,
   Briefcase,
-  Camera,
-  CheckCircle2,
-  ChevronLeft,
+  Car,
+  Check,
   ChevronRight,
   Clock,
+  CreditCard,
+  FileText,
+  HelpCircle,
   Home,
   MapPin,
-  Menu,
-  Navigation,
+  Package,
   Phone,
-  Plane,
+  Plus,
+  Search,
+  Settings,
   Shield,
   Star,
-  Tag,
+  Truck,
   User,
   Wallet,
+  type LucideIcon,
 } from 'lucide-react';
 
 type Screen =
@@ -29,291 +37,684 @@ type Screen =
   | 'profile'
   | 'permissions'
   | 'home'
-  | 'dropoff-search'
-  | 'dropoff-selected'
-  | 'choose-ride'
-  | 'searching'
-  | 'driver-assigned'
-  | 'active-trip'
-  | 'trip-completed';
+  | 'book-search'
+  | 'book-choose'
+  | 'book-active'
+  | 'book-completed'
+  | 'receipt'
+  | 'trips'
+  | 'wallet'
+  | 'safety'
+  | 'account';
 
-type Navigate = (screen: Screen) => void;
+type RideType = 'car' | 'moto';
 
-const HatidLogo = ({ small = false }: { small?: boolean }) => (
-  <div className="flex items-center font-bold italic tracking-tight">
-    <div className="relative flex items-center justify-center">
-      <div className={`${small ? 'text-[28px]' : 'text-[36px]'} h-8 flex items-center -skew-x-12 text-[#0033cc]`}>
-        H
-      </div>
-      <Star className="absolute -top-1 -right-1 w-3 h-3 text-yellow-400 fill-yellow-400 drop-shadow-sm" />
-      <div className="absolute w-full h-[3px] bg-red-500 bottom-0.5 -skew-x-12 opacity-90 shadow-sm" />
-    </div>
-    <div className="flex flex-col justify-center leading-none ml-0.5">
-      <span className={`${small ? 'text-[22px]' : 'text-[28px]'} text-[#0033cc] mt-1 tracking-tighter uppercase`}>
-        ATID
+const BLUE = '#0033CC';
+const INK = '#0F172A';
+
+const navRoutes: Screen[] = ['home', 'trips', 'wallet', 'safety', 'account'];
+
+const navItems: { screen: Screen; label: string; icon: LucideIcon }[] = [
+  { screen: 'home', label: 'Home', icon: Home },
+  { screen: 'trips', label: 'Trips', icon: Clock },
+  { screen: 'wallet', label: 'Wallet', icon: Wallet },
+  { screen: 'safety', label: 'Safety', icon: Shield },
+  { screen: 'account', label: 'Account', icon: User },
+];
+
+function cn(...parts: Array<string | false | null | undefined>) {
+  return parts.filter(Boolean).join(' ');
+}
+
+function HatidLogo({ light = false, large = false }: { light?: boolean; large?: boolean }) {
+  return (
+    <div className="flex flex-col items-start">
+      <span
+        className={cn(
+          'font-black tracking-tight leading-none',
+          large ? 'text-4xl' : 'text-2xl',
+          light ? 'text-white' : 'text-[#0033CC]',
+        )}
+      >
+        Hatid
       </span>
-      {!small && (
-        <span className="text-[6px] text-gray-500 font-normal not-italic tracking-[0.15em] uppercase mt-[3px]">
-          Biyahe natin. Bansa natin.
-        </span>
-      )}
+      {large && <span className="mt-2 text-[11px] font-medium tracking-wide text-blue-100">Biyahe natin. Bansa natin.</span>}
     </div>
-  </div>
-);
+  );
+}
 
-const MapBackground = ({ type = 'home' }: { type?: 'home' | 'route' | 'dropoff' | 'active' }) => (
-  <div className="absolute inset-0 bg-[#eef2f5] overflow-hidden -z-10">
-    <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/5" />
-    <div className="absolute top-[30%] left-[-20%] w-[150%] h-8 bg-white/80 rotate-12 shadow-sm rounded-full" />
-    <div className="absolute top-[50%] left-[-20%] w-[150%] h-12 bg-white/80 -rotate-[15deg] shadow-sm rounded-full" />
-    <div className="absolute top-[20%] right-10 w-24 h-48 bg-[#d4ebd4]/60 rounded-2xl" />
-    <div className="absolute bottom-[40%] left-10 w-32 h-32 bg-[#d4ebd4]/60 rounded-full blur-[2px]" />
-    <span className="absolute top-[32%] left-[40%] text-[10px] text-gray-500 font-medium rotate-12">Kalayaan Ave</span>
-    <span className="absolute top-[52%] left-[20%] text-[10px] text-gray-500 font-medium -rotate-[15deg]">C-5</span>
-    <span className="absolute top-[25%] left-[60%] text-xs text-gray-400 font-bold uppercase tracking-wider">BGC</span>
-    {type === 'home' && (
-      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10 animate-slide-up">
-        <div className="bg-[#0033cc] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-lg mb-2.5 relative">
-          You are here
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-[#0033cc] rotate-45 rounded-sm" />
+function PhoneFrame({ children, showNav, current, go }: { children: ReactNode; showNav: boolean; current: Screen; go: (screen: Screen) => void }) {
+  return (
+    <main className="min-h-screen bg-[#0F172A] sm:p-6 flex items-center justify-center font-sans text-[#0F172A]">
+      <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-[0_12px_30px_-4px_rgba(15,23,42,0.08)] sm:h-[844px] sm:max-w-[390px] sm:rounded-[2.5rem] sm:border-[8px] sm:border-slate-900">
+        <div className="absolute left-1/2 top-0 z-[100] hidden h-[25px] w-[120px] -translate-x-1/2 items-center justify-center rounded-b-[18px] bg-slate-900 sm:flex">
+          <div className="h-1 w-12 rounded-full bg-black/40" />
         </div>
-        <div className="w-20 h-20 bg-blue-500/15 rounded-full flex items-center justify-center animate-pulse">
-          <div className="w-10 h-10 bg-blue-500/25 rounded-full flex items-center justify-center">
-            <div className="w-4 h-4 bg-[#0033cc] rounded-full border-2 border-white shadow-[0_2px_8px_rgba(0,51,204,0.6)]" />
+        <div className="relative flex-1 overflow-hidden">{children}</div>
+        {showNav && <BottomNav current={current} go={go} />}
+      </div>
+    </main>
+  );
+}
+
+function BottomNav({ current, go }: { current: Screen; go: (screen: Screen) => void }) {
+  return (
+    <nav className="absolute bottom-0 z-50 flex w-full justify-around border-t border-slate-200 bg-white/95 pb-6 pt-3 backdrop-blur sm:pb-8">
+      {navItems.map(({ screen, label, icon: Icon }) => {
+        const active = current === screen;
+        return (
+          <button
+            key={screen}
+            onClick={() => go(screen)}
+            className={cn('flex w-16 flex-col items-center justify-center gap-1', active ? 'text-[#0033CC]' : 'text-slate-400 hover:text-slate-600')}
+          >
+            <Icon size={22} strokeWidth={active ? 2.5 : 2} />
+            <span className="mt-0.5 text-[10px] font-semibold">{label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+function MapBackground({ className = '' }: { className?: string }) {
+  return (
+    <div
+      className={cn('relative overflow-hidden bg-slate-100', className)}
+      style={{
+        backgroundColor: '#F1F5F9',
+        backgroundImage:
+          'linear-gradient(45deg, transparent 48%, #E2E8F0 48%, #E2E8F0 52%, transparent 52%), linear-gradient(-45deg, transparent 48%, #E2E8F0 48%, #E2E8F0 52%, transparent 52%), linear-gradient(#E2E8F0 1px, transparent 1px), linear-gradient(90deg, #E2E8F0 1px, transparent 1px)',
+        backgroundSize: '150px 150px, 150px 150px, 30px 30px, 30px 30px',
+        backgroundPosition: 'center center',
+      }}
+    >
+      <div className="absolute left-[18%] top-[48%] h-3 w-[72%] -rotate-12 rounded-full bg-white/80 shadow-sm" />
+      <div className="absolute left-[-20%] top-[30%] h-5 w-[130%] rotate-12 rounded-full bg-white/80 shadow-sm" />
+      <div className="absolute right-8 top-20 h-20 w-24 rounded-2xl bg-emerald-100/50" />
+      <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-[#0033CC] shadow-lg" />
+    </div>
+  );
+}
+
+function Header({ title, back, go }: { title: string; back?: Screen; go: (screen: Screen) => void }) {
+  return (
+    <div className="flex items-center gap-4 border-b border-slate-100 bg-white px-5 pb-4 pt-10 sm:pt-12">
+      {back && (
+        <button onClick={() => go(back)} className="text-slate-500 active:scale-95">
+          <ArrowLeft size={24} />
+        </button>
+      )}
+      <h1 className="flex-1 text-2xl font-black tracking-tight text-[#0F172A]">{title}</h1>
+    </div>
+  );
+}
+
+function Splash({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="flex h-full flex-col bg-[#0033CC] px-6 pb-12 pt-24">
+      <div className="flex flex-1 items-center justify-center">
+        <div className="scale-150">
+          <HatidLogo light large />
+        </div>
+      </div>
+      <div className="rounded-3xl bg-white p-6 shadow-[0_12px_30px_-4px_rgba(15,23,42,0.08)]">
+        <h1 className="mb-2 text-2xl font-black tracking-tight text-[#0F172A]">Welcome.</h1>
+        <p className="mb-6 text-sm font-medium text-slate-500">Your reliable Philippine mobility partner.</p>
+        <button onClick={() => go('login')} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0033CC] py-4 font-bold text-white transition-transform active:scale-[0.98]">
+          Get Started <ArrowRight size={18} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Login({ go, phone, setPhone }: { go: (screen: Screen) => void; phone: string; setPhone: (value: string) => void }) {
+  const valid = phone.replace(/\D/g, '').length >= 10;
+  return (
+    <section className="flex h-full flex-col bg-white px-6 pt-16">
+      <button onClick={() => go('splash')} className="mb-8 w-max text-slate-400 active:scale-95">
+        <ArrowLeft size={24} />
+      </button>
+      <h1 className="mb-2 text-2xl font-black tracking-tight text-[#0F172A]">Enter your mobile number</h1>
+      <p className="mb-8 text-sm text-slate-500">We&apos;ll send you a secure code to verify your account.</p>
+      <div className="mb-6 flex overflow-hidden rounded-xl border border-slate-300 transition-all focus-within:border-[#0033CC] focus-within:ring-2 focus-within:ring-blue-100">
+        <div className="flex items-center border-r border-slate-300 bg-slate-50 px-4 py-4 text-sm font-bold text-slate-500">🇵🇭 +63</div>
+        <input value={phone} onChange={(event) => setPhone(event.target.value)} type="tel" placeholder="9XX XXX XXXX" maxLength={10} className="w-full bg-transparent px-4 py-4 font-bold text-[#0F172A] outline-none" />
+      </div>
+      <button disabled={!valid} onClick={() => go('otp')} className="mt-auto mb-6 w-full rounded-xl bg-[#0033CC] py-4 font-bold text-white transition-transform active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 sm:mb-0 sm:mt-0">
+        Continue
+      </button>
+    </section>
+  );
+}
+
+function Otp({ go, otp, setOtp }: { go: (screen: Screen) => void; otp: string; setOtp: (value: string) => void }) {
+  const valid = otp.replace(/\D/g, '').length >= 6;
+  return (
+    <section className="flex h-full flex-col bg-white px-6 pt-16">
+      <button onClick={() => go('login')} className="mb-8 w-max text-slate-400 active:scale-95">
+        <ArrowLeft size={24} />
+      </button>
+      <h1 className="mb-2 text-2xl font-black tracking-tight text-[#0F172A]">Verify Number</h1>
+      <p className="mb-10 text-sm text-slate-500">Enter the 6-digit code sent to your phone.</p>
+      <input value={otp} onChange={(event) => setOtp(event.target.value)} type="tel" maxLength={6} className="mb-10 h-16 w-full rounded-xl border border-slate-300 text-center text-3xl font-black tracking-[0.75em] text-[#0F172A] shadow-sm outline-none transition-all focus:border-[#0033CC] focus:ring-2 focus:ring-blue-100" placeholder="------" />
+      <button disabled={!valid} onClick={() => go('profile')} className="mt-auto mb-10 w-full rounded-xl bg-[#0033CC] py-4 font-bold text-white transition-transform active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400">
+        Verify & Continue
+      </button>
+    </section>
+  );
+}
+
+function Profile({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="flex h-full flex-col bg-white px-6 pt-16">
+      <h1 className="mb-2 text-2xl font-black tracking-tight text-[#0F172A]">Set up profile</h1>
+      <p className="mb-10 text-sm text-slate-500">Add your details to start using Hatid.</p>
+      <label className="mb-2 ml-1 block text-xs font-bold text-slate-700">Full Name</label>
+      <div className="flex items-center rounded-xl border border-slate-300 px-4 py-1 transition-all focus-within:border-[#0033CC] focus-within:ring-2 focus-within:ring-blue-100">
+        <User size={18} className="text-slate-400" />
+        <input type="text" placeholder="e.g. Maria Santos" className="w-full py-3 pl-3 text-sm font-bold text-[#0F172A] outline-none" />
+      </div>
+      <div className="mt-auto pb-10">
+        <button onClick={() => go('permissions')} className="w-full rounded-xl bg-[#0033CC] py-4 font-bold text-white transition-transform active:scale-[0.98]">
+          Save Profile
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Permissions({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="flex h-full flex-col bg-white px-6 pt-16">
+      <div className="mb-10">
+        <HatidLogo />
+      </div>
+      <h1 className="mb-2 text-2xl font-black tracking-tight text-[#0F172A]">Let&apos;s keep every ride safe.</h1>
+      <p className="mb-10 text-sm text-slate-500">Enable these required permissions so Hatid can locate you, notify you, and protect your trip.</p>
+      <div className="mb-10 space-y-6">
+        <Permission icon={MapPin} title="Location" detail="Needed for pickup routing" />
+        <Permission icon={Bell} title="Notifications" detail="Ride updates and safety alerts" />
+      </div>
+      <div className="mt-auto pb-10">
+        <button onClick={() => go('home')} className="w-full rounded-xl bg-[#0033CC] py-4 font-bold text-white transition-transform active:scale-[0.98]">
+          Allow Required Permissions
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Permission({ icon: Icon, title, detail }: { icon: LucideIcon; title: string; detail: string }) {
+  return (
+    <div className="flex items-start gap-4">
+      <Icon size={24} className="mt-0.5 text-[#0033CC]" />
+      <div>
+        <h3 className="text-sm font-bold text-[#0F172A]">{title}</h3>
+        <p className="text-xs text-slate-500">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
+function HomeScreen({ go }: { go: (screen: Screen) => void }) {
+  const services = [
+    { label: 'Ride', icon: Car },
+    { label: 'Moto', icon: Bike },
+    { label: 'XL', icon: Truck },
+    { label: 'Padala', icon: Package },
+  ];
+  return (
+    <section className="relative flex h-full flex-col bg-white">
+      <div className="z-10 flex items-center justify-between bg-white px-5 pb-4 pt-10 sm:pt-12">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-sm font-bold text-slate-600">MS</div>
+          <h2 className="text-sm font-bold text-[#0F172A]">Hi, Maria</h2>
+        </div>
+        <button className="p-2 text-slate-500">
+          <Bell size={20} />
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto px-5 pb-32 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <h1 className="mb-4 text-2xl font-black tracking-tight text-[#0F172A]">Saan ang punta?</h1>
+        <button onClick={() => go('book-search')} className="mb-6 flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition-transform active:scale-[0.99]">
+          <Search size={20} className="text-slate-400" />
+          <span className="flex-1 text-left text-sm font-medium text-slate-500">Where to?</span>
+          <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm">
+            <Clock size={12} /> Now
+          </div>
+        </button>
+        <div className="mb-8 grid grid-cols-4 gap-3">
+          {services.map(({ label, icon: Icon }) => (
+            <button key={label} className="flex flex-col items-center gap-2">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-[#0033CC]">
+                <Icon size={24} strokeWidth={2.2} />
+              </div>
+              <span className="text-xs font-bold text-slate-700">{label}</span>
+            </button>
+          ))}
+        </div>
+        <WalletSummary go={go} />
+        <h3 className="mb-3 text-sm font-bold text-[#0F172A]">Recent Places</h3>
+        <button onClick={() => go('book-choose')} className="flex w-full items-center gap-4 rounded-xl border border-slate-100 p-3 text-left hover:bg-slate-50">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <Briefcase size={18} />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-[#0F172A]">Work</h4>
+            <p className="text-[11px] text-slate-500">BGC Corporate Center, Taguig</p>
+          </div>
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function WalletSummary({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <button onClick={() => go('wallet')} className="mb-8 flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
+      <div className="flex items-center gap-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-[#0033CC]">
+          <Wallet size={16} />
+        </div>
+        <div>
+          <p className="text-xs font-bold text-slate-500">Hatid Wallet</p>
+          <p className="text-sm font-black text-[#0F172A]">₱1,250.00</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-[10px] font-medium text-slate-500">Linked</p>
+        <p className="text-xs font-bold text-blue-600">GCash</p>
+      </div>
+    </button>
+  );
+}
+
+function BookSearch({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="relative z-50 flex h-full flex-col bg-white">
+      <div className="flex gap-3 border-b border-slate-100 px-5 pb-4 pt-10 shadow-sm sm:pt-12">
+        <button onClick={() => go('home')} className="mt-3 text-slate-500">
+          <ArrowLeft size={24} />
+        </button>
+        <div className="relative flex-1 space-y-3">
+          <div className="absolute bottom-6 left-2.5 top-6 w-px bg-slate-300" />
+          <InputPin dot="bg-slate-800" value="Current Location" readOnly />
+          <InputPin dot="bg-[#EF4444]" placeholder="Where to?" focused />
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-5">
+        <button onClick={() => go('book-choose')} className="flex w-full items-center gap-4 border-b border-slate-100 py-3 text-left">
+          <Clock size={20} className="text-slate-400" />
+          <div>
+            <h4 className="text-sm font-bold text-[#0F172A]">Ayala Triangle Gardens</h4>
+            <p className="text-[11px] text-slate-500">Paseo de Roxas, Makati City</p>
+          </div>
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function InputPin({ dot, value, placeholder, readOnly, focused }: { dot: string; value?: string; placeholder?: string; readOnly?: boolean; focused?: boolean }) {
+  return (
+    <div className="relative flex items-center">
+      <div className={cn('absolute left-[7px] h-1.5 w-1.5 rounded-full ring-4 ring-white', dot)} />
+      <input value={value} readOnly={readOnly} placeholder={placeholder} className={cn('w-full rounded-lg py-2.5 pl-8 pr-3 text-sm font-bold text-slate-800 outline-none', focused ? 'border border-[#0033CC] bg-white shadow-sm focus:ring-1 focus:ring-[#0033CC]' : 'border border-slate-100 bg-slate-50')} />
+    </div>
+  );
+}
+
+function BookChoose({ go, ride, setRide }: { go: (screen: Screen) => void; ride: RideType; setRide: (ride: RideType) => void }) {
+  return (
+    <section className="relative z-50 flex h-full flex-col bg-slate-100">
+      <MapBackground className="h-56">
+        <span />
+      </MapBackground>
+      <button onClick={() => go('book-search')} className="absolute left-5 top-12 rounded-full border border-slate-200 bg-white p-2 text-slate-700 shadow-sm">
+        <ArrowLeft size={20} />
+      </button>
+      <div className="relative z-20 -mt-4 flex flex-1 flex-col rounded-t-[24px] bg-white shadow-[0_12px_30px_-4px_rgba(15,23,42,0.08)]">
+        <div className="mx-auto mb-4 mt-2 h-1 w-10 rounded-full bg-slate-200" />
+        <div className="flex-1 space-y-3 overflow-y-auto px-5 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <RideOption selected={ride === 'car'} icon={Car} title="Hatid Car" detail="3 mins • 4 seats" price="₱212.00" onClick={() => setRide('car')} />
+          <RideOption selected={ride === 'moto'} icon={Bike} title="Hatid Moto" detail="1 min • 1 seat" price="₱138.00" onClick={() => setRide('moto')} />
+        </div>
+        <div className="border-t border-slate-100 bg-white p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Wallet size={18} className="text-[#0033CC]" />
+            <span className="text-sm font-bold text-[#0F172A]">Hatid Wallet <span className="ml-1 font-normal text-slate-400">₱1,250</span></span>
+          </div>
+          <button onClick={() => go('book-active')} className="w-full rounded-xl bg-[#0033CC] py-4 font-bold text-white transition-transform active:scale-[0.98]">
+            Confirm {ride === 'car' ? 'Car' : 'Moto'}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RideOption({ selected, icon: Icon, title, detail, price, onClick }: { selected: boolean; icon: LucideIcon; title: string; detail: string; price: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className={cn('flex w-full cursor-pointer items-center gap-4 rounded-xl border p-4 text-left transition-colors', selected ? 'border-[#0033CC] bg-blue-50/30' : 'border-slate-200 bg-white')}>
+      <Icon size={36} strokeWidth={2.5} className="text-[#0F172A]" />
+      <div className="flex-1">
+        <h3 className="text-sm font-bold text-[#0F172A]">{title}</h3>
+        <p className="text-[11px] text-slate-500">{detail}</p>
+      </div>
+      <span className="text-sm font-black text-[#0F172A]">{price}</span>
+    </button>
+  );
+}
+
+function BookActive({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="relative z-50 flex h-full flex-col bg-slate-100">
+      <div className="absolute left-5 right-5 top-10 z-20 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:top-12">
+        <div className="mb-1 flex items-start justify-between">
+          <h3 className="text-sm font-black text-[#0F172A]">Driver is arriving</h3>
+          <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-[#0033CC]">2 mins</span>
+        </div>
+        <p className="text-[11px] font-medium text-slate-500">Please wait at the pickup point.</p>
+      </div>
+      <MapBackground className="flex-1" />
+      <div className="relative z-30 -mt-4 flex flex-col rounded-t-[24px] bg-white px-5 pb-6 pt-2 shadow-[0_12px_30px_-4px_rgba(15,23,42,0.08)]">
+        <div className="mx-auto mb-4 mt-2 h-1 w-10 rounded-full bg-slate-200" />
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <span className="text-xs font-bold text-slate-500">Your Ride PIN</span>
+          <span className="text-lg font-black tracking-widest text-[#0F172A]">4821</span>
+        </div>
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-slate-100 font-bold text-slate-600">JC</div>
+            <div>
+              <h3 className="text-sm font-bold text-[#0F172A]">Juan Dela Cruz</h3>
+              <p className="text-[11px] text-slate-500">Toyota Vios • ABC-1234</p>
+              <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wide text-green-600">LTFRB Verified</p>
+            </div>
+          </div>
+          <button className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-[#0033CC]">
+            <Phone size={18} />
+          </button>
+        </div>
+        <div className="mt-auto flex gap-3">
+          <button className="flex-1 rounded-xl border border-slate-200 py-3 text-xs font-bold text-slate-700">Share Trip</button>
+          <button className="flex-1 rounded-xl border border-red-100 bg-red-50 py-3 text-xs font-bold text-red-600">Emergency</button>
+        </div>
+        <button onClick={() => go('book-completed')} className="mt-4 text-[10px] font-medium text-slate-400 underline">End Demo Trip</button>
+      </div>
+    </section>
+  );
+}
+
+function Completed({ go, rating, setRating }: { go: (screen: Screen) => void; rating: number; setRating: (rating: number) => void }) {
+  return (
+    <section className="relative z-50 flex h-full flex-col bg-white px-6 pt-16">
+      <div className="mb-8 flex flex-col items-center">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-green-600">
+          <Check size={32} strokeWidth={3} />
+        </div>
+        <h1 className="mb-1 text-2xl font-black tracking-tight text-[#0F172A]">You&apos;ve arrived.</h1>
+        <p className="text-sm text-slate-500">Hope you enjoyed your ride with Juan.</p>
+      </div>
+      <div className="mb-8 flex flex-col items-center rounded-2xl border border-slate-200 bg-slate-50 p-6">
+        <h3 className="mb-4 text-sm font-bold text-[#0F172A]">Rate your driver</h3>
+        <div className="mb-2 flex gap-2">
+          {[1, 2, 3, 4, 5].map((value) => (
+            <button key={value} onClick={() => setRating(value)}>
+              <Star size={36} fill={value <= rating ? 'currentColor' : 'none'} className={value <= rating ? 'text-[#F59E0B]' : 'text-slate-300'} />
+            </button>
+          ))}
+        </div>
+      </div>
+      {rating > 0 && (
+        <div className="mb-8">
+          <p className="mb-3 text-center text-xs font-bold text-slate-500">Add a tip? (100% goes to driver)</p>
+          <div className="flex justify-center gap-3">
+            {['₱20', '₱50', '₱100'].map((tip) => <button key={tip} className="rounded-xl border border-slate-200 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">{tip}</button>)}
+          </div>
+        </div>
+      )}
+      <div className="mt-auto space-y-3 pb-10">
+        <button onClick={() => go('home')} className="w-full rounded-xl bg-[#0033CC] py-4 font-bold text-white transition-transform active:scale-[0.98]">Submit & Return Home</button>
+        <button onClick={() => go('receipt')} className="w-full rounded-xl border border-slate-200 bg-white py-4 font-bold text-slate-700 transition-transform active:scale-[0.98]">View Detailed Receipt</button>
+      </div>
+    </section>
+  );
+}
+
+function Receipt({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="relative z-50 flex h-full flex-col bg-slate-50">
+      <Header title="Trip Receipt" back="home" go={go} />
+      <div className="flex-1 overflow-y-auto px-5 py-6 pb-32">
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-6 border-b border-slate-100 pb-6 text-center">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Total Paid</p>
+            <h2 className="text-4xl font-black text-[#0F172A]">₱212.00</h2>
+            <p className="mt-2 text-xs text-slate-400">June 11, 2026 • 10:45 AM</p>
+          </div>
+          <div className="mb-6 space-y-4 border-b border-slate-100 pb-6 text-sm">
+            <Line label="Base Fare" value="₱80.00" />
+            <Line label="Distance (7.2 km)" value="₱132.00" />
+            <Line label="Tip" value="₱0.00" />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold text-slate-700">Paid via GCash</span>
+            <span className="rounded border border-green-200 bg-green-50 px-2 py-1 text-xs font-bold text-green-700">Successful</span>
+          </div>
+        </div>
+        <p className="text-center text-[10px] text-slate-400">TXID: HTD-98213-AB29 • Ledger Verified</p>
+      </div>
+    </section>
+  );
+}
+
+function Trips({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="relative flex h-full flex-col bg-slate-50">
+      <Header title="Your Trips" go={go} />
+      <div className="border-b border-slate-100 bg-white px-5 pb-2 pt-4">
+        <div className="flex gap-4">
+          <button className="border-b-2 border-[#0033CC] pb-2 text-sm font-bold text-[#0033CC]">Past</button>
+          <button className="pb-2 text-sm font-bold text-slate-400">Upcoming</button>
+        </div>
+      </div>
+      <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4 pb-32">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="mb-4 flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-[#0F172A]">
+                <Car size={24} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-[#0F172A]">Hatid Car</h3>
+                <p className="text-[11px] text-slate-500">June 11, 2026 • 10:45 AM</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-black text-[#0F172A]">₱212.00</p>
+              <span className="text-[9px] font-bold uppercase text-green-600">Completed</span>
+            </div>
+          </div>
+          <div className="mb-4 rounded-lg border border-slate-100 bg-slate-50 px-2 py-3 text-xs font-medium text-slate-600">
+            <p className="flex items-center gap-2"><MapPin size={12} /> BGC Corporate Center</p>
+            <div className="my-1 ml-1.5 h-2 w-0.5 bg-slate-300" />
+            <p className="flex items-center gap-2"><MapPin size={12} /> Ayala Triangle Gardens</p>
+          </div>
+          <div className="flex items-center gap-3 border-t border-slate-100 pt-3">
+            <button onClick={() => go('receipt')} className="flex-1 rounded-lg border border-slate-200 bg-slate-50 py-2 text-xs font-bold text-slate-700">View Receipt</button>
+            <button onClick={() => go('home')} className="flex-1 rounded-lg border border-blue-100 bg-blue-50 py-2 text-xs font-bold text-[#0033CC]">Rebook</button>
           </div>
         </div>
       </div>
-    )}
-    {(type === 'route' || type === 'active') && (
-      <div className="absolute inset-0 z-10 animate-slide-up">
-        <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
-          <path d="M 120,380 L 180,320 L 220,360 L 280,280 L 320,290" stroke="rgba(0,51,204,0.2)" strokeWidth="8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M 120,380 L 180,320 L 220,360 L 280,280 L 320,290" stroke="#0033cc" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <div className="absolute top-[370px] left-[110px] w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md border border-gray-100">
-          <div className="w-2.5 h-2.5 bg-red-500 rounded-full" />
-        </div>
-        <div className="absolute top-[280px] left-[300px] w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-100">
-          <div className="w-4 h-4 bg-[#0033cc] border-2 border-white rounded-full shadow-sm" />
-        </div>
-      </div>
-    )}
-    {type === 'dropoff' && (
-      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10 animate-slide-up">
-        <div className="bg-white border border-red-100 text-red-600 text-xs font-bold px-4 py-2 rounded-xl shadow-lg mb-2">
-          Use this location
-        </div>
-        <MapPin className="text-red-500 fill-red-500 w-11 h-11 drop-shadow-[0_8px_8px_rgba(239,68,68,0.3)] animate-bounce" />
-      </div>
-    )}
-    <button className="absolute right-4 bottom-[340px] bg-white/95 p-3.5 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] z-10 text-gray-700 active:scale-90 transition-transform">
-      <Navigation size={22} strokeWidth={2.5} />
-    </button>
-  </div>
-);
+    </section>
+  );
+}
 
-const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-gray-900 min-h-screen flex items-center justify-center p-4 font-sans selection:bg-blue-200">
-    <div className="w-full max-w-[400px] h-[850px] max-h-[90vh] bg-white rounded-[3rem] shadow-2xl overflow-hidden relative border-[10px] border-gray-800 ring-4 ring-gray-700/50 flex flex-col">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-[28px] bg-gray-800 rounded-b-[20px] z-[100] flex justify-center items-center gap-3">
-        <div className="w-14 h-1.5 bg-black/40 rounded-full" />
-        <div className="w-2.5 h-2.5 bg-black/50 rounded-full border border-gray-900" />
-      </div>
-      <div className="absolute top-10 left-5 z-[110] rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-extrabold px-3 py-1 shadow-sm">
-        CANONICAL UI BASELINE
-      </div>
-      <div className="flex-1 bg-white relative overflow-hidden">{children}</div>
-      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-36 h-1.5 bg-gray-300 rounded-full z-[100]" />
-    </div>
-  </div>
-);
-
-const Splash = ({ onNext }: { onNext: () => void }) => (
-  <button onClick={onNext} className="h-full w-full flex flex-col items-center justify-center bg-white animate-fade-in relative overflow-hidden">
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#0033cc] rounded-full blur-[80px] opacity-20" />
-    <HatidLogo />
-  </button>
-);
-
-const Login = ({ onNext, phone, setPhone }: { onNext: () => void; phone: string; setPhone: (value: string) => void }) => (
-  <div className="h-full bg-white flex flex-col px-6 pt-20 animate-slide-up">
-    <HatidLogo />
-    <h1 className="text-[32px] font-extrabold text-[#001144] tracking-tight leading-[1.1] mt-8 mb-3">What&apos;s your<br />number?</h1>
-    <p className="text-gray-500 mb-8 font-medium text-[15px]">We&apos;ll text you a code to verify your phone.</p>
-    <div className="flex border-2 border-gray-200 rounded-2xl overflow-hidden focus-within:border-[#0033cc] focus-within:ring-4 focus-within:ring-blue-500/10 transition-all mb-8 shadow-sm">
-      <div className="bg-gray-50 px-4 py-4 flex items-center border-r border-gray-200 font-extrabold text-gray-700">🇵🇭 +63</div>
-      <input type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="9XX XXX XXXX" className="w-full px-4 py-4 outline-none font-bold text-gray-900 text-lg bg-transparent" />
-    </div>
-    <button onClick={onNext} className="w-full bg-[#0033cc] text-white font-extrabold py-4 rounded-2xl shadow-[0_8px_20px_rgba(0,51,204,0.25)] active:scale-[0.98] transition-all text-[16px] flex justify-center items-center gap-2">
-      Continue <ChevronRight size={20} strokeWidth={3} />
-    </button>
-    <p className="mt-auto pb-10 text-center text-xs text-gray-400 font-medium leading-relaxed">
-      By continuing, you agree to Hatid&apos;s <br /><span className="text-[#0033cc] font-bold">Terms of Service</span> and <span className="text-[#0033cc] font-bold">Privacy Policy</span>.
-    </p>
-  </div>
-);
-
-const Otp = ({ onNext, onBack, phone }: { onNext: () => void; onBack: () => void; phone: string }) => (
-  <div className="h-full bg-white flex flex-col px-6 pt-20 animate-slide-up relative">
-    <button onClick={onBack} className="absolute top-12 left-5 p-2 bg-gray-50 rounded-full text-gray-600 active:scale-90 transition-transform">
-      <ChevronLeft size={22} strokeWidth={2.5} />
-    </button>
-    <h1 className="text-[32px] font-extrabold text-[#001144] tracking-tight leading-[1.1] mb-3 mt-4">Enter code</h1>
-    <p className="text-gray-500 mb-8 font-medium text-[15px]">A 6-digit code was sent to <span className="font-bold text-gray-900">+63 {phone}</span></p>
-    <div className="flex gap-2.5 mb-8 justify-between">
-      {[0, 1, 2, 3, 4, 5].map((item) => (
-        <input key={item} type="text" maxLength={1} className="w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-xl font-extrabold text-[#001144] focus:border-[#0033cc] focus:ring-4 focus:ring-blue-500/10 outline-none transition-all shadow-sm" />
-      ))}
-    </div>
-    <button onClick={onNext} className="w-full bg-[#0033cc] text-white font-extrabold py-4 rounded-2xl shadow-[0_8px_20px_rgba(0,51,204,0.25)] active:scale-[0.98] transition-all text-[16px]">
-      Verify & Continue
-    </button>
-  </div>
-);
-
-const Profile = ({ onNext, phone }: { onNext: () => void; phone: string }) => (
-  <div className="h-full bg-white overflow-y-auto px-6 pt-14 pb-8 animate-slide-up">
-    <div className="flex justify-between items-center mb-6"><HatidLogo small /><div className="bg-blue-50 text-[#0033cc] text-[11px] font-bold px-3 py-1.5 rounded-full">Step 1 of 3</div></div>
-    <h1 className="text-3xl font-extrabold text-gray-900 mb-2.5 tracking-tight">Set up your profile</h1>
-    <p className="text-gray-500 text-sm mb-8 leading-relaxed font-medium">We need a few basic details to create your secure Hatid account.</p>
-    <div className="bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-3xl p-5 mb-6">
-      <div className="flex items-center gap-5 border-b border-gray-100 pb-5 mb-5">
-        <div className="relative"><div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center border-2 border-blue-100"><User className="text-blue-200" size={42} /></div><button className="absolute bottom-0 right-0 bg-[#0033cc] text-white p-1.5 rounded-full border-2 border-white shadow-md"><Camera size={14} /></button></div>
-        <div><h3 className="font-bold text-gray-900 mb-1">Add a profile photo</h3><p className="text-xs text-gray-500 leading-snug">Help drivers identify you easily.</p></div>
-      </div>
-      <div className="space-y-4">
-        <input defaultValue="Maria Santos" className="w-full border border-gray-200 rounded-xl py-3.5 px-4 text-gray-900 font-bold focus:border-[#0033cc] outline-none" />
-        <input value={`+63 ${phone}`} readOnly className="w-full border border-gray-200 rounded-xl py-3.5 px-4 text-gray-900 font-bold bg-gray-50" />
-        <input defaultValue="maria.santos@gmail.com" className="w-full border border-gray-200 rounded-xl py-3.5 px-4 text-gray-900 font-bold focus:border-[#0033cc] outline-none" />
-        <input defaultValue="Quezon City" className="w-full border border-gray-200 rounded-xl py-3.5 px-4 text-gray-900 font-bold focus:border-[#0033cc] outline-none" />
-      </div>
-    </div>
-    <button onClick={onNext} className="w-full bg-[#0033cc] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(0,51,204,0.25)]">Continue <ChevronRight size={18} strokeWidth={2.5} /></button>
-  </div>
-);
-
-const Permissions = ({ onNext }: { onNext: () => void }) => (
-  <div className="h-full bg-white overflow-y-auto px-6 pt-14 pb-10 animate-slide-up">
-    <div className="flex justify-center mb-8"><HatidLogo /></div>
-    <h1 className="text-3xl font-extrabold text-[#001144] mb-3 text-center tracking-tight">Allow Permissions</h1>
-    <p className="text-gray-500 text-[15px] text-center leading-relaxed font-medium mb-8">Hatid needs these permissions to provide a safe and reliable ride experience.</p>
-    {[
-      ['Location', MapPin],
-      ['Notifications', Bell],
-      ['Contacts', User],
-      ['Camera', Camera],
-      ['Microphone', Phone],
-    ].map(([label, Icon]) => (
-      <button key={label as string} className="w-full text-left border border-gray-100 rounded-2xl p-4 flex items-center gap-4 shadow-sm bg-white active:scale-[0.98] transition-all mb-3">
-        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#0033cc]"><Icon size={22} strokeWidth={2.5} /></div>
-        <div className="flex-1"><h3 className="font-bold text-[#001144] text-[15px]">{label as string}</h3><p className="text-xs text-gray-500">Required for trip safety and app reliability.</p></div>
-        <ChevronRight className="text-[#0033cc]" size={18} />
-      </button>
-    ))}
-    <button onClick={onNext} className="w-full mt-4 bg-[#0033cc] text-white font-bold py-4 rounded-xl shadow-[0_4px_15px_rgba(0,51,204,0.25)]">Allow All Permissions</button>
-  </div>
-);
-
-const HomeScreen = ({ onNavigate }: { onNavigate: Navigate }) => (
-  <div className="flex flex-col h-full relative overflow-hidden w-full bg-[#f2f5f9] animate-slide-up">
-    <div className="px-5 pt-[52px] pb-2 flex justify-between items-center relative z-10">
-      <button className="bg-white p-3.5 rounded-full shadow-sm text-gray-800"><Menu size={22} strokeWidth={2.5} /></button>
-      <div className="bg-white px-5 py-2.5 rounded-[1.5rem] shadow-sm"><HatidLogo small /></div>
-      <button className="bg-white p-3.5 rounded-full shadow-sm text-gray-800 relative"><Bell size={22} strokeWidth={2.5} /><div className="absolute top-3.5 right-3.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" /></button>
-    </div>
-    <div className="px-6 mt-4 flex justify-between items-start relative z-10"><div><p className="text-gray-500 font-extrabold text-[13px] mb-1.5">Hello, Maria! 👋</p><h2 className="text-[32px] font-extrabold text-[#001144] tracking-tight leading-[1.05]">Where are<br />you<br />going today?</h2></div><button className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-sm mt-1"><Wallet size={24} className="text-[#0033cc]" /><div className="text-right"><p className="text-[9px] text-gray-400 font-bold uppercase">Wallet</p><p className="text-[15px] font-extrabold text-[#0033cc]">₱250.00</p></div></button></div>
-    <div className="mt-8 flex-1 bg-white rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.05)] z-20 flex flex-col px-6 pt-5 pb-24 relative">
-      <div className="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
-      <button onClick={() => onNavigate('dropoff-search')} className="w-full bg-white border border-gray-100 shadow-[0_8px_25px_rgba(0,0,0,0.04)] rounded-3xl p-5 mb-5 relative text-left">
-        <div className="flex items-center gap-4 mb-4"><div className="w-3.5 h-3.5 rounded-full bg-[#0033cc]" /><span className="text-[#001144] font-extrabold text-[16px]">Where to?</span></div>
-        <div className="h-px bg-gray-100 ml-9 mb-4" />
-        <div className="flex items-center gap-4"><MapPin className="text-red-500 fill-red-500 w-[22px] h-[22px]" /><span className="text-gray-900 font-extrabold text-[16px]">Enter drop-off location</span></div>
-      </button>
-      <div className="flex gap-3 mb-5">{[['Home', Home, 'BGC, Taguig'], ['Work', Briefcase, 'Ortigas'], ['NAIA T3', Plane, 'Pasay City']].map(([label, Icon, sub]) => <button key={label as string} className="flex-1 flex flex-col items-center py-4 px-2 border border-gray-100 rounded-3xl bg-white shadow-sm"><Icon className="text-[#0033cc] mb-2" size={26} /><span className="text-[13px] font-extrabold text-gray-900">{label as string}</span><span className="text-[10px] text-gray-500 truncate">{sub as string}</span></button>)}</div>
-      <button className="w-full bg-white border border-gray-100 rounded-[1.25rem] p-4 flex items-center justify-between shadow-sm"><div className="flex gap-4 items-center"><div className="bg-[#0033cc] text-white p-3 rounded-[14px]"><Shield size={20} /></div><div className="text-left"><h4 className="font-extrabold text-[#001144] text-[13px]">Hatid is committed to your safety.</h4><p className="text-[#0033cc] text-[11px] font-bold">Learn more about safety standards</p></div></div><ChevronRight className="text-[#0033cc]" size={18} /></button>
-    </div>
-  </div>
-);
-
-const DropoffSearch = ({ onNavigate }: { onNavigate: Navigate }) => (
-  <div className="flex flex-col h-full relative overflow-hidden w-full bg-white z-50 animate-slide-up">
-    <div className="px-5 py-4 pt-12 flex items-center justify-between border-b border-gray-100 sticky top-0 bg-white/95 z-20"><div className="flex items-center gap-3"><button onClick={() => onNavigate('home')} className="p-1.5 rounded-full hover:bg-gray-100"><ChevronLeft size={24} /></button><h1 className="text-xl font-extrabold text-gray-900">Drop-off location</h1></div><HatidLogo small /></div>
-    <div className="px-5 py-3.5 bg-white z-20"><div className="relative flex items-center"><MapPin className="absolute left-4 text-red-500 fill-red-500 w-[22px] h-[22px]" /><input placeholder="Where are you going?" className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-12 pr-12 text-gray-900 font-bold focus:border-[#0033cc] outline-none text-[15px]" /></div></div>
-    <div className="flex-1 overflow-y-auto bg-white"><div className="h-44 relative overflow-hidden w-full bg-[#eef2f5] cursor-pointer" onClick={() => onNavigate('dropoff-selected')}><MapBackground type="home" /><div className="absolute inset-0 bg-black/5 z-10 flex items-center justify-center"><div className="bg-white/90 px-5 py-2.5 rounded-full text-sm font-bold text-gray-800 shadow-sm">Tap map to select via pin</div></div></div><div className="p-5"><h3 className="font-extrabold text-[15px] text-gray-900 mb-3">Recent searches</h3>{['Ayala Triangle Gardens', 'SM Mall of Asia', 'Robinsons Galleria'].map((place) => <button key={place} onClick={() => onNavigate('choose-ride')} className="w-full flex items-center gap-4 py-3.5 border-b border-gray-50 text-left"><div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"><Clock size={18} className="text-gray-500" /></div><div><h4 className="font-extrabold text-gray-900 text-[15px]">{place}</h4><p className="text-xs text-gray-500 font-medium">Metro Manila, Philippines</p></div></button>)}</div></div>
-  </div>
-);
-
-const DropoffSelected = ({ onNavigate }: { onNavigate: Navigate }) => (
-  <div className="flex flex-col h-full relative overflow-hidden w-full bg-white z-50 animate-slide-up">
-    <div className="px-5 py-4 pt-12 flex items-center justify-between sticky top-0 bg-white/95 z-30 border-b border-gray-100"><button onClick={() => onNavigate('dropoff-search')} className="p-2 bg-gray-50 rounded-full"><ChevronLeft size={22} /></button><h1 className="text-lg font-extrabold text-gray-900">Drop-off location</h1><HatidLogo small /></div>
-    <div className="absolute top-[100px] left-5 right-5 z-30"><div className="relative flex items-center shadow-[0_8px_25px_rgba(0,51,204,0.15)] rounded-2xl bg-white border-2 border-[#0033cc]"><MapPin className="absolute left-4 text-red-500 fill-red-500 w-[22px] h-[22px]" /><input value="Ayala Triangle Gardens" readOnly className="w-full bg-transparent py-4 pl-12 pr-12 text-[#001144] font-extrabold text-[15px] outline-none" /></div></div>
-    <div className="flex-1 relative"><MapBackground type="dropoff" /></div>
-    <div className="bg-white rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] p-6 z-30 pb-10"><div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" /><h2 className="text-2xl font-extrabold text-gray-900 mb-1">Ayala Triangle Gardens</h2><p className="text-gray-500 text-sm font-medium leading-relaxed mb-6">Paseo de Roxas St cor Makati Ave, Makati</p><button onClick={() => onNavigate('choose-ride')} className="w-full bg-[#0033cc] text-white font-extrabold py-4 rounded-xl shadow-[0_8px_20px_rgba(0,51,204,0.3)] text-lg flex items-center justify-center gap-2">Confirm Destination <ChevronRight size={20} /></button></div>
-  </div>
-);
-
-const ChooseRide = ({ onNavigate }: { onNavigate: Navigate }) => {
-  const rides = [
-    ['Hatid Car', 'Affordable everyday rides', '₱212.00', '3 - 5 min'],
-    ['Hatid Moto', 'Beat traffic, faster arrivals', '₱138.00', '2 - 4 min'],
-    ['Hatid Car Pool', 'Share a ride, save more', '₱168.00', '5 - 8 min'],
-  ];
-  const [selected, setSelected] = useState(0);
+function WalletScreen() {
   return (
-    <div className="flex flex-col h-full relative overflow-hidden w-full bg-white z-50 animate-slide-up">
-      <div className="px-5 py-4 pt-12 flex items-center gap-3 bg-white z-30"><button onClick={() => onNavigate('dropoff-search')}><ChevronLeft size={24} /></button><h1 className="text-xl font-extrabold text-gray-900">Choose your ride</h1></div>
-      <div className="h-44 relative shrink-0"><MapBackground type="route" /></div>
-      <div className="flex-1 bg-white rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.08)] z-30 flex flex-col -mt-6 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center"><div className="flex gap-3"><div className="bg-blue-50 p-2.5 rounded-full text-[#0033cc]"><Tag size={20} /></div><div><h4 className="font-extrabold text-gray-900 text-sm">Fares are estimates</h4><p className="text-[11px] text-gray-500">Actual fare may vary due to traffic.</p></div></div><div className="text-right"><p className="text-[10px] text-gray-400 font-bold uppercase">Payment</p><div className="flex items-center gap-1.5 bg-[#e8f5e9] text-[#2e7d32] px-3.5 py-1.5 rounded-xl text-sm font-extrabold"><Wallet size={16} /> Cash</div></div></div>
-        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3.5 bg-gray-50/30">{rides.map(([name, desc, price, eta], index) => <button key={name} onClick={() => setSelected(index)} className={`w-full text-left flex items-center gap-4 p-4 rounded-[1.5rem] border-2 transition-all ${selected === index ? 'border-[#0033cc] bg-blue-50/40' : 'border-transparent bg-white shadow-sm'}`}><div className="w-[72px] h-[52px] flex justify-center items-center"><span className="text-4xl">🚗</span></div><div className="flex-1"><h3 className="font-extrabold text-[#001144] text-[16px]">{name}</h3><p className="text-xs text-gray-500 font-medium">{desc}</p><p className="text-[11px] text-[#0033cc] font-extrabold bg-blue-50 inline-block px-2 py-0.5 rounded-md">ETA: {eta}</p></div><span className="font-extrabold text-gray-900 text-lg">{price}</span></button>)}</div>
-        <div className="px-6 py-5 border-t border-gray-100"><button onClick={() => onNavigate('searching')} className="w-full bg-[#0033cc] text-white font-extrabold py-4 rounded-2xl shadow-[0_8px_25px_rgba(0,51,204,0.3)] text-lg flex justify-between px-6 items-center"><span>Confirm {rides[selected][0]}</span><span>{rides[selected][2]}</span></button></div>
+    <section className="relative flex h-full flex-col bg-white">
+      <Header title="Wallet" go={() => undefined} />
+      <div className="border-b border-slate-100 px-5 pb-6">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <div className="absolute right-4 top-4 flex items-center gap-1 rounded border border-green-200 bg-green-100 px-2 py-0.5 text-[9px] font-bold text-green-700"><Shield size={10} /> Fully Verified</div>
+          <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Available Balance</p>
+          <h2 className="mb-1 text-3xl font-black text-[#0F172A]">₱1,250.00</h2>
+          <p className="mb-5 text-[10px] font-medium text-slate-400">Monthly Limit: ₱100,000.00</p>
+          <div className="flex gap-3">
+            <button className="flex-1 rounded-lg bg-[#0F172A] py-2.5 text-xs font-bold text-white">Top Up</button>
+            <button className="flex-1 rounded-lg border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700">Send</button>
+          </div>
+        </div>
       </div>
+      <div className="flex-1 overflow-y-auto px-5 py-6 pb-32">
+        <h3 className="mb-4 text-sm font-bold text-[#0F172A]">Payment Methods</h3>
+        <div className="mb-8 space-y-3">
+          <Method label="GCash" status="Linked" blue />
+          <Method label="Cash" check />
+        </div>
+        <div className="mb-4 flex items-center justify-between"><h3 className="text-sm font-bold text-[#0F172A]">Recent Transactions</h3><button className="text-xs font-bold text-[#0033CC]">View Receipts</button></div>
+        <Transaction icon={Car} title="Hatid Car" detail="TX-98213 • Today" amount="-₱212.00" />
+        <Transaction icon={Plus} title="GCash Top Up" detail="TX-98100 • Yesterday" amount="+₱500.00" positive />
+        <div className="mt-8 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <Shield size={16} className="mt-0.5 shrink-0 text-slate-400" />
+          <p className="text-[10px] leading-relaxed text-slate-500">Balances governed by secure backend ledger. All transactions are securely audited and client is not authoritative for payments.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Safety() {
+  return (
+    <section className="relative flex h-full flex-col bg-slate-50">
+      <Header title="Safety Center" go={() => undefined} />
+      <div className="flex-1 overflow-y-auto px-5 py-6 pb-32">
+        <div className="relative mb-8 overflow-hidden rounded-2xl border border-red-100 bg-red-50 p-6">
+          <AlertTriangle size={100} className="absolute -bottom-6 -right-6 text-red-500 opacity-10" />
+          <h2 className="relative z-10 mb-2 text-xl font-black tracking-tight text-red-700">Emergency SOS</h2>
+          <p className="relative z-10 mb-6 pr-4 text-xs font-medium text-red-600/80">Quickly call emergency services and share your trip details with trusted contacts.</p>
+          <div className="relative z-10 space-y-3">
+            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 py-4 font-bold text-white shadow-sm transition-transform active:scale-95"><Phone size={18} /> Call 911</button>
+            <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-4 font-bold text-red-600 transition-transform active:scale-95"><User size={18} /> Notify trusted contacts</button>
+          </div>
+        </div>
+        <h3 className="mb-3 text-sm font-bold text-[#0F172A]">Safety Features</h3>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <SafetyItem icon={MapPin} label="Share live trip" />
+          <SafetyItem icon={Shield} label="Community Guidelines" />
+          <SafetyItem icon={HelpCircle} label="Contact Hatid Support" last />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Account({ go }: { go: (screen: Screen) => void }) {
+  return (
+    <section className="relative flex h-full flex-col bg-white">
+      <Header title="Account" go={go} />
+      <div className="flex-1 overflow-y-auto px-5 py-6 pb-32">
+        <div className="mb-8 flex items-center gap-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xl font-bold text-slate-600">MS</div>
+          <div>
+            <h2 className="text-lg font-black leading-tight text-[#0F172A]">Maria Santos</h2>
+            <p className="text-xs font-medium text-slate-500">+63 968 184 1001</p>
+            <span className="mt-1 inline-block rounded border border-green-200 bg-green-50 px-2 py-0.5 text-[9px] font-bold text-green-700">KYC Verified</span>
+          </div>
+        </div>
+        <div className="mb-8 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+          <AccountItem icon={User} label="Personal Information" />
+          <AccountItem icon={Shield} label="Verification & Limits" />
+          <AccountItem icon={CreditCard} label="Payment Methods" />
+          <AccountItem icon={FileText} label="Saved Places" />
+          <AccountItem icon={User} label="Trusted Contacts" />
+          <AccountItem icon={HelpCircle} label="Help Center" />
+          <AccountItem icon={Settings} label="Settings" last />
+        </div>
+        <button onClick={() => go('splash')} className="flex w-full items-center justify-center gap-2 rounded-xl p-4 text-sm font-bold text-slate-500 transition-transform active:scale-95">Log Out</button>
+      </div>
+    </section>
+  );
+}
+
+function Method({ label, status, blue, check }: { label: string; status?: string; blue?: boolean; check?: boolean }) {
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4">
+      <span className={cn('text-sm font-bold', blue ? 'text-blue-600' : 'text-slate-800')}>{label}</span>
+      {status && <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-500">{status}</span>}
+      {check && <Check size={16} className="text-green-500" />}
     </div>
   );
-};
+}
 
-const Searching = ({ onNavigate }: { onNavigate: Navigate }) => (
-  <div className="h-full flex flex-col items-center justify-center bg-[#f2f5f9] p-8 text-center animate-fade-in relative overflow-hidden">
-    <HatidLogo small />
-    <div className="relative w-40 h-40 my-10 flex items-center justify-center"><div className="absolute inset-0 border-[3px] border-[#0033cc]/30 rounded-full animate-ping" /><div className="absolute inset-12 bg-white rounded-full flex items-center justify-center shadow-2xl z-10 text-4xl">🚗</div></div>
-    <h2 className="text-[26px] font-extrabold text-[#001144] mb-3">Finding a driver</h2>
-    <p className="text-gray-500 font-medium px-4 leading-relaxed mb-8">Matching you with the nearest Hatid driver.</p>
-    <button onClick={() => onNavigate('driver-assigned')} className="text-[#0033cc] font-extrabold">Continue Demo</button>
-  </div>
-);
+function Transaction({ icon: Icon, title, detail, amount, positive }: { icon: LucideIcon; title: string; detail: string; amount: string; positive?: boolean }) {
+  return (
+    <div className="group flex cursor-pointer items-center justify-between border-b border-slate-100 pb-4 pt-1">
+      <div className="flex items-center gap-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-500"><Icon size={16} strokeWidth={2.5} /></div>
+        <div><h4 className="text-sm font-bold text-[#0F172A] transition-colors group-hover:text-[#0033CC]">{title}</h4><p className="text-[10px] text-slate-400">{detail}</p></div>
+      </div>
+      <div className="text-right"><p className={cn('text-sm font-bold', positive ? 'text-green-600' : 'text-[#0F172A]')}>{amount}</p><p className="text-[9px] text-slate-400 underline">{positive ? 'Receipt' : 'Report Issue'}</p></div>
+    </div>
+  );
+}
 
-const DriverAssigned = ({ onNavigate }: { onNavigate: Navigate }) => (
-  <div className="flex flex-col h-full relative overflow-hidden w-full bg-white z-50 animate-slide-up"><div className="h-1/2 relative z-10 bg-[#eef2f5]"><MapBackground type="route" /></div><div className="flex-1 bg-white rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] p-6 z-30 pb-10 flex flex-col -mt-8"><div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" /><div className="flex justify-between items-start mb-6"><div><h2 className="text-[26px] font-extrabold text-[#001144]">Driver arriving</h2><p className="text-[#0033cc] font-bold text-lg animate-pulse">in 3 mins</p></div><div className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-center"><p className="font-extrabold text-gray-900 text-lg tracking-widest">ABC 1234</p><p className="text-[10px] text-gray-500 font-bold uppercase">Plate No.</p></div></div><div className="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-3xl p-4 mb-6"><div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center"><User className="text-gray-400" size={32} /></div><div className="flex-1"><h3 className="font-extrabold text-[#001144] text-[16px]">Juan Dela Cruz</h3><p className="text-gray-500 text-xs font-medium">Toyota Vios - Silver</p></div></div><button onClick={() => onNavigate('active-trip')} className="w-full bg-[#0033cc] text-white font-extrabold py-4 rounded-xl shadow-[0_8px_20px_rgba(0,51,204,0.3)] mt-auto">Continue Demo</button></div></div>
-);
+function SafetyItem({ icon: Icon, label, last }: { icon: LucideIcon; label: string; last?: boolean }) {
+  return (
+    <button className={cn('flex w-full items-center gap-4 p-4 text-left hover:bg-slate-50', !last && 'border-b border-slate-100')}>
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-[#0033CC]"><Icon size={16} /></div>
+      <span className="flex-1 text-sm font-bold text-slate-800">{label}</span>
+      <ChevronRight size={16} className="text-slate-300" />
+    </button>
+  );
+}
 
-const ActiveTrip = ({ onNavigate }: { onNavigate: Navigate }) => (
-  <div className="flex flex-col h-full relative overflow-hidden w-full bg-white z-50 animate-slide-up"><div className="absolute top-[52px] left-5 right-5 bg-white rounded-2xl shadow-sm p-4 z-20 flex justify-between items-center border border-gray-100"><div><h3 className="font-extrabold text-[#001144] text-[16px]">On the way to destination</h3><p className="text-[#0033cc] font-bold text-[13px]">Arrival at 10:24 AM</p></div><div className="bg-blue-50 p-2.5 rounded-full"><Shield className="text-[#0033cc]" size={22} /></div></div><div className="flex-1 relative bg-[#eef2f5]"><MapBackground type="active" /></div><div className="bg-white rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] z-30 p-6 pb-8 -mt-8"><div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" /><h3 className="font-extrabold text-[#001144] text-[16px] mb-1">Juan Dela Cruz</h3><p className="text-gray-500 text-xs font-medium mb-6">Toyota Vios - Silver · ABC 1234</p><button className="w-full border border-gray-200 rounded-2xl py-4 mb-3 font-extrabold text-gray-700">Share trip details</button><button className="w-full bg-red-50 text-red-600 rounded-2xl py-4 font-extrabold mb-5"><Shield size={18} className="inline mr-2" />Emergency Assistance</button><button onClick={() => onNavigate('trip-completed')} className="text-[11px] font-bold text-gray-400 mx-auto block uppercase tracking-widest">Simulate Drop-off</button></div></div>
-);
+function AccountItem({ icon: Icon, label, last }: { icon: LucideIcon; label: string; last?: boolean }) {
+  return (
+    <button className={cn('flex w-full items-center gap-3 p-4 text-left hover:bg-slate-50', !last && 'border-b border-slate-100')}>
+      <Icon size={18} className="text-slate-400" />
+      <span className="flex-1 text-sm font-bold text-slate-700">{label}</span>
+      <ChevronRight size={16} className="text-slate-300" />
+    </button>
+  );
+}
 
-const Completed = ({ onNavigate }: { onNavigate: Navigate }) => {
-  const [rating, setRating] = useState(0);
-  return <div className="flex flex-col h-full bg-[#f2f5f9] relative overflow-hidden z-50"><div className="absolute inset-0 bg-black/40 z-10" /><div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] z-20 p-6 pb-10 flex flex-col items-center animate-slide-up shadow-[0_-20px_50px_rgba(0,0,0,0.2)]"><div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-lg -mt-12"><CheckCircle2 size={36} className="text-green-500" /></div><h2 className="text-[28px] font-extrabold text-[#001144] mb-1">You have arrived!</h2><p className="text-gray-500 text-[15px] font-medium mb-6">Hope you enjoyed your Hatid ride.</p><div className="w-full bg-gray-50 rounded-3xl p-5 mb-8 border border-gray-100"><div className="flex justify-between items-center mb-4"><span className="text-gray-500 font-bold text-[15px]">Total Fare</span><span className="text-3xl font-extrabold text-[#001144]">₱212.00</span></div><div className="flex justify-between items-center"><span className="text-gray-500 font-bold text-[15px]">Payment Method</span><div className="flex items-center gap-2 font-extrabold text-[#2e7d32] bg-[#e8f5e9] px-3 py-1.5 rounded-lg"><Wallet size={16} /> Cash</div></div></div><h3 className="font-extrabold text-[#001144] mb-4 text-[16px]">How was your ride?</h3><div className="flex gap-2.5 mb-8">{[1, 2, 3, 4, 5].map((star) => <Star key={star} size={42} onClick={() => setRating(star)} className={star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 fill-gray-100'} />)}</div><button onClick={() => onNavigate('home')} className="w-full bg-[#0033cc] text-white py-4 rounded-2xl font-extrabold shadow-[0_8px_20px_rgba(0,51,204,0.3)]">Submit & Continue</button></div></div>;
-};
+function Line({ label, value }: { label: string; value: string }) {
+  return <div className="flex justify-between"><span className="text-slate-500">{label}</span><span className="font-bold text-[#0F172A]">{value}</span></div>;
+}
 
-export default function HatidHomePage() {
+export default function HomePage() {
   const [screen, setScreen] = useState<Screen>('splash');
-  const [phone, setPhone] = useState('968 184 1001');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [ride, setRide] = useState<RideType>('car');
+  const [rating, setRating] = useState(0);
 
-  return (
-    <PhoneFrame>
-      {screen === 'splash' && <Splash onNext={() => setScreen('login')} />}
-      {screen === 'login' && <Login onNext={() => setScreen('otp')} phone={phone} setPhone={setPhone} />}
-      {screen === 'otp' && <Otp onNext={() => setScreen('profile')} onBack={() => setScreen('login')} phone={phone} />}
-      {screen === 'profile' && <Profile onNext={() => setScreen('permissions')} phone={phone} />}
-      {screen === 'permissions' && <Permissions onNext={() => setScreen('home')} />}
-      {screen === 'home' && <HomeScreen onNavigate={setScreen} />}
-      {screen === 'dropoff-search' && <DropoffSearch onNavigate={setScreen} />}
-      {screen === 'dropoff-selected' && <DropoffSelected onNavigate={setScreen} />}
-      {screen === 'choose-ride' && <ChooseRide onNavigate={setScreen} />}
-      {screen === 'searching' && <Searching onNavigate={setScreen} />}
-      {screen === 'driver-assigned' && <DriverAssigned onNavigate={setScreen} />}
-      {screen === 'active-trip' && <ActiveTrip onNavigate={setScreen} />}
-      {screen === 'trip-completed' && <Completed onNavigate={setScreen} />}
-    </PhoneFrame>
-  );
+  const go = (next: Screen) => setScreen(next);
+
+  const render = () => {
+    switch (screen) {
+      case 'splash': return <Splash go={go} />;
+      case 'login': return <Login go={go} phone={phone} setPhone={setPhone} />;
+      case 'otp': return <Otp go={go} otp={otp} setOtp={setOtp} />;
+      case 'profile': return <Profile go={go} />;
+      case 'permissions': return <Permissions go={go} />;
+      case 'home': return <HomeScreen go={go} />;
+      case 'book-search': return <BookSearch go={go} />;
+      case 'book-choose': return <BookChoose go={go} ride={ride} setRide={setRide} />;
+      case 'book-active': return <BookActive go={go} />;
+      case 'book-completed': return <Completed go={go} rating={rating} setRating={setRating} />;
+      case 'receipt': return <Receipt go={go} />;
+      case 'trips': return <Trips go={go} />;
+      case 'wallet': return <WalletScreen />;
+      case 'safety': return <Safety />;
+      case 'account': return <Account go={go} />;
+      default: return <Splash go={go} />;
+    }
+  };
+
+  return <PhoneFrame showNav={navRoutes.includes(screen)} current={screen} go={go}>{render()}</PhoneFrame>;
 }
