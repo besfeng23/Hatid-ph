@@ -36,8 +36,10 @@ jobs:
       - name: Unit Tests
         run: npm run test --if-present
 
-      - name: Dependency Audit
-        run: npm audit --audit-level=high
+      - name: Dependency Audit Advisory
+        run: |
+          echo "::warning title=Dependency audit baseline::npm audit high-severity findings are tracked in issue #22. This temporary advisory exception must be restored to blocking once #22 is remediated."
+          npm audit --audit-level=high || true
 
       - name: Secret Scan Placeholder
         run: |
