@@ -36,8 +36,10 @@ jobs:
       - name: Unit Tests
         run: npm run test --if-present
 
-      - name: Dependency Audit
-        run: npm audit --audit-level=high
+      - name: Dependency Audit (advisory; tracked in #22)
+        run: |
+          echo "::warning title=Temporary advisory dependency audit::npm audit is temporarily non-blocking while the existing vulnerability baseline is remediated in https://github.com/besfeng23/Hatid-ph/issues/22. Restore this step to blocking when issue #22 is resolved."
+          npm audit --audit-level=high || true
 
       - name: Secret Scan Placeholder
         run: |

@@ -117,7 +117,7 @@ function BottomNav({ current, go }: { current: Screen; go: (screen: Screen) => v
   );
 }
 
-function MapBackground({ className = '' }: { className?: string }) {
+function MapBackground({ children, className = '' }: { children?: ReactNode; className?: string }) {
   return (
     <div
       className={cn('relative overflow-hidden bg-slate-100', className)}
@@ -133,6 +133,7 @@ function MapBackground({ className = '' }: { className?: string }) {
       <div className="absolute left-[-20%] top-[30%] h-5 w-[130%] rotate-12 rounded-full bg-white/80 shadow-sm" />
       <div className="absolute right-8 top-20 h-20 w-24 rounded-2xl bg-emerald-100/50" />
       <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-[#0033CC] shadow-lg" />
+      {children}
     </div>
   );
 }
