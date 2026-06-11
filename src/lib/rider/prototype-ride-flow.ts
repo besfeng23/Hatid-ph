@@ -1,4 +1,4 @@
-import { demoDestination, demoPickup, type DemoPlace } from '@/lib/demo/location-suggestions';
+import { demoDestination, demoPickup, type DemoPlace } from '../demo/location-suggestions';
 
 export type PrototypeRideSelection = {
   pickup: string;
