@@ -1,6 +1,6 @@
 # Hatid Supabase Foundation
 
-This is a Sprint 0B placeholder for the future Supabase foundation.
+This folder contains the Supabase foundation for Hatid Sprint 0B.
 
 ## Rules
 
@@ -12,6 +12,26 @@ This is a Sprint 0B placeholder for the future Supabase foundation.
 
 ## Current status
 
-- Placeholder only.
-- No migrations are live from this folder yet.
-- No production database behavior is implied.
+- The first profile schema migration has been introduced for review.
+- Runtime login/signup remains disconnected.
+- Profile UI persistence remains disconnected.
+- No wallet, payment, payout, dispatch, driver assignment, admin, or live-money behavior is implied.
+
+## Migration inventory
+
+| Migration | Purpose | Runtime wiring |
+| --- | --- | --- |
+| `20260612000000_create_profiles_and_rider_profiles.sql` | Creates `public.profiles`, `public.rider_profiles`, first-pass owner RLS, and restricted grants. | Not wired |
+
+## Verification before runtime wiring
+
+Before login, signup, profile persistence, or onboarding persistence are connected to Supabase, verify:
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+```
+
+Also verify the migration in a Supabase environment and regenerate committed database types before runtime helpers depend on the new tables.
