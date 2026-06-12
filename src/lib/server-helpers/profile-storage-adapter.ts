@@ -59,7 +59,7 @@ export function createProfileStorageAdapter(client: ProfileDataClient): ProfileS
 
     async saveBase(id: string, values: EditableBaseValues): Promise<ProfileRow> {
       const profile = assertNoError(
-        await client.from('profiles').update(values).eq('id', id).select('*').single(),
+        await client.from('profiles').update({ ...values }).eq('id', id).select('*').single(),
       );
 
       if (!profile) {
@@ -92,7 +92,7 @@ export function createProfileStorageAdapter(client: ProfileDataClient): ProfileS
       const riderProfile = assertNoError(
         await client
           .from('rider_profiles')
-          .update(values)
+          .update({ ...values })
           .eq('user_id', id)
           .select('*')
           .single(),
