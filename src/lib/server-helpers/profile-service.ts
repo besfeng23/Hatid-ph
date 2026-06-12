@@ -3,7 +3,7 @@ import type {
   RiderProfileInsert,
   RiderProfileRow,
   RiderProfileUpdate,
-} from '@/lib/supabase/profile-schema.types';
+} from '../supabase/profile-schema.types';
 
 import { fail, hasText, ok, pickDefined, type HelperResult } from './result';
 
