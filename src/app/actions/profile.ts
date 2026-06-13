@@ -4,6 +4,7 @@ import {
   readProfileBundle,
   saveBaseProfile,
   saveRiderProfile,
+  type ProfileCommandService,
 } from '../../lib/server-helpers/profile-command-helpers';
 import { createProfileDataClient } from '../../lib/server-helpers/profile-runtime-client';
 import {
@@ -17,35 +18,45 @@ import { fail, type HelperResult } from '../../lib/server-helpers/result';
 import type { ProfileRow, RiderProfileRow } from '../../lib/supabase/profile-schema.types';
 import { createSupabaseCookieServerClientFromEnv } from '../../lib/supabase/next-server-client';
 
-async function getAuthenticatedProfileContext() {
+type AuthenticatedProfileContext = {
+  userId: string;
+  service: ProfileCommandService;
+};
+
+async function getAuthenticatedProfileContext(): Promise<
+  | { ok: true; context: AuthenticatedProfileContext }
+  | { ok: false; result: HelperResult<never> }
+> {
   const client = await createSupabaseCookieServerClientFromEnv(process.env);
   const { data, error } = await client.auth.getUser();
 
   if (error || !data.user) {
     return {
-      ok: false as const,
+      ok: false,
       result: fail('auth_required', 'A signed-in Supabase user is required.'),
     };
   }
 
   return {
-    ok: true as const,
-    userId: data.user.id,
-    service: createProfileService(createProfileStorageAdapter(createProfileDataClient(client))),
+    ok: true,
+    context: {
+      userId: data.user.id,
+      service: createProfileService(createProfileStorageAdapter(createProfileDataClient(client))),
+    },
   };
 }
 
 async function withAuthenticatedProfile<T>(
-  action: (context: { userId: string; service: Awaited<ReturnType<typeof getAuthenticatedProfileContext>> extends { ok: true; service: infer Service } ? Service : never }) => Promise<HelperResult<T>>,
+  action: (context: AuthenticatedProfileContext) => Promise<HelperResult<T>>,
 ): Promise<HelperResult<T>> {
   try {
-    const context = await getAuthenticatedProfileContext();
+    const auth = await getAuthenticatedProfileContext();
 
-    if (!context.ok) {
-      return context.result;
+    if (!auth.ok) {
+      return auth.result;
     }
 
-    return await action(context);
+    return await action(auth.context);
   } catch (error) {
     return fail(
       'storage_error',
