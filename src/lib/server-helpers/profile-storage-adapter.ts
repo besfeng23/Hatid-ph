@@ -1,8 +1,4 @@
-import type {
-  ProfileRow,
-  RiderProfileInsert,
-  RiderProfileRow,
-} from '../supabase/profile-schema.types';
+import type { Tables, TablesInsert } from '../supabase/database.types';
 
 import type {
   EditableBaseValues,
@@ -10,6 +6,10 @@ import type {
   ProfileBundle,
   ProfileStorage,
 } from './profile-service';
+
+export type ProfileRow = Tables<'profiles'>;
+export type RiderProfileRow = Tables<'rider_profiles'>;
+export type RiderProfileInsert = TablesInsert<'rider_profiles'>;
 
 export type QueryResult<T> = {
   data: T | null;
