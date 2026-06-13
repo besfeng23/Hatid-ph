@@ -1,22 +1,20 @@
-# Profile Server Actions Handoff
+# Profile Auth Bridge Handoff
 
-This pass adds the first authenticated Supabase profile action bridge.
+This pass adds the first compile-safe authenticated Supabase profile bridge.
 
 ## Added
 
-- Cookie-bound Supabase server client for Next.js server actions and server components.
-- Authenticated profile server actions:
-  - `readMyProfileBundleAction`
-  - `saveMyBaseProfileAction`
-  - `saveMyRiderProfileAction`
-- `auth_required` helper result code for signed-out server-action responses.
+- `createProfileAuthContext(client)` in `src/lib/server-helpers/profile-auth-context.ts`.
+- `auth_required` helper result code for signed-out profile flows.
+- A deferred placeholder for the Next.js cookie client file so the final UI wiring can happen in a smaller follow-up.
 
 ## Safety boundary
 
-These actions use the Supabase user from `auth.getUser()` on the server-side cookie client. They do not accept a caller-supplied user id and do not use the service-role client.
+The auth bridge reads the Supabase user from `client.auth.getUser()` and builds the profile command service for that user context. It does not accept a caller-supplied user id.
 
 ## Non-goals
 
 - No UI form wiring yet.
+- No active Next.js server action endpoint yet.
 - No wallet, trip, payment, dispatch, support, or emergency backend behavior.
 - No service-role browser exposure.
