@@ -376,21 +376,36 @@ function RideOption({ selected, icon: Icon, title, detail, meta, estimate, onCli
 function BookActive({ go }: { go: (screen: Screen) => void }) {
   return (
     <section className="flex h-full flex-col bg-slate-100">
-      <div className="absolute left-5 right-5 top-10 z-20 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:top-12">
-        <div className="flex items-start justify-between">
-          <h3 className="text-sm font-black text-slate-900">Driver is arriving</h3>
+      <div className="absolute left-5 right-5 top-10 z-20 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:top-12">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Active demo trip</p>
+            <h3 className="mt-1 text-base font-black tracking-tight text-slate-900">Driver is arriving</h3>
+            <p className="mt-1 text-xs text-slate-500">BGC High Street pickup • Makati destination</p>
+          </div>
           <HatidTrustPill>2 mins</HatidTrustPill>
         </div>
-        <p className="mt-1 text-xs text-slate-500">Prototype driver state only.</p>
+        <div className="mt-4 flex items-center gap-2">
+          <div className="h-2 flex-1 rounded-full bg-[#0033CC]" />
+          <div className="h-2 flex-1 rounded-full bg-blue-100" />
+          <div className="h-2 flex-1 rounded-full bg-blue-100" />
+        </div>
       </div>
       <MapBackground className="flex-1" />
-      <div className="relative z-30 -mt-4 rounded-t-[28px] bg-white px-5 pb-6 pt-2 shadow-lg">
+      <div className="relative z-30 -mt-5 rounded-t-[30px] bg-white px-5 pb-6 pt-2 shadow-lg">
         <div className="mx-auto mb-4 mt-2 h-1 w-10 rounded-full bg-slate-200" />
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-3">
-          <span className="text-xs font-black text-slate-500">Ride PIN</span>
-          <span className="text-lg font-black tracking-widest text-slate-900">4821</span>
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-3">
+            <span className="text-[10px] font-black uppercase tracking-wide text-[#0033CC]">Ride PIN</span>
+            <p className="mt-1 text-2xl font-black tracking-widest text-slate-900">4821</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <span className="text-[10px] font-black uppercase tracking-wide text-slate-500">Trip state</span>
+            <p className="mt-1 text-sm font-black text-slate-900">Demo only</p>
+            <p className="mt-1 text-[11px] text-slate-500">Server-owned later</p>
+          </div>
         </div>
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="grid h-12 w-12 place-items-center rounded-2xl border border-slate-200 bg-slate-100 font-black text-slate-600">JC</div>
             <div>
@@ -402,6 +417,9 @@ function BookActive({ go }: { go: (screen: Screen) => void }) {
           <button className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 text-[#0033CC]">
             <Phone size={18} />
           </button>
+        </div>
+        <div className="mb-4 rounded-2xl border border-amber-100 bg-amber-50 p-3">
+          <p className="text-xs font-bold leading-5 text-amber-800">Safety actions are visual only here. Real incident handling needs backend workflow, audit logs, and operator escalation.</p>
         </div>
         <div className="flex gap-3">
           <button className="flex-1 rounded-2xl border border-slate-200 py-3 text-xs font-black text-slate-700">Share Trip</button>
@@ -415,16 +433,35 @@ function BookActive({ go }: { go: (screen: Screen) => void }) {
 
 function Completed({ go }: { go: (screen: Screen) => void }) {
   return (
-    <section className="flex h-full flex-col bg-white px-6 pt-16 text-center">
+    <section className="flex h-full flex-col bg-white px-6 pt-16">
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600">
         <Check size={32} strokeWidth={3} />
       </div>
-      <h1 className="mt-6 text-2xl font-black tracking-tight text-slate-900">You&apos;ve arrived.</h1>
-      <p className="mt-2 text-sm text-slate-500">Receipt and fare data are demo-only until ledger-backed flows are live.</p>
-      <div className="mt-8 flex justify-center gap-1 text-amber-400">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star key={star} size={28} fill="currentColor" />
-        ))}
+      <div className="text-center">
+        <h1 className="mt-6 text-2xl font-black tracking-tight text-slate-900">You&apos;ve arrived.</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-500">Trip completion is a prototype state. Receipt and fare records must be server-generated.</p>
+      </div>
+      <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Trip summary</p>
+            <h2 className="mt-1 text-lg font-black text-slate-900">BGC to Makati</h2>
+          </div>
+          <HatidTrustPill tone="slate">Demo receipt</HatidTrustPill>
+        </div>
+        <div className="mt-4 space-y-3 text-sm">
+          <div className="flex justify-between border-b border-slate-200 pb-2"><span className="text-slate-500">Ride type</span><span className="font-black text-slate-900">Hatid Car</span></div>
+          <div className="flex justify-between border-b border-slate-200 pb-2"><span className="text-slate-500">Payment</span><span className="font-black text-slate-900">Not charged</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Fare</span><span className="font-black text-slate-900">Server-owned later</span></div>
+        </div>
+      </div>
+      <div className="mt-8 text-center">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Rate demo experience</p>
+        <div className="mt-3 flex justify-center gap-1 text-amber-400">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star key={star} size={28} fill="currentColor" />
+          ))}
+        </div>
       </div>
       <button onClick={() => go('home')} className="mb-8 mt-auto w-full rounded-2xl bg-[#0033CC] py-4 text-sm font-black text-white active:scale-[0.99]">
         Back to home
