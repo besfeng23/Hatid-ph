@@ -83,6 +83,7 @@ Start here:
 - `docs/frontend/21_UI_UX_BASELINE_V1.md`
 - `docs/governance/22_SPRINT_0B_FOUNDATION_DIRECTIVE.md`
 - `docs/governance/23_FIREBASE_ERADICATION_PLAN.md`
+- `docs/governance/27_SPRINT_0B_GOVERNANCE_PRIORITY.md`
 - `docs/architecture/24_FINAL_IMPLEMENTATION_ROADMAP.md`
 
 ## Phase order

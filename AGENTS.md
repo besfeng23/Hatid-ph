@@ -35,9 +35,11 @@ Do not suppress lint, typecheck, test, or build failures.
 
 Client code must not be authoritative for trips, dispatch, driver availability, payment status, wallet balances, payouts, admin overrides, onboarding approvals, safety incidents, or compliance data.
 
-Production-critical state must be server-owned, auditable, and recoverable.
+Supabase/PostgreSQL is the production source of truth. Production-critical state must be server-owned, auditable, and recoverable.
 
-Firestore may be used for selected realtime read models, but it must not be treated as the source of truth for production-critical flows.
+Firebase/Firestore must not be introduced for production-critical flows. Legacy Firebase references are historical only unless they are explicitly marked as legacy.
+
+Do not claim production readiness until the required architecture, security, testing, CI, deployment, and operational controls are implemented and evidenced.
 
 ## High-risk work
 
