@@ -44,8 +44,6 @@ type Screen =
 
 type RideType = 'car' | 'moto';
 
-const BLUE = '#0033CC';
-
 const navItems: { screen: Screen; label: string; icon: LucideIcon }[] = [
   { screen: 'home', label: 'Home', icon: Home },
   { screen: 'trips', label: 'Trips', icon: Clock },
@@ -311,15 +309,36 @@ function InputPin({ dot, value, placeholder, readOnly, focused }: { dot: string;
 function BookChoose({ go, ride, setRide }: { go: (screen: Screen) => void; ride: RideType; setRide: (ride: RideType) => void }) {
   return (
     <section className="flex h-full flex-col bg-slate-100">
-      <MapBackground className="h-56" />
-      <div className="relative z-20 -mt-4 flex flex-1 flex-col rounded-t-[28px] bg-white shadow-lg">
+      <MapBackground className="h-60">
+        <div className="absolute left-5 right-5 top-10 rounded-[1.5rem] border border-white/80 bg-white/95 p-4 shadow-sm backdrop-blur sm:top-12">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Route preview</p>
+              <h2 className="mt-1 text-lg font-black tracking-tight text-slate-900">BGC to Makati</h2>
+              <p className="mt-1 text-xs text-slate-500">Ayala Triangle Gardens • traffic-aware demo</p>
+            </div>
+            <HatidTrustPill tone="blue">Estimate</HatidTrustPill>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <HatidTrustPill tone="green">Family-safe</HatidTrustPill>
+            <HatidTrustPill tone="slate">Server-priced later</HatidTrustPill>
+          </div>
+        </div>
+      </MapBackground>
+      <div className="relative z-20 -mt-5 flex flex-1 flex-col rounded-t-[30px] bg-white shadow-lg">
         <div className="mx-auto mb-4 mt-2 h-1 w-10 rounded-full bg-slate-200" />
+        <div className="px-5 pb-3">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Choose ride</p>
+          <h3 className="mt-1 text-xl font-black tracking-tight text-slate-900">Pick the right Hatid</h3>
+        </div>
         <div className="flex-1 space-y-3 overflow-y-auto px-5 pb-4">
-          <RideOption selected={ride === 'car'} icon={Car} title="Hatid Car" detail="3 mins • 4 seats • demo estimate" price="Estimate only" onClick={() => setRide('car')} />
-          <RideOption selected={ride === 'moto'} icon={Bike} title="Hatid Moto" detail="1 min • 1 seat • demo estimate" price="Estimate only" onClick={() => setRide('moto')} />
+          <RideOption selected={ride === 'car'} icon={Car} title="Hatid Car" detail="Comfortable city ride" meta="3 mins • 4 seats • BGC-ready" estimate="Fare estimate pending" onClick={() => setRide('car')} />
+          <RideOption selected={ride === 'moto'} icon={Bike} title="Hatid Moto" detail="Fast solo trip" meta="1 min • 1 seat • helmet workflow later" estimate="Fare estimate pending" onClick={() => setRide('moto')} />
         </div>
         <div className="border-t border-slate-100 bg-white p-5">
-          <p className="mb-3 text-xs text-slate-500">Payment and dispatch are not client-authoritative in this prototype.</p>
+          <div className="mb-4 rounded-2xl border border-blue-100 bg-blue-50 p-3">
+            <p className="text-xs font-bold leading-5 text-[#0033CC]">Fare, dispatch, driver assignment, and wallet charging must be confirmed by server workflows before real use.</p>
+          </div>
           <button onClick={() => go('book-active')} className="w-full rounded-2xl bg-[#0033CC] py-4 text-sm font-black text-white active:scale-[0.99]">
             Continue demo ride
           </button>
@@ -329,17 +348,27 @@ function BookChoose({ go, ride, setRide }: { go: (screen: Screen) => void; ride:
   );
 }
 
-function RideOption({ selected, icon: Icon, title, detail, price, onClick }: { selected: boolean; icon: LucideIcon; title: string; detail: string; price: string; onClick: () => void }) {
+function RideOption({ selected, icon: Icon, title, detail, meta, estimate, onClick }: { selected: boolean; icon: LucideIcon; title: string; detail: string; meta: string; estimate: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className={cn('flex w-full items-center gap-4 rounded-2xl border p-4 text-left', selected ? 'border-[#0033CC] bg-blue-50' : 'border-slate-200 bg-white')}>
-      <HatidIconTile active={selected}>
-        <Icon size={22} />
-      </HatidIconTile>
-      <div className="flex-1">
-        <h3 className="text-sm font-black text-slate-900">{title}</h3>
-        <p className="text-xs text-slate-500">{detail}</p>
+    <button onClick={onClick} className={cn('w-full rounded-[1.35rem] border p-4 text-left transition-colors', selected ? 'border-[#0033CC] bg-blue-50' : 'border-slate-200 bg-white')}>
+      <div className="flex items-start gap-4">
+        <HatidIconTile active={selected}>
+          <Icon size={22} />
+        </HatidIconTile>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-black text-slate-900">{title}</h3>
+              <p className="mt-1 text-xs text-slate-500">{detail}</p>
+            </div>
+            {selected && <HatidTrustPill tone="blue">Selected</HatidTrustPill>}
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white/80 px-3 py-2">
+            <p className="text-[11px] font-bold text-slate-500">{meta}</p>
+            <p className="text-[11px] font-black text-slate-700">{estimate}</p>
+          </div>
+        </div>
       </div>
-      <span className="text-xs font-black text-slate-600">{price}</span>
     </button>
   );
 }
