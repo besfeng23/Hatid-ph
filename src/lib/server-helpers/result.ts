@@ -1,4 +1,4 @@
-export type HelperErrorCode = 'invalid_input' | 'not_found' | 'storage_error';
+export type HelperErrorCode = 'auth_required' | 'invalid_input' | 'not_found' | 'storage_error';
 
 export type HelperError = {
   code: HelperErrorCode;
