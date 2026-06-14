@@ -16,14 +16,8 @@ export async function createSupabaseCookieServerClientFromEnv(
       getAll() {
         return cookieStore.getAll();
       },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
-        } catch {
-          // Server Components cannot set cookies. Middleware or Server Actions can.
-        }
+      setAll() {
+        // Cookie writes are intentionally deferred until middleware or server actions are wired.
       },
     },
   });
