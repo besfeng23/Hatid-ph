@@ -5,7 +5,7 @@ import {
 import { readSupabasePublicConfig, type SupabasePublicEnv } from './server-env';
 
 export function createSupabaseCookieServerClientFromEnv(
-  env: SupabasePublicEnv = process.env,
+  env: SupabasePublicEnv,
 ): HatidSupabaseClient {
   return createSupabasePublicClient(readSupabasePublicConfig(env));
 }
