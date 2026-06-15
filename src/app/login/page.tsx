@@ -1,28 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Car, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/platform/provider';
+import { getAuthErrorMessage, getSafeReturnPath } from '@/lib/supabase/auth-ui';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isUserLoading } = useUser();
+  const returnPath = getSafeReturnPath(searchParams.get('returnTo'));
 
   useEffect(() => {
     if (!isUserLoading && user) {
-      router.push('/');
+      router.replace(returnPath);
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, returnPath, router]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -30,9 +34,19 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      throw new Error('Login is temporarily disabled while Hatid migrates from Firebase to Supabase.');
+      const { error: loginError } = await createBrowserSupabaseClient().auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (loginError) {
+        throw loginError;
+      }
+
+      router.replace(returnPath);
+      router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+      setError(getAuthErrorMessage(err, 'Login failed. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -96,5 +110,19 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen w-full items-center justify-center">
+          <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }

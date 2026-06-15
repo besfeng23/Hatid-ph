@@ -9,10 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Bell, ChevronRight, CreditCard, HelpCircle, Loader2, Shield, User } from 'lucide-react';
+import { Bell, ChevronRight, CreditCard, HelpCircle, Shield, User } from 'lucide-react';
 import AuthGuard from '@/components/auth-guard';
 import { useUser } from '@/platform/provider';
 import { useToast } from '@/hooks/use-toast';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 function ProfilePage() {
   const { user } = useUser();
@@ -21,8 +22,6 @@ function ProfilePage() {
 
   const [displayName, setDisplayName] = useState(user?.displayName || user?.name || '');
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || user?.phone || '');
-  const [isSaving, setIsSaving] = useState(false);
-
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName || user.name || user.email?.split('@')[0] || '');
@@ -31,19 +30,19 @@ function ProfilePage() {
   }, [user]);
 
   const handleLogout = async () => {
-    router.push('/login');
-  };
+    const { error } = await createBrowserSupabaseClient().auth.signOut();
 
-  const handleSaveChanges = async () => {
-    setIsSaving(true);
-    try {
+    if (error) {
       toast({
-        title: 'Profile persistence paused',
-        description: 'Profile saving will be restored when Supabase profile storage is connected.',
+        variant: 'destructive',
+        title: 'Log out failed',
+        description: error.message,
       });
-    } finally {
-      setIsSaving(false);
+      return;
     }
+
+    router.replace('/login');
+    router.refresh();
   };
 
   const avatarImage = PlaceHolderImages.find((image) => image.id === 'driver_avatar_1');
@@ -71,27 +70,26 @@ function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Update your personal details here.</CardDescription>
+            <CardDescription>
+              Profile details are read-only until the authenticated server profile boundary is connected. This is not KYC.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} />
+                <Input id="name" value={displayName} readOnly disabled />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} placeholder="+63 917 123 4567" />
+                <Input id="phone" value={phoneNumber} readOnly disabled placeholder="Not provided" />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input id="email" type="email" defaultValue={email} disabled />
             </div>
-            <Button onClick={handleSaveChanges} disabled={isSaving}>
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
-            </Button>
+            <Button disabled>Profile saving is not yet available</Button>
           </CardContent>
         </Card>
 

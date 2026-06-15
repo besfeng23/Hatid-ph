@@ -9,19 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/platform/provider';
-
-function getAuthErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return 'Sign up failed. Please try again.';
-}
+import { getAuthErrorMessage } from '@/lib/supabase/auth-ui';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [confirmationMessage, setConfirmationMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { user, isUserLoading } = useUser();
@@ -36,11 +31,27 @@ export default function SignupPage() {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
+    setConfirmationMessage(null);
 
     try {
-      throw new Error('Sign up is temporarily disabled while Hatid migrates from Firebase to Supabase.');
+      const { data, error: signupError } = await createBrowserSupabaseClient().auth.signUp({
+        email: email.trim(),
+        password,
+      });
+
+      if (signupError) {
+        throw signupError;
+      }
+
+      if (!data.session) {
+        setConfirmationMessage('Check your email to confirm your Hatid account before logging in.');
+        return;
+      }
+
+      router.replace('/rider/search');
+      router.refresh();
     } catch (err: unknown) {
-      setError(getAuthErrorMessage(err));
+      setError(getAuthErrorMessage(err, 'Sign up failed. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -90,6 +101,7 @@ export default function SignupPage() {
                 />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
+              {confirmationMessage && <p className="text-sm text-primary">{confirmationMessage}</p>}
               <Button type="submit" className="w-full h-12 text-lg" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Sign Up
