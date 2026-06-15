@@ -1,19 +1,17 @@
-import { assertPublicSupabaseEnv } from '@/lib/env/hatid-env';
+import { createBrowserClient } from '@supabase/ssr';
 
-/**
- * Sprint 0B placeholder.
- *
- * Real implementation begins after:
- * - @supabase/supabase-js is installed
- * - lockfile is regenerated
- * - CI verifies clean install
- */
+import { assertPublicSupabaseEnv } from '@/lib/env/hatid-env';
+import type { Database } from './database.types';
+
+let browserClient: ReturnType<typeof createBrowserClient<Database>> | undefined;
+
 export function createBrowserSupabaseClient() {
+  if (browserClient) {
+    return browserClient;
+  }
+
   const env = assertPublicSupabaseEnv();
 
-  return {
-    status: 'placeholder' as const,
-    url: env.supabaseUrl,
-    anonKeyConfigured: Boolean(env.supabaseAnonKey),
-  };
+  browserClient = createBrowserClient<Database>(env.supabaseUrl, env.supabaseAnonKey);
+  return browserClient;
 }

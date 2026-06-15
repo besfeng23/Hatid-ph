@@ -12,7 +12,9 @@
     "jsx": "react-jsx"
   },
   "include": [
+    "src/lib/supabase/auth-ui.ts",
     "src/lib/trips/**/*.ts",
+    "src/platform/provider.tsx",
     "tests/**/*.ts"
   ]
 }
