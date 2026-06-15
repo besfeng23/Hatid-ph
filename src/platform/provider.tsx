@@ -5,6 +5,7 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 import { mapSupabaseUser } from '@/lib/supabase/auth-ui';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { tryCreateClient } from './supabase-client-init';
 
 export type HatidUser = {
   id: string;
@@ -42,7 +43,15 @@ export function PlatformProvider({ children }: PlatformProviderProps) {
   const [userError, setUserError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const supabase = createBrowserSupabaseClient();
+    const { client: supabase, error } = tryCreateClient(createBrowserSupabaseClient);
+
+    if (error) {
+      setUser(null);
+      setIsUserLoading(false);
+      setUserError(error);
+      return;
+    }
+
     let isMounted = true;
 
     const applySession = (_event: AuthChangeEvent, session: Session | null) => {
