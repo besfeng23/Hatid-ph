@@ -83,7 +83,7 @@ async function getClient(): Promise<LiveResult<RpcClient>> {
   return ok(client);
 }
 
-export async function completeRiderOnboarding(fullName: string): Promise<LiveResult<void>> {
+export async function completeRiderOnboarding(fullName: string): Promise<LiveResult<{ completed: true }>> {
   const client = await getClient();
   if (!client.data) return fail(client.error ?? 'Supabase client unavailable.', client);
 
@@ -101,7 +101,7 @@ export async function completeRiderOnboarding(fullName: string): Promise<LiveRes
   });
 
   if (error) return fail(messageFrom(error));
-  return ok(undefined);
+  return ok({ completed: true });
 }
 
 export async function createFareQuote(): Promise<LiveResult<LiveFareQuote>> {
