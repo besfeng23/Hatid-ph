@@ -47,11 +47,10 @@ supabase db test
 
 If you do not use npm scripts, running `supabase db test` directly is equivalent.
 
-## CI status and TODO
+## CI status
 
-These SQL tests are not yet wired into CI in this repository. If Supabase CLI or
-a local database is unavailable in CI, the SQL tests will not execute there.
-
-TODO: add a focused CI job that installs/pins Supabase CLI, starts a disposable
-Supabase/Postgres test database, applies migrations, and runs `supabase db test`
-without using production secrets.
+The main CI workflow includes a focused Supabase SQL validation job that installs
+Supabase CLI `2.39.2`, starts a disposable local Docker-backed Supabase stack,
+applies migrations with `supabase db reset --local`, and runs `npm run db:test`.
+The job must not use a linked hosted Supabase project, production database,
+production secrets, or deployed service-role key.
