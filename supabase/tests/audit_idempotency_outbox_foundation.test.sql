@@ -13,7 +13,7 @@ begin;
 
 set local search_path = public, extensions;
 
-select plan(24);
+select plan(23);
 
 select has_schema('audit', 'schema audit exists');
 select has_schema('integration', 'schema integration exists');
@@ -80,20 +80,114 @@ select ok(
   'unique index idempotency_keys_actor_scope_key_uidx exists'
 );
 
-select has_index('audit', 'audit_logs', 'audit_logs_created_at_idx', 'audit.audit_logs created_at index exists');
-select has_index('audit', 'audit_logs', 'audit_logs_actor_user_id_idx', 'audit.audit_logs actor_user_id index exists');
-select has_index('audit', 'audit_logs', 'audit_logs_organization_id_idx', 'audit.audit_logs organization_id index exists');
-select has_index('audit', 'idempotency_keys', 'idempotency_keys_created_at_idx', 'audit.idempotency_keys created_at index exists');
-select has_index('audit', 'idempotency_keys', 'idempotency_keys_actor_user_id_idx', 'audit.idempotency_keys actor_user_id index exists');
-select has_index('audit', 'idempotency_keys', 'idempotency_keys_organization_id_idx', 'audit.idempotency_keys organization_id index exists');
-select has_index('integration', 'outbox_events', 'outbox_events_created_at_idx', 'integration.outbox_events created_at index exists');
-select has_index('integration', 'outbox_events', 'outbox_events_organization_id_idx', 'integration.outbox_events organization_id index exists');
-select has_index('integration', 'outbox_events', 'outbox_events_status_next_attempt_at_idx', 'integration.outbox_events status/next_attempt index exists');
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'audit_logs_created_at_idx'
+      and index_class.relnamespace = 'audit'::regnamespace
+      and index_def.indrelid = 'audit.audit_logs'::regclass
+  ),
+  'audit.audit_logs created_at index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'audit_logs_actor_user_id_idx'
+      and index_class.relnamespace = 'audit'::regnamespace
+      and index_def.indrelid = 'audit.audit_logs'::regclass
+  ),
+  'audit.audit_logs actor_user_id index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'audit_logs_organization_id_idx'
+      and index_class.relnamespace = 'audit'::regnamespace
+      and index_def.indrelid = 'audit.audit_logs'::regclass
+  ),
+  'audit.audit_logs organization_id index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'idempotency_keys_created_at_idx'
+      and index_class.relnamespace = 'audit'::regnamespace
+      and index_def.indrelid = 'audit.idempotency_keys'::regclass
+  ),
+  'audit.idempotency_keys created_at index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'idempotency_keys_actor_user_id_idx'
+      and index_class.relnamespace = 'audit'::regnamespace
+      and index_def.indrelid = 'audit.idempotency_keys'::regclass
+  ),
+  'audit.idempotency_keys actor_user_id index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'idempotency_keys_organization_id_idx'
+      and index_class.relnamespace = 'audit'::regnamespace
+      and index_def.indrelid = 'audit.idempotency_keys'::regclass
+  ),
+  'audit.idempotency_keys organization_id index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'outbox_events_created_at_idx'
+      and index_class.relnamespace = 'integration'::regnamespace
+      and index_def.indrelid = 'integration.outbox_events'::regclass
+  ),
+  'integration.outbox_events created_at index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'outbox_events_organization_id_idx'
+      and index_class.relnamespace = 'integration'::regnamespace
+      and index_def.indrelid = 'integration.outbox_events'::regclass
+  ),
+  'integration.outbox_events organization_id index exists'
+);
+select ok(
+  exists (
+    select 1
+    from pg_class index_class
+    join pg_index index_def on index_def.indexrelid = index_class.oid
+    where index_class.relname = 'outbox_events_status_next_attempt_at_idx'
+      and index_class.relnamespace = 'integration'::regnamespace
+      and index_def.indrelid = 'integration.outbox_events'::regclass
+  ),
+  'integration.outbox_events status/next_attempt index exists'
+);
 
 select is(
-  (select bool_or(has_table_privilege(role_name, table_name, privilege_name))
-   from unnest(array['anon', 'authenticated']) role_name
-   cross join unnest(array['audit.audit_logs', 'audit.idempotency_keys', 'integration.outbox_events']) table_name
+  (select bool_or(has_table_privilege(role_name, table_oid, privilege_name))
+   from unnest(array['anon'::name, 'authenticated'::name]) role_name
+   cross join unnest(array[
+     'audit.audit_logs'::regclass,
+     'audit.idempotency_keys'::regclass,
+     'integration.outbox_events'::regclass
+   ]) table_oid
    cross join unnest(array['SELECT', 'INSERT', 'UPDATE', 'DELETE']) privilege_name),
   false,
   'anon/authenticated have no broad table privileges on foundation tables'
@@ -103,7 +197,7 @@ select is(
    from pg_policies
    where schemaname = 'audit'
      and tablename in ('audit_logs', 'idempotency_keys')
-     and roles && array['anon'::name, 'authenticated'::name, 'public'::name]),
+     and roles::text[] && array['anon', 'authenticated', 'public']),
   0,
   'audit foundation tables have no anon/authenticated/public policies'
 );
@@ -112,7 +206,7 @@ select is(
    from pg_policies
    where schemaname = 'integration'
      and tablename = 'outbox_events'
-     and roles && array['anon'::name, 'authenticated'::name, 'public'::name]),
+     and roles::text[] && array['anon', 'authenticated', 'public']),
   0,
   'integration outbox table has no anon/authenticated/public policies'
 );
