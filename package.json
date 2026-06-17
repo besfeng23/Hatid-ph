@@ -9,7 +9,7 @@
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "rm -rf .tmp-tests && tsc -p tsconfig.test.json && node --test .tmp-tests/tests/*.test.js"
   },
