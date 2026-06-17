@@ -13,7 +13,7 @@ begin;
 
 set local search_path = public, extensions;
 
-select plan(24);
+select plan(23);
 
 select has_schema('audit', 'schema audit exists');
 select has_schema('integration', 'schema integration exists');
