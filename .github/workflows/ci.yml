@@ -40,3 +40,41 @@ jobs:
 
       - name: Audit dependencies
         run: npm audit --audit-level=high
+
+  database-validation:
+    name: Supabase SQL validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.39.2
+
+      - name: Show Supabase CLI version
+        run: supabase --version
+
+      - name: Start disposable local Supabase stack
+        run: |
+          # GitHub-hosted Ubuntu runners include Docker. Supabase CLI uses Docker
+          # here to run a disposable local Postgres/Supabase stack only; this job
+          # does not link to a hosted Supabase project or read production secrets.
+          supabase start
+
+      - name: Apply migrations to local database
+        run: supabase db reset --local
+
+      - name: Run Supabase SQL tests
+        run: npm run db:test
