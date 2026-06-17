@@ -4,13 +4,16 @@ This folder contains Supabase SQL/pgTAP tests for database migrations. The tests
 are validation-only and do not wire product flows, RPCs, service-role keys, or
 runtime application behavior.
 
-## Current SQL test
+## Current SQL tests
 
 - `audit_idempotency_outbox_foundation.test.sql` validates the foundation
   migration for `audit.audit_logs`, `audit.idempotency_keys`, and
   `integration.outbox_events`.
+- `core_iam_organization_foundation.test.sql` validates the foundation
+  migration for `core.organizations`, `core.organization_members`, and
+  `core.app_users`.
 
-The test checks that:
+The audit/idempotency/outbox test checks that:
 
 - schemas `audit` and `integration` exist;
 - foundation tables `audit.audit_logs`, `audit.idempotency_keys`, and
@@ -23,6 +26,24 @@ The test checks that:
 - `anon` and `authenticated` do not have broad table privileges; and
 - no broad `anon`, `authenticated`, or `public` RLS policies are created for the
   foundation tables.
+
+The core IAM/organization test checks that:
+
+- schema `core` exists;
+- foundation tables `core.organizations`, `core.organization_members`, and
+  `core.app_users` exist;
+- row level security is enabled on all three tables;
+- primary keys and foreign keys to `auth.users` and `core.organizations` exist;
+- nonblank organization name/slug constraints, allowed status constraints, and
+  allowed membership role constraints exist;
+- unique organization slug and unique active user/organization membership indexes
+  exist;
+- key lookup indexes for organization slug/status and membership
+  organization/user/role/status exist;
+- `anon` and `authenticated` do not have broad table privileges;
+- no broad `anon`, `authenticated`, or `public` RLS policies are created for the
+  core IAM tables; and
+- no core product/business RPCs are added.
 
 ## Prerequisites
 
