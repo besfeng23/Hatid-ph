@@ -15,6 +15,7 @@
     "src/lib/supabase/auth-ui.ts",
     "src/lib/trips/**/*.ts",
     "src/platform/provider.tsx",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "src/lib/auth/**/*.ts"
   ]
 }
