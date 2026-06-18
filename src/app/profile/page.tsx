@@ -13,6 +13,7 @@ import { Bell, ChevronRight, CreditCard, HelpCircle, Shield, User } from 'lucide
 import AuthGuard from '@/components/auth-guard';
 import { useUser } from '@/platform/provider';
 import { useToast } from '@/hooks/use-toast';
+import { saveMyAppUserProfile, type AppUserProfileRpcClient } from '@/lib/profile/app-user-profile';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 function ProfilePage() {
@@ -22,12 +23,40 @@ function ProfilePage() {
 
   const [displayName, setDisplayName] = useState(user?.displayName || user?.name || '');
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || user?.phone || '');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName || user.name || user.email?.split('@')[0] || '');
       setPhoneNumber(user.phoneNumber || user.phone || '');
     }
   }, [user]);
+
+  const handleSaveProfile = async () => {
+    setIsSavingProfile(true);
+
+    const result = await saveMyAppUserProfile(createBrowserSupabaseClient() as unknown as AppUserProfileRpcClient, {
+      display_name: displayName,
+      phone: phoneNumber,
+    });
+
+    setIsSavingProfile(false);
+
+    if (!result.ok) {
+      toast({
+        variant: 'destructive',
+        title: 'Profile save failed',
+        description: result.error.message,
+      });
+      return;
+    }
+
+    setDisplayName(result.data.display_name || '');
+    setPhoneNumber(result.data.phone || '');
+    toast({
+      title: 'Profile saved',
+      description: 'Your display name and phone were saved through the audited profile RPC.',
+    });
+  };
 
   const handleLogout = async () => {
     const { error } = await createBrowserSupabaseClient().auth.signOut();
@@ -71,25 +100,30 @@ function ProfilePage() {
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
             <CardDescription>
-              Profile details are read-only until the authenticated server profile boundary is connected. This is not KYC.
+              Edit only your display name and phone. This is not KYC and does not create rider, driver, admin, organization, role, or membership authority.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" value={displayName} readOnly disabled />
+                <Label htmlFor="name">Display Name</Label>
+                <Input id="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} disabled={isSavingProfile} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" value={phoneNumber} readOnly disabled placeholder="Not provided" />
+                <Input id="phone" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} disabled={isSavingProfile} placeholder="Not provided" />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" defaultValue={email} disabled />
+              <Input id="email" type="email" value={email} disabled readOnly />
             </div>
-            <Button disabled>Profile saving is not yet available</Button>
+            <p className="text-sm text-muted-foreground">
+              Saving updates only display_name and phone through core.upsert_my_app_user_profile. It is not identity verification or authority approval.
+            </p>
+            <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
+              {isSavingProfile ? 'Saving…' : 'Save'}
+            </Button>
           </CardContent>
         </Card>
 

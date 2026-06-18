@@ -16,6 +16,7 @@
     "src/lib/trips/**/*.ts",
     "src/platform/provider.tsx",
     "tests/**/*.ts",
-    "src/lib/auth/**/*.ts"
+    "src/lib/auth/**/*.ts",
+    "src/lib/profile/**/*.ts"
   ]
 }
