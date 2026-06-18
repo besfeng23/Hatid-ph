@@ -12,13 +12,17 @@ export type SaveAppUserProfileResult =
   | { ok: true; data: SafeAppUserProfile }
   | { ok: false; error: { message: string } };
 
+export type GetAppUserProfileResult =
+  | { ok: true; data: SafeAppUserProfile | null }
+  | { ok: false; error: { message: string } };
+
 type RpcResponse<TRow> = {
   data: TRow[] | TRow | null;
   error: { message?: string } | null;
 };
 
 export type AppUserProfileRpcClient = {
-  rpc: <TRow = unknown>(name: string, args: Record<string, string>) => Promise<RpcResponse<TRow>>;
+  rpc: <TRow = unknown>(name: string, args?: Record<string, string>) => Promise<RpcResponse<TRow>>;
 };
 
 type RpcProfileRow = {
@@ -27,6 +31,7 @@ type RpcProfileRow = {
 };
 
 const SAFE_PROFILE_SAVE_ERROR = 'We could not save your profile right now. Please try again.';
+const SAFE_PROFILE_LOAD_ERROR = 'We could not load your saved profile right now.';
 
 function normalizeText(value: string) {
   const trimmed = value.trim();
@@ -38,6 +43,23 @@ function toSafeProfile(row: RpcProfileRow | null | undefined): SafeAppUserProfil
     display_name: typeof row?.display_name === 'string' ? row.display_name : null,
     phone: typeof row?.phone === 'string' ? row.phone : null,
   };
+}
+
+export async function getMyAppUserProfile(
+  client: AppUserProfileRpcClient,
+): Promise<GetAppUserProfileResult> {
+  try {
+    const { data, error } = await client.rpc<RpcProfileRow>('get_my_app_user_profile');
+
+    if (error) {
+      return { ok: false, error: { message: SAFE_PROFILE_LOAD_ERROR } };
+    }
+
+    const row = Array.isArray(data) ? data[0] : data;
+    return { ok: true, data: row ? toSafeProfile(row) : null };
+  } catch {
+    return { ok: false, error: { message: SAFE_PROFILE_LOAD_ERROR } };
+  }
 }
 
 export async function saveMyAppUserProfile(
