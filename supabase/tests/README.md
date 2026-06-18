@@ -12,6 +12,8 @@ runtime application behavior.
 - `core_iam_organization_foundation.test.sql` validates the foundation
   migration for `core.organizations`, `core.organization_members`, and
   `core.app_users`.
+- `app_user_profile_bootstrap.test.sql` validates the narrow, audited
+  authenticated RPC for self-service `core.app_users` profile bootstrap.
 
 The audit/idempotency/outbox test checks that:
 
@@ -43,7 +45,26 @@ The core IAM/organization test checks that:
 - `anon` and `authenticated` do not have broad table privileges;
 - no broad `anon`, `authenticated`, or `public` RLS policies are created for the
   core IAM tables; and
-- no core product/business RPCs are added.
+- no core product/business RPCs beyond the approved profile bootstrap are added.
+
+
+The app user profile bootstrap test checks that:
+
+- `core.upsert_my_app_user_profile(text, text)` exists;
+- `anon` cannot execute the function and `authenticated` can execute only this
+  narrow profile bootstrap function;
+- the function uses `SECURITY DEFINER` with a fixed `search_path` for controlled
+  table and audit writes without broad table grants;
+- `core.app_users` remains RLS-enabled;
+- `anon` and `authenticated` do not receive broad `core.app_users` table
+  privileges;
+- no `core.organization_members` write path, role self-assignment function, or
+  extra product/business RPC is added;
+- the function targets `auth.uid()` only and does not use dynamic SQL, using
+  catalog-backed body checks that avoid formatting-sensitive
+  `pg_get_functiondef(...)` assertions; and
+- the controlled path inserts `audit.audit_logs` records identifying
+  `core.app_users.upsert_self_profile` on `core.app_users`.
 
 ## Prerequisites
 
