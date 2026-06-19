@@ -71,9 +71,9 @@ select is(
   (select count(*)::integer
    from pg_proc
    where pronamespace = 'core'::regnamespace
-     and proname not in ('set_updated_at', 'upsert_my_app_user_profile')),
+     and proname not in ('set_updated_at', 'upsert_my_app_user_profile', 'get_my_app_user_profile')),
   0,
-  'no core product/business RPCs beyond approved profile bootstrap were added'
+  'no core product/business RPCs beyond approved profile bootstrap/read functions were added'
 );
 
 select * from finish();

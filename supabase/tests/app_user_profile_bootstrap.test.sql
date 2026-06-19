@@ -54,8 +54,8 @@ select is(
    from pg_proc
    where pronamespace = 'core'::regnamespace
      and has_function_privilege('authenticated', oid, 'EXECUTE')),
-  1,
-  'authenticated has execute on only one core function'
+  2,
+  'authenticated has execute on only the narrow profile bootstrap and read functions'
 );
 
 select is(
@@ -93,7 +93,7 @@ select is(
   (select count(*)::integer
    from pg_proc
    where pronamespace = 'core'::regnamespace
-     and proname not in ('set_updated_at', 'upsert_my_app_user_profile')),
+     and proname not in ('set_updated_at', 'upsert_my_app_user_profile', 'get_my_app_user_profile')),
   0,
   'no product/business RPCs were added beyond the narrow profile bootstrap function'
 );
