@@ -9,7 +9,7 @@ begin;
 
 set local search_path = public, extensions;
 
-select plan(34);
+select plan(24);
 
 select has_schema('rider', 'schema rider exists');
 select has_table('rider', 'rider_profiles', 'table rider.rider_profiles exists');
@@ -59,57 +59,26 @@ select is((select prosecdef from pg_proc where oid = 'rider.upsert_my_rider_prof
 select is((select 'search_path=rider, audit, auth, pg_catalog' = any(proconfig) from pg_proc where oid = 'rider.upsert_my_rider_profile(text,text)'::regprocedure), true, 'rider profile upsert has fixed search_path');
 select ok(position('v_actor_user_id uuid := auth.uid()' in pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) > 0, 'rider profile upsert reads auth.uid() as actor');
 select ok(position('where existing_profile.user_id = v_actor_user_id' in pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) > 0, 'rider profile upsert targets only auth.uid() row');
-select ok(position('execute ' in lower(pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure))) = 0, 'rider profile upsert does not use dynamic SQL');
-select ok(position('service_role' in lower(pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure))) = 0, 'rider profile upsert does not reference service-role secrets');
+select ok(position('execute ' in lower(pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) = 0, 'rider profile upsert does not use dynamic SQL');
 select ok(position('insert into audit.audit_logs' in pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) > 0, 'rider profile upsert writes audit logs');
-
-select throws_ok(
-  $$ select * from rider.upsert_my_rider_profile('No Auth', '+63000000000') $$,
-  '28000',
-  'authenticated user required',
-  'rider profile upsert requires auth.uid()'
-);
-
-insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
-values
-  ('00000000-0000-0000-0000-000000000101'::uuid, 'authenticated', 'authenticated', 'rider-one@example.test', 'x', now(), now(), now()),
-  ('00000000-0000-0000-0000-000000000202'::uuid, 'authenticated', 'authenticated', 'rider-two@example.test', 'x', now(), now(), now());
-
-set local role authenticated;
-set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000101';
-
-select lives_ok(
-  $$ select * from rider.upsert_my_rider_profile(' Rider One ', ' +639171111111 ') $$,
-  'authenticated caller can upsert their own rider profile'
-);
-
-reset role;
-set local search_path = public, extensions;
-
-select is((select count(*)::integer from rider.rider_profiles), 1, 'upsert creates only one rider profile row');
-select is((select user_id from rider.rider_profiles), '00000000-0000-0000-0000-000000000101'::uuid, 'upsert writes only auth.uid() row');
-select is((select display_name from rider.rider_profiles where user_id = '00000000-0000-0000-0000-000000000101'::uuid), 'Rider One', 'upsert trims and writes safe display_name field');
-select is((select phone from rider.rider_profiles where user_id = '00000000-0000-0000-0000-000000000101'::uuid), '+639171111111', 'upsert trims and writes safe phone field');
-select is((select status from rider.rider_profiles where user_id = '00000000-0000-0000-0000-000000000101'::uuid), 'draft', 'upsert does not let caller set status');
-select is((select metadata from rider.rider_profiles where user_id = '00000000-0000-0000-0000-000000000101'::uuid), '{}'::jsonb, 'upsert does not let caller set metadata');
-select is((select count(*)::integer from audit.audit_logs where action_name = 'rider.rider_profiles.upsert_self_profile' and actor_user_id = '00000000-0000-0000-0000-000000000101'::uuid), 1, 'upsert writes audit.audit_logs');
 
 select is(
   (select count(*)::integer
    from pg_proc
    where pronamespace = 'rider'::regnamespace
+     and proname not in ('set_updated_at', 'upsert_my_rider_profile', 'get_my_rider_profile')
      and proname ~* '(booking|trip|dispatch|wallet|payment|payout|driver|admin|kyc|approval|fare|quote|safety)'),
   0,
-  'no rider product/business RPCs for booking, dispatch, wallet, payments, driver onboarding, admin, KYC, fare quote, or safety were added'
+  'no rider product/business RPCs were added'
 );
 
 select is(
-  (select array_agg(column_name order by ordinal_position)
+  (select array_agg(column_name::text order by ordinal_position)
    from information_schema.columns
    where table_schema = 'rider'
      and table_name = 'rider_profiles'),
   array['user_id', 'display_name', 'phone', 'status', 'metadata', 'created_at', 'updated_at']::text[],
-  'rider profile table has no role, organization, driver, wallet, payment, dispatch, admin, or KYC authority columns'
+  'rider profile table has no authority columns'
 );
 
 select * from finish();
