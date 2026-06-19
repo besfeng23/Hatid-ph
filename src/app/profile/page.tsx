@@ -13,7 +13,7 @@ import { Bell, ChevronRight, CreditCard, HelpCircle, Shield, User } from 'lucide
 import AuthGuard from '@/components/auth-guard';
 import { useUser } from '@/platform/provider';
 import { useToast } from '@/hooks/use-toast';
-import { saveMyAppUserProfile, type AppUserProfileRpcClient } from '@/lib/profile/app-user-profile';
+import { getMyAppUserProfile, saveMyAppUserProfile, type AppUserProfileRpcClient } from '@/lib/profile/app-user-profile';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 function ProfilePage() {
@@ -24,12 +24,50 @@ function ProfilePage() {
   const [displayName, setDisplayName] = useState(user?.displayName || user?.name || '');
   const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || user?.phone || '');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+
   useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName || user.name || user.email?.split('@')[0] || '');
-      setPhoneNumber(user.phoneNumber || user.phone || '');
+    if (!user) {
+      setDisplayName('');
+      setPhoneNumber('');
+      return;
     }
-  }, [user]);
+
+    let isActive = true;
+    const fallbackDisplayName = user.displayName || user.name || user.email?.split('@')[0] || '';
+    const fallbackPhoneNumber = user.phoneNumber || user.phone || '';
+
+    async function loadProfile() {
+      setIsLoadingProfile(true);
+      const result = await getMyAppUserProfile(createBrowserSupabaseClient() as unknown as AppUserProfileRpcClient);
+
+      if (!isActive) {
+        return;
+      }
+
+      setIsLoadingProfile(false);
+
+      if (!result.ok) {
+        setDisplayName(fallbackDisplayName);
+        setPhoneNumber(fallbackPhoneNumber);
+        toast({
+          variant: 'destructive',
+          title: 'Profile load failed',
+          description: result.error.message,
+        });
+        return;
+      }
+
+      setDisplayName(result.data?.display_name || fallbackDisplayName);
+      setPhoneNumber(result.data?.phone || fallbackPhoneNumber);
+    }
+
+    loadProfile();
+
+    return () => {
+      isActive = false;
+    };
+  }, [toast, user]);
 
   const handleSaveProfile = async () => {
     setIsSavingProfile(true);
@@ -107,11 +145,11 @@ function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Display Name</Label>
-                <Input id="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} disabled={isSavingProfile} />
+                <Input id="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} disabled={isSavingProfile || isLoadingProfile} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} disabled={isSavingProfile} placeholder="Not provided" />
+                <Input id="phone" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} disabled={isSavingProfile || isLoadingProfile} placeholder={isLoadingProfile ? 'Loading saved profile…' : 'Not provided'} />
               </div>
             </div>
             <div className="space-y-2">
@@ -121,8 +159,8 @@ function ProfilePage() {
             <p className="text-sm text-muted-foreground">
               Saving updates only display_name and phone through core.upsert_my_app_user_profile. It is not identity verification or authority approval.
             </p>
-            <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
-              {isSavingProfile ? 'Saving…' : 'Save'}
+            <Button onClick={handleSaveProfile} disabled={isSavingProfile || isLoadingProfile}>
+              {isLoadingProfile ? 'Loading profile…' : isSavingProfile ? 'Saving…' : 'Save'}
             </Button>
           </CardContent>
         </Card>
