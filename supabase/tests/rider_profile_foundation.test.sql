@@ -59,7 +59,7 @@ select is((select prosecdef from pg_proc where oid = 'rider.upsert_my_rider_prof
 select is((select 'search_path=rider, audit, auth, pg_catalog' = any(proconfig) from pg_proc where oid = 'rider.upsert_my_rider_profile(text,text)'::regprocedure), true, 'rider profile upsert has fixed search_path');
 select ok(position('v_actor_user_id uuid := auth.uid()' in pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) > 0, 'rider profile upsert reads auth.uid() as actor');
 select ok(position('where existing_profile.user_id = v_actor_user_id' in pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) > 0, 'rider profile upsert targets only auth.uid() row');
-select ok(position('execute ' in lower(pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) = 0, 'rider profile upsert does not use dynamic SQL');
+select ok(position('execute ' in lower(pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure))) = 0, 'rider profile upsert does not use dynamic SQL');
 select ok(position('insert into audit.audit_logs' in pg_get_functiondef('rider.upsert_my_rider_profile(text,text)'::regprocedure)) > 0, 'rider profile upsert writes audit logs');
 
 select is(
