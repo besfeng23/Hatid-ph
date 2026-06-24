@@ -85,5 +85,5 @@ test('ops read-only helpers map backend errors safely', async () => {
   const result = await getOpsTrips(client);
 
   assert.equal(result.ok, false);
-  if (!result.ok) assert.equal(result.error.message.includes('ops'), false);
+  if (!result.ok) assert.equal(result.error.message.includes('internal'), false);
 });
