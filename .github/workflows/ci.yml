@@ -47,9 +47,10 @@ jobs:
 
     services:
       postgres:
-        image: supabase/postgres:15.8.1.060
+        image: postgres:15
         env:
           POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 54322:5432
