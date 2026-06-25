@@ -211,7 +211,7 @@ jobs:
             on conflict (id) do nothing;
 
             insert into driver.vehicles (id, user_id, plate_number, vehicle_type)
-            values (v_vehicle_id, v_driver_user_id, 'HTD1234', 'car')
+            values (v_vehicle_id, v_driver_user_id, 'HTD1234', 'sedan')
             on conflict (id) do nothing;
 
             insert into rider.ride_requests (
