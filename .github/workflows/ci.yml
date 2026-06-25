@@ -43,7 +43,7 @@ jobs:
 
   database-validation:
     name: Supabase SQL validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -61,42 +61,14 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.39.2
 
       - name: Show Supabase CLI version
         run: supabase --version
 
       - name: Start disposable local Supabase stack
         run: |
-          # GitHub-hosted Ubuntu runners include Docker. Supabase CLI uses Docker
-          # here to run a disposable local Postgres/Supabase stack only; this job
-          # does not link to a hosted Supabase project or read production secrets.
-          # Use the current CLI and ignore non-database service health checks so
-          # SQL validation is not blocked by transient local service boot issues.
-          set -euo pipefail
-
-          docker info
-          docker compose version
-          supabase stop --no-backup || true
-          docker system prune -af --volumes || true
-
-          for attempt in 1 2 3; do
-            if supabase start --ignore-health-check; then
-              supabase status || true
-              exit 0
-            fi
-
-            echo "Supabase local stack failed to start on attempt ${attempt}."
-            supabase status || true
-            docker ps -a || true
-            docker logs supabase_db_hatid-ph-local || true
-            supabase stop --no-backup || true
-            docker system prune -af --volumes || true
-            sleep 15
-          done
-
-          echo "Supabase local stack failed to start after 3 attempts."
-          exit 1
+          supabase start
 
       - name: Apply migrations to local database
         run: supabase db reset --local
