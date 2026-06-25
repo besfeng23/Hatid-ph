@@ -132,6 +132,16 @@ jobs:
         run: |
           psql -v ON_ERROR_STOP=1 <<'SQL'
           do $validation$
+          declare
+            v_rider_user_id uuid := '00000000-0000-4000-8000-000000000101';
+            v_driver_user_id uuid := '00000000-0000-4000-8000-000000000201';
+            v_other_driver_user_id uuid := '00000000-0000-4000-8000-000000000202';
+            v_vehicle_id uuid := '00000000-0000-4000-8000-000000000301';
+            v_request_id uuid := '00000000-0000-4000-8000-000000000401';
+            v_offer_id uuid := '00000000-0000-4000-8000-000000000501';
+            v_trip_id uuid;
+            v_replayed_trip_id uuid;
+            v_count integer;
           begin
             if to_regclass('trip.trip_events') is null then
               raise exception 'missing trip.trip_events table';
@@ -174,6 +184,10 @@ jobs:
               raise exception 'missing trip.create_trip_from_accepted_offer RPC';
             end if;
 
+            if to_regprocedure('dispatch.respond_to_my_trip_offer(uuid,text)') is null then
+              raise exception 'missing dispatch.respond_to_my_trip_offer RPC';
+            end if;
+
             if to_regprocedure('trip.advance_my_driver_trip(uuid,text,text)') is null then
               raise exception 'missing trip.advance_my_driver_trip RPC';
             end if;
@@ -189,6 +203,100 @@ jobs:
             if has_table_privilege('authenticated', 'trip.trip_events', 'select') then
               raise exception 'authenticated role must not have direct select on trip.trip_events';
             end if;
+
+            insert into auth.users (id, email)
+            values (v_rider_user_id, 'rider@example.test'),
+                   (v_driver_user_id, 'driver@example.test'),
+                   (v_other_driver_user_id, 'other-driver@example.test')
+            on conflict (id) do nothing;
+
+            insert into driver.vehicles (id, user_id, plate_number, vehicle_type)
+            values (v_vehicle_id, v_driver_user_id, 'HTD1234', 'car')
+            on conflict (id) do nothing;
+
+            insert into rider.ride_requests (
+              id,
+              user_id,
+              pickup_address_text,
+              dropoff_address_text,
+              service_type,
+              estimate_minor,
+              currency,
+              status,
+              expires_at
+            ) values (
+              v_request_id,
+              v_rider_user_id,
+              'Alabang',
+              'Makati',
+              'standard',
+              17000,
+              'PHP',
+              'requested',
+              now() + interval '10 minutes'
+            ) on conflict (id) do nothing;
+
+            insert into dispatch.trip_offers (
+              id,
+              request_id,
+              driver_user_id,
+              vehicle_id,
+              offer_status,
+              expires_at
+            ) values (
+              v_offer_id,
+              v_request_id,
+              v_driver_user_id,
+              v_vehicle_id,
+              'offered',
+              now() + interval '45 seconds'
+            ) on conflict (id) do nothing;
+
+            perform set_config('request.jwt.claim.sub', v_driver_user_id::text, true);
+            perform 1 from dispatch.respond_to_my_trip_offer(v_offer_id, 'accepted');
+
+            select trips.id into v_trip_id
+            from trip.trips trips
+            where trips.accepted_offer_id = v_offer_id;
+
+            if v_trip_id is null then
+              raise exception 'accepted offer did not create a trip';
+            end if;
+
+            perform 1 from dispatch.respond_to_my_trip_offer(v_offer_id, 'accepted');
+
+            select trips.id into v_replayed_trip_id
+            from trip.trips trips
+            where trips.accepted_offer_id = v_offer_id;
+
+            if v_replayed_trip_id <> v_trip_id then
+              raise exception 'accepted offer replay returned a different trip';
+            end if;
+
+            select count(*) into v_count
+            from trip.trips trips
+            where trips.accepted_offer_id = v_offer_id;
+
+            if v_count <> 1 then
+              raise exception 'accepted offer created % trips instead of one', v_count;
+            end if;
+
+            select count(*) into v_count
+            from trip.trip_events events
+            where events.trip_id = v_trip_id
+              and events.event_type = 'trip_created';
+
+            if v_count <> 1 then
+              raise exception 'accepted offer created % trip_created events instead of one', v_count;
+            end if;
+
+            perform set_config('request.jwt.claim.sub', v_other_driver_user_id::text, true);
+            begin
+              perform 1 from dispatch.respond_to_my_trip_offer(v_offer_id, 'accepted');
+              raise exception 'wrong driver was allowed to replay accepted offer';
+            exception when sqlstate '22023' then
+              null;
+            end;
           end
           $validation$;
           SQL
