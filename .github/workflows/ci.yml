@@ -61,7 +61,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: 2.50.0
+          version: latest
 
       - name: Show Supabase CLI version
         run: supabase --version
@@ -70,7 +70,7 @@ jobs:
         run: supabase db start
 
       - name: Apply migrations to local database
-        run: supabase db reset --local
+        run: supabase db reset
 
       - name: Run Supabase SQL tests
         run: npm run db:test
