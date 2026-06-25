@@ -61,7 +61,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: 2.39.2
+          version: latest
 
       - name: Show Supabase CLI version
         run: supabase --version
@@ -71,26 +71,28 @@ jobs:
           # GitHub-hosted Ubuntu runners include Docker. Supabase CLI uses Docker
           # here to run a disposable local Postgres/Supabase stack only; this job
           # does not link to a hosted Supabase project or read production secrets.
-          # The hosted runner can occasionally leave Docker networks/volumes in a
-          # bad state before the local stack starts, so clean up and retry startup.
+          # Use the current CLI and ignore non-database service health checks so
+          # SQL validation is not blocked by transient local service boot issues.
           set -euo pipefail
 
+          docker info
+          docker compose version
           supabase stop --no-backup || true
-          docker ps -aq --filter "name=supabase" | xargs -r docker rm -f || true
-          docker network prune -f || true
+          docker system prune -af --volumes || true
 
           for attempt in 1 2 3; do
-            if supabase start; then
+            if supabase start --ignore-health-check; then
+              supabase status || true
               exit 0
             fi
 
             echo "Supabase local stack failed to start on attempt ${attempt}."
             supabase status || true
             docker ps -a || true
+            docker logs supabase_db_hatid-ph-local || true
             supabase stop --no-backup || true
-            docker ps -aq --filter "name=supabase" | xargs -r docker rm -f || true
-            docker network prune -f || true
-            sleep 10
+            docker system prune -af --volumes || true
+            sleep 15
           done
 
           echo "Supabase local stack failed to start after 3 attempts."
